@@ -12,43 +12,53 @@ export const effect = <R extends RefOrRefs>(
 	options?: EffectOption
 ) => {
 	let currentTaskId: number | null = null;
-	let currentCleanup: EffectCleanup | Promise<EffectCleanup | void> | null = null;
+	let currentCleanup: EffectCleanup | null = null;
+	let currentPromise: Promise<void | EffectCleanup> | null = null;
+
 	let isCancelled = false;
 	const effectHandle: EffectHandle = {
 		isCancelled: () => isCancelled
 	};
 
-	const runEffect = (isFinal = false) => {
+	const runEffect = () => {
 		if (currentTaskId !== null) {
 			return;
 		}
 
-		if (isPromise<void | EffectCleanup>(currentCleanup)) {
+		if (currentPromise) {
 			isCancelled = true;
-			currentCleanup
-				.then((cleanupFn) => {
-					currentCleanup = cleanupFn || (() => {});
-					owner.scheduler.queueTaskImmediate(runEffect);
-				})
-				.catch((error) => {
-					owner.onError(error);
-				});
 
+			currentPromise.then(() => {
+				try {
+					currentCleanup?.();
+					runEffect();
+				} catch(error) {
+					owner.onError(error);
+				}
+			});
 			return;
 		}
 
 		const cleanupFn = currentCleanup;
-		owner.scheduler.queueTaskImmediate(() => {
-			if (cleanupFn) {
-				cleanupFn();
-			}
-
-			if (isFinal) {
-				return;
-			}
+		currentTaskId = owner.scheduler.queueTask(() => {
+			isCancelled = false;
+			currentTaskId = null;
 
 			try {
-				currentCleanup = effectFn(useOnce(refOrRefs), effectHandle) || (() => {});
+				if (cleanupFn) {
+					cleanupFn();
+				}
+
+				const newCleanup = effectFn(useOnce(refOrRefs), effectHandle);
+
+				if (isPromise<void | EffectCleanup>(newCleanup)) {
+					currentPromise = newCleanup.then((awaitedNewCleanup) => {
+						currentPromise = null;
+						currentCleanup = awaitedNewCleanup || null;
+					});
+				} else if (newCleanup) {
+					currentCleanup = newCleanup;
+				}
 			} catch(error) {
 				owner.onError(error);
 			}
@@ -61,7 +71,7 @@ export const effect = <R extends RefOrRefs>(
 
 	initialize(() => {
 		const refs = Array.isArray(refOrRefs) ? refOrRefs : [refOrRefs];
-		const observers = (refs as unknown[]).map(() => () => runEffect(false));
+		const observers = (refs as unknown[]).map(() => () => runEffect());
 
 		refs.forEach((ref, index) => {
 			assertsIsRef(ref);
@@ -74,7 +84,22 @@ export const effect = <R extends RefOrRefs>(
 				ref.observers.delete(observers[index]);
 			});
 
-			runEffect(true);
+			if (currentPromise) {
+				isCancelled = true;
+				return currentPromise.then(() => {
+					try {
+						currentCleanup?.();
+					} catch(error) {
+						owner.onError(error);
+					}
+				});
+			}
+
+			try {
+				currentCleanup?.();
+			} catch(error) {
+				owner.onError(error);
+			}
 		};
 	});
 };
