@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "lib": ["esnext", "dom"],
+    "module": "esnext",
+    "moduleResolution": "node",
+    "strict": true,
+    "typeRoots": ["./node_modules/@types"],
+    "noUnusedLocals": true,
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "jsx": "preserve",
+    "declaration": true,
+    "paths": {
+      "@suisei/*": ["packages/*/src"],
+      "suisei": ["packages/suisei/src"]
+    }
+  },
+  "exclude": [
+    "packages/*/types/**",
+    "packages/*/lib/**",
+    "packages/*/esm/**"
+  ]
+}
