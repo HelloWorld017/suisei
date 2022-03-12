@@ -1,6 +1,6 @@
-import { Scheduler } from "@suisei/scheduler";
 import type { Effect } from "./Effect";
 import type { Ref } from "./Ref";
+import type { Scheduler } from "@suisei/core";
 
 export type Owner = {
 	key: string;
