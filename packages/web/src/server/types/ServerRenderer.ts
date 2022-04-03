@@ -1,7 +1,7 @@
-import { Element } from '@suisei/core';
+import { Component } from '@suisei/core';
 
 export type ServerRenderer = {
 	nextElementId(): string;
 	emit(chunk: string): void;
-	componentMap: WeakMap<Element, string>;
+	componentMap: WeakMap<Component<any>, string>;
 };
