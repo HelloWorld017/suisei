@@ -1,0 +1,11 @@
+{
+  "name": "@suisei/core",
+  "version": "0.0.1",
+  "description": "A lightweight library for creating user interfaces in a declarative way",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "repository": "https://github.com/HelloWorld017/suisei",
+  "author": "Khinenw",
+  "license": "MIT"
+}
