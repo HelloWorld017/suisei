@@ -1,5 +1,5 @@
 import { SymbolRef } from "@suisei/shared";
-import { owner } from "../sideEffects";
+import { owner } from "../owner";
 import { Ref } from "../types";
 
 export const createRef = <T>(initialValue: T): Ref<T> => ({
