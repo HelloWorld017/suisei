@@ -8,6 +8,6 @@ export const ErrorMessages = {
 	[ErrorCodes.E_NOT_PROMISE]: 'Given value $1 is not a promise.',
 } as const;
 
-export const throwError = (code: ErrorCodes, ...args: any[]) => {
-
+export const throwError = (code: ErrorCodes, ...args: any[]): never => {
+	throw new Error();
 }
