@@ -28,10 +28,10 @@ export interface SVGAttributes<E extends SVGElement> extends AriaAttributes, CSS
 	tabIndex?: number
 
 	// SVG Specific attributes
-	'accent-height'?: number
+	accentHeight?: number
 	accumulate?: 'none' | 'sum'
 	additive?: 'replace' | 'sum'
-	'alignment-baseline'?:
+	alignmentBaseline?:
 	  | 'auto'
 	  | 'baseline'
 	  | 'before-edge'
@@ -48,29 +48,29 @@ export interface SVGAttributes<E extends SVGElement> extends AriaAttributes, CSS
 	allowReorder?: 'no' | 'yes'
 	alphabetic?: number
 	amplitude?: number
-	'arabic-form'?: 'initial' | 'medial' | 'terminal' | 'isolated'
+	arabicForm?: 'initial' | 'medial' | 'terminal' | 'isolated'
 	ascent?: number
 	attributeName?: string
 	attributeType?: string
 	autoReverse?: number
 	azimuth?: number
 	baseFrequency?: number
-	'baseline-shift'?: number
+	baselineShift?: number
 	baseProfile?: number
 	bbox?: number
 	begin?: number
 	bias?: number
 	by?: number
 	calcMode?: number
-	'cap-height'?: number
+	capHeight?: number
 	clip?: number
-	'clip-path'?: string
+	clipPath?: string
 	clipPathUnits?: number
-	'clip-rule'?: number
-	'color-interpolation'?: number
-	'color-interpolation-filters'?: 'auto' | 'sRGB' | 'linearRGB' | 'inherit'
-	'color-profile'?: number
-	'color-rendering'?: number
+	clipRule?: number
+	colorInterpolation?: number
+	colorInterpolationFilters?: 'auto' | 'sRGB' | 'linearRGB' | 'inherit'
+	colorProfile?: number
+	colorRendering?: number
 	contentScriptType?: number
 	contentStyleType?: number
 	cursor?: number
@@ -83,50 +83,50 @@ export interface SVGAttributes<E extends SVGElement> extends AriaAttributes, CSS
 	direction?: number
 	display?: number
 	divisor?: number
-	'dominant-baseline'?: number
+	dominantBaseline?: number
 	dur?: number
 	dx?: number
 	dy?: number
 	edgeMode?: number
 	elevation?: number
-	'enable-background'?: number
+	enableBackground?: number
 	end?: number
 	exponent?: number
 	externalResourcesRequired?: number
 	fill?: string
-	'fill-opacity'?: number
-	'fill-rule'?: 'nonzero' | 'evenodd' | 'inherit'
+	fillOpacity?: number
+	fillRule?: 'nonzero' | 'evenodd' | 'inherit'
 	filter?: string
 	filterRes?: number
 	filterUnits?: number
-	'flood-color'?: number
-	'flood-opacity'?: number
+	floodColor?: number
+	floodOpacity?: number
 	focusable?: number
-	'font-family'?: string
-	'font-size'?: number
-	'font-size-adjust'?: number
-	'font-stretch'?: number
-	'font-style'?: number
-	'font-variant'?: number
-	'font-weight'?: number
+	fontFamily?: string
+	fontSize?: number
+	fontSizeAdjust?: number
+	fontStretch?: number
+	fontStyle?: number
+	fontVariant?: number
+	fontWeight?: number
 	format?: number
 	from?: number
 	fx?: number
 	fy?: number
 	g1?: number
 	g2?: number
-	'glyph-name'?: number
-	'glyph-orientation-horizontal'?: number
-	'glyph-orientation-vertical'?: number
+	glyphName?: number
+	glyphOrientationHorizontal?: number
+	glyphOrientationVertical?: number
 	glyphRef?: number
 	gradientTransform?: string
 	gradientUnits?: string
 	hanging?: number
-	'horiz-adv-x'?: number
-	'horiz-origin-x'?: number
+	horizAdvX?: number
+	horizOriginX?: number
 	href?: string
 	ideographic?: number
-	'image-rendering'?: number
+	imageRendering?: number
 	in2?: number
 	in?: string
 	intercept?: number
@@ -142,14 +142,14 @@ export interface SVGAttributes<E extends SVGElement> extends AriaAttributes, CSS
 	keySplines?: number
 	keyTimes?: number
 	lengthAdjust?: number
-	'letter-spacing'?: number
-	'lighting-color'?: number
+	letterSpacing?: number
+	lightingColor?: number
 	limitingConeAngle?: number
 	local?: number
-	'marker-end'?: string
+	markerEnd?: string
 	markerHeight?: number
-	'marker-mid'?: string
-	'marker-start'?: string
+	markerMid?: string
+	markerStart?: string
 	markerUnits?: number
 	markerWidth?: number
 	mask?: string
@@ -166,15 +166,15 @@ export interface SVGAttributes<E extends SVGElement> extends AriaAttributes, CSS
 	orientation?: number
 	origin?: number
 	overflow?: number
-	'overline-position'?: number
-	'overline-thickness'?: number
-	'paint-order'?: number
-	'panose-1'?: number
+	overlinePosition?: number
+	overlineThickness?: number
+	paintOrder?: number
+	panose1?: number
 	pathLength?: number
 	patternContentUnits?: string
 	patternTransform?: number
 	patternUnits?: string
-	'pointer-events'?: number
+	pointerEvents?: number
 	points?: string
 	pointsAtX?: number
 	pointsAtY?: number
@@ -198,7 +198,7 @@ export interface SVGAttributes<E extends SVGElement> extends AriaAttributes, CSS
 	ry?: number
 	scale?: number
 	seed?: number
-	'shape-rendering'?: number
+	shapeRendering?: number
 	slope?: number
 	spacing?: number
 	specularConstant?: number
@@ -210,59 +210,59 @@ export interface SVGAttributes<E extends SVGElement> extends AriaAttributes, CSS
 	stemh?: number
 	stemv?: number
 	stitchTiles?: number
-	'stop-color'?: string
-	'stop-opacity'?: number
-	'strikethrough-position'?: number
-	'strikethrough-thickness'?: number
+	stopColor?: string
+	stopOpacity?: number
+	strikethroughPosition?: number
+	strikethroughThickness?: number
 	string?: number
 	stroke?: string
-	'stroke-dasharray'?: number
-	'stroke-dashoffset'?: number
-	'stroke-linecap'?: 'butt' | 'round' | 'square' | 'inherit'
-	'stroke-linejoin'?: 'miter' | 'round' | 'bevel' | 'inherit'
-	'stroke-miterlimit'?: number
-	'stroke-opacity'?: number
-	'stroke-width'?: number
+	strokeDasharray?: number
+	strokeDashoffset?: number
+	strokeLinecap?: 'butt' | 'round' | 'square' | 'inherit'
+	strokeLinejoin?: 'miter' | 'round' | 'bevel' | 'inherit'
+	strokeMiterlimit?: number
+	strokeOpacity?: number
+	strokeWidth?: number
 	surfaceScale?: number
 	systemLanguage?: number
 	tableValues?: number
 	targetX?: number
 	targetY?: number
-	'text-anchor'?: string
-	'text-decoration'?: number
+	textAnchor?: string
+	textDecoration?: number
 	textLength?: number
-	'text-rendering'?: number
+	textRendering?: number
 	to?: number
 	transform?: string
 	u1?: number
 	u2?: number
-	'underline-position'?: number
-	'underline-thickness'?: number
+	underlinePosition?: number
+	underlineThickness?: number
 	unicode?: number
-	'unicode-bidi'?: number
-	'unicode-range'?: number
-	'unitsPer-em'?: number
-	'v-alphabetic'?: number
+	unicodeBidi?: number
+	unicodeRange?: number
+	unitsPerEm?: number
+	vAlphabetic?: number
 	values?: string
-	'vector-effect'?: number
+	vectorEffect?: number
 	version?: string
-	'vert-adv-y'?: number
-	'vert-origin-x'?: number
-	'vert-origin-y'?: number
-	'v-hanging'?: number
-	'v-ideographic'?: number
+	vertAdvY?: number
+	vertOriginX?: number
+	vertOriginY?: number
+	vHanging?: number
+	vIdeographic?: number
 	viewBox?: string
 	viewTarget?: number
 	visibility?: number
-	'v-mathematical'?: number
+	vMathematical?: number
 	widths?: number
-	'word-spacing'?: number
-	'writing-mode'?: number
+	wordSpacing?: number
+	writingMode?: number
 	x1?: number
 	x2?: number
 	x?: number
 	xChannelSelector?: string
-	'x-height'?: number
+	xHeight?: number
 	xlinkActuate?: string
 	xlinkArcrole?: string
 	xlinkHref?: string
