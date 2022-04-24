@@ -3,7 +3,6 @@ import type { Ref } from "./Ref";
 import type { Scheduler } from "@suisei/core";
 
 export type Owner = {
-	key: string;
 	scheduler: Scheduler;
 	stateCount: number;
 	onEffectBeforeInitialize(effect: Effect): void;
