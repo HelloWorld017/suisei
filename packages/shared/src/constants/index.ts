@@ -1,3 +1,3 @@
-export const isDevelopment = process.env.NODE_ENV !== 'production';
+export const DEFAULT_NAMESPACE = 'sui';
 
 export * from './symbols';
