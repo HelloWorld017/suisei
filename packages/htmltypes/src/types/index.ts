@@ -232,6 +232,24 @@ export interface SVGElementsAttributes {
 }
 
 export type ElementsAttributes = HTMLElementsAttributes & SVGElementsAttributes;
+export type VoidElementsAttributes = Pick<
+	ElementsAttributes,
+	| 'area'
+	| 'base'
+	| 'br'
+	| 'col'
+	| 'embed'
+	| 'hr'
+	| 'img'
+	| 'input'
+	| 'link'
+	| 'meta'
+	| 'param'
+	| 'source'
+	| 'track'
+	| 'wbr'
+>;
+
 export * from './aria';
 export * from './css';
 export * from './dom';
