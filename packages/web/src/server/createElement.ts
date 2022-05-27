@@ -1,5 +1,6 @@
 import { createHtmlChunkFromElement } from './utils';
 import { isRef } from '@suisei/shared';
+import { useOnce } from '@suisei/reactivity';
 import { renderer } from './renderer';
 import { runWithOwner } from '@suisei/reactivity';
 import { SymbolIntrinsicElement } from '@suisei/shared';
@@ -14,9 +15,12 @@ type ChildrenType<P extends Record<string, any>> =
 			? [ Element ]
 			: [];
 
+type PropsType<P extends Record<string, any>> =
+	{ [ K in keyof P ]: P[K] extends Ref<infer T> ? (T | Ref<T>) : (P[K] | Ref<P[K]>) };
+
 export const createComponentElement = <P extends Record<string, any>>(
 	component: Component<P>,
-	props: Omit<P, 'children'>,
+	props: PropsType<Omit<P, 'children'>>,
 	...children: ChildrenType<P>
 ): Element => {
 	const effects: Effect[] = [];
@@ -57,7 +61,7 @@ export const createComponentElement = <P extends Record<string, any>>(
 
 export const createIntrinsicElement = <C extends keyof ElementsAttributes>(
 	component: C,
-	props: { [K in keyof ElementsAttributes[C]]: ElementsAttributes[C][K] | Ref<ElementsAttributes[C][K]> },
+	props: PropsType<ElementsAttributes[C]>,
 	...children: C extends keyof VoidElementsAttributes ? Array<Element> : []
 ): Element => {
 	const attributes: Record<string, unknown> = {};
@@ -66,8 +70,7 @@ export const createIntrinsicElement = <C extends keyof ElementsAttributes>(
 		const propName = propNames[i];
 		const propValue = props[propName];
 		if (isRef(propValue)) {
-			attributes[renderer.config.namespace.templateDataIntrinsicId] =
-			propValue.key
+			attributes[renderer.config.namespace.templateDataIntrinsicId] = useOnce(propValue);
 		} else {
 		}
 	}

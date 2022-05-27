@@ -2,6 +2,7 @@ import { Component, Scheduler } from '@suisei/core';
 
 export type ParsedServerRendererConfig = {
 	namespace: {
+		hybridRender: string;
 		templateClass: string;
 		templateDataComponentId: string;
 		templateDataIntrinsicId: string;

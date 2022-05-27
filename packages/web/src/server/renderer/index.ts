@@ -44,6 +44,7 @@ export const runWithRenderer = <T>(stream: Writable, fn: () => T, config?: Serve
 		config: {
 			...config,
 			namespace: {
+				hybridRender: `$${namespace}`,
 				templateClass: namespace,
 				templateDataComponentId: `data-${namespace}`,
 				templateDataIntrinsicId: `data-${namespace}`
