@@ -24,3 +24,5 @@ export type ExtractRefOrRefs<R> = R extends any[]
 	: R extends Ref<infer T>
 		? T
 		: never;
+
+export type PackToRef<R> = R extends Ref<any> ? R : Ref<R>;

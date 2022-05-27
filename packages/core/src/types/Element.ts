@@ -1,4 +1,5 @@
 import type { SymbolComponentElement, SymbolIntrinsicElement } from '@suisei/shared';
+import type { Ref } from '@suisei/reactivity';
 
 export type IntrinsicElement = {
 	is: typeof SymbolIntrinsicElement,
@@ -15,5 +16,7 @@ export type ComponentElement = {
 export type Element = IntrinsicElement | ComponentElement;
 export type SuiseiElement = Element;
 
-export type Node = Element | string | null | Node[];
+type NodeValue = Element | string | null;
+type NodeValueOrRef = NodeValue | Ref<NodeValue>;
+export type Node = NodeValueOrRef | NodeValueOrRef[];
 export type SuiseiNode = Node;
