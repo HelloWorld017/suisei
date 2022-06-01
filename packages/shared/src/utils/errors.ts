@@ -1,3 +1,4 @@
+import { SymbolIs, SymbolSuspendDerivation } from '@suisei/shared';
 export const enum ErrorCodes {
 	E_NOT_REFERENCE,
 	E_NOT_PROMISE,
@@ -10,4 +11,8 @@ export const ErrorMessages = {
 
 export const throwError = (code: ErrorCodes, ...args: any[]): never => {
 	throw new Error();
+};
+
+export class SuspendDerivation extends Error {
+	[SymbolIs] = SymbolSuspendDerivation;
 }

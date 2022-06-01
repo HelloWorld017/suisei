@@ -3,7 +3,7 @@ import { isRef } from '@suisei/shared';
 import { useOnce } from '@suisei/reactivity';
 import { renderer } from './renderer';
 import { runWithOwner } from '@suisei/reactivity';
-import { SymbolIntrinsicElement } from '@suisei/shared';
+import { SymbolIntrinsicElement, SymbolIs } from '@suisei/shared';
 import type { Component, Element } from '@suisei/core';
 import type { Effect, Owner, Ref } from '@suisei/reactivity';
 import type { ElementsAttributes, VoidElementsAttributes } from '@suisei/htmltypes';
@@ -46,16 +46,6 @@ export const createComponentElement = <P extends Record<string, any>>(
 		{ ...props, children } as (P & { children: ChildrenType<P> })
 	));
 
-	if (!renderer.componentMap.has(component)) {
-		const componentId = renderer.registerComponent(component);
-		renderer.emit(createHtmlChunkFromElement({
-			is: SymbolIntrinsicElement,
-			name: 'template',
-			attributes: { [renderer.config.namespace.templateDataComponentId]: componentId },
-			children: [ element ]
-		}));
-	}
-
 	return element;
 };
 
@@ -76,7 +66,7 @@ export const createIntrinsicElement = <C extends keyof ElementsAttributes>(
 	}
 
 	return {
-		is: SymbolIntrinsicElement,
+		[SymbolIs]: SymbolIntrinsicElement,
 		name: component,
 		attributes: attributes as Record<string, unknown>,
 		children,

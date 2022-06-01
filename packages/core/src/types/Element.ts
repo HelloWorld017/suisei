@@ -1,15 +1,15 @@
-import type { SymbolComponentElement, SymbolIntrinsicElement } from '@suisei/shared';
+import type { SymbolComponentElement, SymbolIntrinsicElement, SymbolIs } from '@suisei/shared';
 import type { Ref } from '@suisei/reactivity';
 
 export type IntrinsicElement = {
-	is: typeof SymbolIntrinsicElement,
+	[SymbolIs]: typeof SymbolIntrinsicElement,
 	name: string,
 	attributes: Record<string, unknown>,
 	children: Element[]
 };
 
 export type ComponentElement = {
-	is: typeof SymbolComponentElement,
+	[SymbolIs]: typeof SymbolComponentElement,
 	componentId: string,
 };
 

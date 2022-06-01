@@ -1,7 +1,6 @@
 import { createElement } from '@suisei/core';
 import { renderer } from '../renderer';
-import { Fragment } from '@suisei/core';
-import { SymbolIntrinsicElement } from '@suisei/shared';
+import { SymbolIntrinsicElement, SymbolIs } from '@suisei/shared';
 import type { Component } from '@suisei/core';
 
 export const hybrid = <P extends Record<string, any>>
@@ -9,23 +8,34 @@ export const hybrid = <P extends Record<string, any>>
 	({ children, ...props }: P) => {
 		const element = createElement(component, props);
 		
+		// TODO Handle Suspense
+		// > 1. notify the renderer that it has a hybrid + suspense component
+		// > 2. make sure the renderer have rendered the `$suih` function
+		// > 3. render placeholder element
+		// > 4. render script element
+		
+		// TODO Notify Renderer
+		// > 1. notify the renderer that it has a hybrid component
+		// > 2. make sure the renderer have rendered the `$sui` function
+		// > 3. then render script element
+		
 		const componentId = renderer.componentMap.get(component)!;
 		const registeredComponentId = componentId || renderer.registerComponent(component);
 		
 		const scriptElement = {
-			is: SymbolIntrinsicElement,
+			[SymbolIs]: SymbolIntrinsicElement,
 			name: 'script',
 			attributes: {},
 			children: [ `${renderer.config.namespace.hybridRender}("${registeredComponentId}", )` ]
 		};
 		
 		if (!registeredComponentId) {
-			return createElement(Fragment, {}, [ {
-				is: SymbolIntrinsicElement,
+			return {
+				[SymbolIs]: SymbolIntrinsicElement,
 				name: 'template',
 				attributes: { [renderer.config.namespace.templateDataComponentId]: componentId },
 				children: [ element ]
-			}, scriptElement ]);
+			};
 		}
 		
 		return scriptElement;
