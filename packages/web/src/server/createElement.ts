@@ -5,7 +5,7 @@ import { renderer } from './renderer';
 import { runWithOwner } from '@suisei/reactivity';
 import { SymbolIntrinsicElement, SymbolIs } from '@suisei/shared';
 import type { Component, Element } from '@suisei/core';
-import type { Effect, Owner, Ref } from '@suisei/reactivity';
+import type { Owner, Ref } from '@suisei/reactivity';
 import type { ElementsAttributes, VoidElementsAttributes } from '@suisei/htmltypes';
 
 type ChildrenType<P extends Record<string, any>> =
@@ -23,14 +23,10 @@ export const createComponentElement = <P extends Record<string, any>>(
 	props: PropsType<Omit<P, 'children'>>,
 	...children: ChildrenType<P>
 ): Element => {
-	const effects: Effect[] = [];
 	const elementOwner: Owner = {
 		scheduler: renderer.scheduler,
 		stateCount: 0,
-		onEffectBeforeInitialize(effect) {
-			effects.push(effect);
-		},
-
+		onEffectBeforeInitialize() {},
 		onEffectSyncInitialize() {},
 
 		onError(error) {
