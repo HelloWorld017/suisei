@@ -1,14 +1,12 @@
 import { assertsIsRef } from '@suisei/shared';
-import type { ExtractRefOrRefs, Ref, RefOrRefs } from '../types';
+import { readRef } from '../utils';
+import type { ExtractRefOrRefs, RefOrRefs } from '../types';
 
 export const useOnce = <R extends RefOrRefs>(refOrRefs: R): ExtractRefOrRefs<R> => {
 	if (Array.isArray(refOrRefs)) {
-		return (refOrRefs as Ref<any>[]).map(ref => {
-			assertsIsRef<unknown>(ref);
-			return ref.raw;
-		}) as ExtractRefOrRefs<R>;
+		return refOrRefs.map(readRef) as ExtractRefOrRefs<R>;
 	}
 
-	assertsIsRef(refOrRefs);
-	return refOrRefs.raw;
+	assertsIsRef<ExtractRefOrRefs<R>>(refOrRefs);
+	return readRef(refOrRefs);
 };

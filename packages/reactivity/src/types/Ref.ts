@@ -1,5 +1,5 @@
 import type { Owner } from './Owner';
-import type { SymbolFutureRef, SymbolIs, SymbolMemoizedValue, SymbolRef } from '@suisei/shared';
+import type { SymbolIs, SymbolMemoizedValue, SymbolObservers, SymbolRef } from '@suisei/shared';
 
 export type RefObserver<T> = (newValue: T) => void;
 export type RefSelector = <T extends RefOrRefs>(ref: T) => ExtractRefOrRefs<T>;
@@ -7,6 +7,7 @@ export type RefDerivator<T> = (_: RefSelector) => T;
 
 export type VariableRef<T> = {
 	[SymbolIs]: typeof SymbolRef;
+	id: number;
 	isConstant: false;
 	raw: T;
 	observers: Set<RefObserver<T>>;
@@ -15,20 +16,24 @@ export type VariableRef<T> = {
 
 export type ConstantRef<T> = {
 	[SymbolIs]: typeof SymbolRef;
+	id: number;
 	isConstant: true;
 	raw: T;
 	from: Owner | null;
 };
 
-export type FutureRef<T> = RefDerivator<T> & {
-	[SymbolIs]: typeof SymbolFutureRef;
-};
+export type DerivedRefObservedMemo<T> =
+	{ value: T, refCleanups: Map<Ref<unknown>, () => void>, observed: true };
+
+export type DerivedRefUnobservedMemo<T> =
+	{ value: T, refs: Ref<any>[], refValues: any[], observed: false };
 
 export type DerivedRef<T> = RefDerivator<T> & {
-	[SymbolMemoizedValue]?: { value: T, refValues: any[] }
+	[SymbolMemoizedValue]?: DerivedRefObservedMemo<T> | DerivedRefUnobservedMemo<T>
+	[SymbolObservers]?: Set<RefObserver<T>>;
 };
 
-export type Ref<T> = VariableRef<T> | ConstantRef<T> | DerivedRef<T> | FutureRef<T>;
+export type Ref<T> = VariableRef<T> | ConstantRef<T> | DerivedRef<T>;
 
 export type RefOrRefs = [Ref<any>, ...Ref<any>[]] | Ref<any>;
 

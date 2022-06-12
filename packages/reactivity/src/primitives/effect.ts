@@ -1,13 +1,12 @@
-import { assertsIsRef, isPromise } from "@suisei/shared";
-import { owner } from "../owner";
-import { EffectCleanup, EffectHandle, ExtractRefOrRefs, RefOrRefs } from "../types";
-import { useOnce } from "./useOnce";
+import { isPromise } from '@suisei/shared';
+import { observeRef, readRef } from '../utils';
+import { owner } from '../owner';
+import { EffectCleanup, EffectHandle, Ref, RefOrRefs, RefSelector } from '../types';
 
 type EffectOption = { runAt?: 'before' | 'sync' };
 
-export const effect = <R extends RefOrRefs>(
-	refOrRefs: R,
-	effectFn: (values: ExtractRefOrRefs<R>, effectHandle: EffectHandle)
+export const effect = (
+	effectFn: (selector: RefSelector, effectHandle: EffectHandle)
 		=> void | EffectCleanup | Promise<void | EffectCleanup>,
 	options?: EffectOption
 ) => {
@@ -20,6 +19,7 @@ export const effect = <R extends RefOrRefs>(
 		isCancelled: () => isCancelled
 	};
 
+	const refCleanups = new Map<Ref<any>, () => void>();
 	const runEffect = () => {
 		if (currentTaskId !== null) {
 			return;
@@ -49,7 +49,28 @@ export const effect = <R extends RefOrRefs>(
 					cleanupFn();
 				}
 
-				const newCleanup = effectFn(useOnce(refOrRefs), effectHandle);
+				const unusedDependencies = new Set(refCleanups.keys());
+				const selector: RefSelector = (refOrRefs: RefOrRefs) => {
+					if (Array.isArray(refOrRefs)) {
+						return refOrRefs.map(selector);
+					}
+
+					if (refCleanups.has(refOrRefs)) {
+						unusedDependencies.delete(refOrRefs);
+						return readRef(refOrRefs);
+					}
+
+					const [value, cleanup] = observeRef(refOrRefs, runEffect);
+					refCleanups.set(refOrRefs, cleanup);
+
+					return value;
+				};
+
+				const newCleanup = effectFn(selector, effectHandle);
+				unusedDependencies.forEach(dependency => {
+					refCleanups.get(dependency)?.();
+					refCleanups.delete(dependency);
+				});
 
 				if (isPromise<void | EffectCleanup>(newCleanup)) {
 					currentPromise = newCleanup.then((awaitedNewCleanup) => {
@@ -70,19 +91,8 @@ export const effect = <R extends RefOrRefs>(
 		owner.onEffectBeforeInitialize;
 
 	initialize(() => {
-		const refs = Array.isArray(refOrRefs) ? refOrRefs : [refOrRefs];
-		const observers = (refs as unknown[]).map(() => () => runEffect());
-
-		refs.forEach((ref, index) => {
-			assertsIsRef(ref);
-			ref.observers.add(observers[index]);
-		});
-
 		return () => {
-			refs.forEach((ref, index) => {
-				assertsIsRef(ref);
-				ref.observers.delete(observers[index]);
-			});
+			refCleanups.forEach(refCleanup => refCleanup());
 
 			if (currentPromise) {
 				isCancelled = true;
@@ -104,9 +114,8 @@ export const effect = <R extends RefOrRefs>(
 	});
 };
 
-export const effectBefore = <R extends RefOrRefs>(
-	refOrRefs: R,
-	effectFn: (values: ExtractRefOrRefs<R>, effectHandle: EffectHandle)
+export const effectBefore = (
+	effectFn: (selector: RefSelector, effectHandle: EffectHandle)
 		=> void | EffectCleanup | Promise<void | EffectCleanup>,
 	options?: Omit<EffectOption, 'runAt'>
-) => effect(refOrRefs, effectFn, { ...options, runAt: 'before' });
+) => effect(effectFn, { ...options, runAt: 'before' });

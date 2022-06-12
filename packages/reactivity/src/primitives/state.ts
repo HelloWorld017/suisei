@@ -1,10 +1,11 @@
-import { Ref } from "../types";
+import { VariableRef } from "../types";
 import { owner } from '../owner';
 import { SymbolIs, SymbolRef } from '@suisei/shared';
 
-export const state = <T>(initialValue: T): [Ref<T>, (newValue: T) => void] => {
-	const ref: Ref<T> = ({
+export const state = <T>(initialValue: T): [VariableRef<T>, (newValue: T) => void] => {
+	const ref: VariableRef<T> = ({
 		[SymbolIs]: SymbolRef,
+		id: owner.stateCount++,
 		isConstant: false,
 		observers: new Set(),
 		raw: initialValue,
