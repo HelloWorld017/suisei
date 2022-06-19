@@ -1,5 +1,5 @@
 import type { Owner } from './Owner';
-import type { SymbolIs, SymbolMemoizedValue, SymbolObservers, SymbolRef } from '@suisei/shared';
+import type { SymbolIs, SymbolMemoizedValue, SymbolObservers, SymbolRef, SymbolRefDescriptor } from '@suisei/shared';
 
 export type RefObserver<T> = (newValue: T) => void;
 export type RefSelector = <T extends RefOrRefs>(ref: T) => ExtractRefOrRefs<T>;
@@ -7,19 +7,23 @@ export type RefDerivator<T> = (_: RefSelector) => T;
 
 export type VariableRef<T> = {
 	[SymbolIs]: typeof SymbolRef;
-	id: number;
-	isConstant: false;
-	raw: T;
-	observers: Set<RefObserver<T>>;
-	from: Owner | null;
+	[SymbolRefDescriptor]: {
+		id: number;
+		isConstant: false;
+		raw: T;
+		from: Owner | null;
+	};
+	[SymbolObservers]: Set<RefObserver<T>>;
 };
 
 export type ConstantRef<T> = {
 	[SymbolIs]: typeof SymbolRef;
-	id: number;
-	isConstant: true;
-	raw: T;
-	from: Owner | null;
+	[SymbolRefDescriptor]: {
+		id: number;
+		isConstant: true;
+		raw: T;
+		from: Owner | null;
+	};
 };
 
 export type DerivedRefObservedMemo<T> =

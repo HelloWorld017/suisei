@@ -1,10 +1,10 @@
 import { isConstantOrVariableRef, shallowCompare } from '@suisei/shared';
 import { Ref, RefOrRefs, RefSelector } from '../types';
-import { SymbolMemoizedValue } from '@suisei/shared';
+import { SymbolMemoizedValue, SymbolRefDescriptor } from '@suisei/shared';
 
 export const readRef = <T>(ref: Ref<T>): T => {
 	if (isConstantOrVariableRef<T>(ref)) {
-		return ref.raw;
+		return ref[SymbolRefDescriptor].raw;
 	}
 
 	const memoized = ref[SymbolMemoizedValue];

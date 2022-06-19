@@ -2,16 +2,16 @@ import { isConstantRef, isVariableRef } from '@suisei/shared';
 import { owner } from '../owner';
 import { readRef } from './readRef';
 import { DerivedRefObservedMemo, Ref, RefObserver, RefOrRefs, RefSelector } from '../types';
-import { SymbolMemoizedValue, SymbolObservers } from '@suisei/shared';
+import { SymbolMemoizedValue, SymbolObservers, SymbolRefDescriptor } from '@suisei/shared';
 
 export const observeRef = <T>(ref: Ref<T>, observer: RefObserver<T>): [T, () => void] => {
 	if (isConstantRef<T>(ref)) {
-		return [ref.raw, () => {}];
+		return [ref[SymbolRefDescriptor].raw, () => {}];
 	}
 
 	if (isVariableRef<T>(ref)) {
-		ref.observers.add(observer);
-		return [ref.raw, () => ref.observers.delete(observer)];
+		ref[SymbolObservers].add(observer);
+		return [ref[SymbolRefDescriptor].raw, () => ref[SymbolObservers].delete(observer)];
 	}
 
 	const unsubscribe = () => {
