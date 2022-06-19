@@ -8,5 +8,7 @@ export type Owner = {
 	onEffectBeforeInitialize(effect: Effect): void;
 	onEffectSyncInitialize(effect: Effect): void;
 	onError(error: any): void;
+	onFutureRefetchInitialize(promise: Promise<any>): void;
+	onFutureRefetchFinish(promise: Promise<any>): void;
 	onStateUpdate(ref: Ref<any>): void;
 };
