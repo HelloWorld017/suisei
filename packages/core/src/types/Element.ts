@@ -1,11 +1,12 @@
+import type { PropBase } from './Component';
+import type { Ref } from './Ref';
 import type { SymbolComponentElement, SymbolIntrinsicElement, SymbolIs } from '@suisei/shared';
-import type { Ref } from '@suisei/reactivity';
 
 export type IntrinsicElement = {
 	[SymbolIs]: typeof SymbolIntrinsicElement,
 	name: string,
-	attributes: Record<string, unknown>,
-	children: Element[]
+	attributes: PropBase,
+	children: Node[]
 };
 
 export type ComponentElement = {

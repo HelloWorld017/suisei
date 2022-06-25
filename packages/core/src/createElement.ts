@@ -1,23 +1,26 @@
 import { backend } from './backend';
-import { createRef } from '@suisei/reactivity';
-import { isRef } from '@suisei/shared';
-import type { Component, Node, Ref } from './types';
+import { constant } from '@suisei/reactivity';
+import { Component, Node, Propize, PropBase } from './types';
 
-export const createElement = (
-	componentName: string | Component,
-	props: Record<string, any>,
+export const createElement = <P extends PropBase = PropBase>(
+	componentName: string | Component<P>,
+	props: Propize<P>,
 	...children: Node & any[]
 ) => {
-	const propsWithChildren: Record<string, any> = { ...props, children };
+	const propsWithChildren: P = { ...props, children };
 	const wrappedProps = Object
 		.keys(propsWithChildren)
-		.reduce<Record<string, Ref<any>>>((wrappedProps, propKey) => {
+		.reduce<Partial<P>>((wrappedProps, propKey: keyof P & string | `${keyof P & string}`) => {
 			const propValue = propsWithChildren[propKey];
-			wrappedProps[propKey] = isRef(propValue) ? propValue : createRef(propValue);
-			
+			if (propKey.startsWith('$')) {
+				wrappedProps[propKey.slice(1) as keyof P] = constant(propValue) as P[keyof P];
+			} else {
+				wrappedProps[propKey as keyof P] = propValue as P[keyof P];
+			}
+
 			return wrappedProps;
-		}, {});
-	
+		}, {}) as P;
+
 	if (typeof componentName === 'string') {
 		return backend.createIntrinsicElement(componentName, wrappedProps);
 	} else {
