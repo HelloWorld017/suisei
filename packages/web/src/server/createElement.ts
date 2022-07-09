@@ -28,6 +28,8 @@ export const createComponentElement = <P extends Record<string, any>>(
 		stateCount: 0,
 		onEffectBeforeInitialize() {},
 		onEffectSyncInitialize() {},
+		onFutureRefetchInitialize() {},
+		onFutureRefetchFinish() {},
 
 		onError(error) {
 
