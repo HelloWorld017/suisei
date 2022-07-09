@@ -1,7 +1,7 @@
-import type { Element, Node } from '@suisei/core';
+import { createElement } from '../createElement';
+import { Fragment } from '../components';
+import type { Element, Node } from '../types';
 
 export const publish = <T>(defaultValue?: T): (props: { children: Node }) => Element => {
-	const SuiseiPublishedKey = Symbol('SuiseiPublishedKey');
-
-	return ({ children }) => createElement(Fragment, children;
+	return ({ children }) => createElement(Fragment, children);
 }
