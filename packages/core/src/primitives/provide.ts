@@ -1,7 +1,15 @@
 import { createElement } from '../createElement';
+import { runWithContext } from '../contexts';
 import { Fragment } from '../components';
-import type { Element, Node } from '../types';
+import type { Context, Provider } from '../types';
 
-export const publish = <T>(defaultValue?: T): (props: { children: Node }) => Element => {
-	return ({ children }) => createElement(Fragment, children);
+export const provide = <T>(defaultValue: T): [ Context<T>, Provider<T> ] => {
+	const GeneratedContext = { defaultValue };
+	const GeneratedContextProvider: Provider<T> = ({ value, children }) => {
+		return runWithContext(GeneratedContext, value, () => {
+			return createElement(Fragment, {}, ...children);
+		});
+	};
+
+	return [ GeneratedContext, GeneratedContextProvider ];
 }
