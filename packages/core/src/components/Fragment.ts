@@ -1,7 +1,7 @@
 import { SymbolFragmentElement, SymbolIs } from '@suisei/shared';
-import type { Element, Ref, Node } from '../types';
+import type { Children, Element } from '../types';
 
-export const Fragment = ({ children }: { children: Ref<Node> }): Element => ({
+export const Fragment = ({ children }: { children: Children }): Element => ({
 	[SymbolIs]: SymbolFragmentElement,
 	children
 });

@@ -1,6 +1,6 @@
 import { backend } from './backend';
 import { constant } from '@suisei/reactivity';
-import { Component, Node, Propize, PropBase, Ref, RefNode } from './types';
+import { Component, Propize, PropBase, Ref } from './types';
 
 export const createElement = <P extends PropBase = PropBase>(
 	componentName: string | Component<P>,
@@ -14,7 +14,7 @@ export const createElement = <P extends PropBase = PropBase>(
 			if (propKey.startsWith('$')) {
 				wrappedProps[propKey.slice(1) as keyof P] = constant(propValue) as P[keyof P];
 			} else {
-				wrappedProps[propKey as keyof P] = propValue as P[Exclude<keyof P, `$${string}`>];
+				wrappedProps[propKey as keyof P] = propValue as Ref<any> as P[keyof P];
 			}
 
 			return wrappedProps;

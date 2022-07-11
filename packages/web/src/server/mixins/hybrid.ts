@@ -2,9 +2,9 @@ import { constant } from '@suisei/reactivity';
 import { createElement } from '@suisei/core';
 import { renderer } from '../renderer';
 import { SymbolIntrinsicElement, SymbolIs } from '@suisei/shared';
-import type { Component, Element, Ref } from '@suisei/core';
+import type { Component, Element, PropBase } from '@suisei/core';
 
-export const hybrid = <P extends Record<string, Ref<any>>>
+export const hybrid = <P extends PropBase>
 	(component: Component<P>): Component<P> =>
 	({ children, ...props }: P) => {
 		const element = createElement(component, props);

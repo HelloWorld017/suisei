@@ -232,8 +232,8 @@ export interface SVGElementsAttributes {
 }
 
 export type ElementsAttributes = HTMLElementsAttributes & SVGElementsAttributes;
-export type VoidElementsAttributes = Pick<
-	ElementsAttributes,
+
+export type VoidElementsNames =
 	| 'area'
 	| 'base'
 	| 'br'
@@ -247,8 +247,15 @@ export type VoidElementsAttributes = Pick<
 	| 'param'
 	| 'source'
 	| 'track'
-	| 'wbr'
->;
+	| 'wbr';
+
+export type VoidElementsAttributes = Pick<ElementsAttributes, VoidElementsNames>;
+export type ElementsAttributesWithChildren<ChildrenType, VoidChildrenType = []> =
+	{
+		[ K in keyof ElementsAttributes ]: K extends VoidElementsNames
+			? ElementsAttributes[K] & { children: VoidChildrenType }
+			: ElementsAttributes[K] & { children: ChildrenType }
+	};
 
 export * from './aria';
 export * from './css';
