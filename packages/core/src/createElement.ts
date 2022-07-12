@@ -1,26 +1,28 @@
 import { backend } from './backend';
 import { constant } from '@suisei/reactivity';
-import { Component, Propize, PropBase, Ref } from './types';
+import type { Children, Component, Propize, PropBase, Ref, PropValidated } from './types';
 
 export const createElement = <P extends PropBase = PropBase>(
 	componentName: string | Component<P>,
-	props: Omit<Propize<P>, 'children'>,
-	...children: P['children'] & any[]
+	props: Omit<Propize<PropValidated<P>>, 'children'>,
+	...children: Children
 ) => {
 	const wrappedProps = Object
 		.keys(props)
-		.reduce<Partial<P>>((wrappedProps, propKey) => {
+		.reduce<Partial<PropValidated<P>>>((wrappedProps, propKey) => {
 			const propValue = props[propKey as keyof typeof props];
-			if (propKey.startsWith('$')) {
-				wrappedProps[propKey.slice(1) as keyof P] = constant(propValue) as P[keyof P];
+			if (!propKey.startsWith('$')) {
+				wrappedProps[propKey as Exclude<keyof PropValidated<P>, 'children'>] =
+					constant(propValue) as Ref<any> as PropValidated<P>[Exclude<keyof PropValidated<P>, 'children'>];
 			} else {
-				wrappedProps[propKey as keyof P] = propValue as Ref<any> as P[keyof P];
+				wrappedProps[propKey as keyof PropValidated<P>] = propValue;
 			}
 
 			return wrappedProps;
-		}, {}) as P;
+		}, {}) as PropValidated<P>;
 
-	wrappedProps.children = children;
+	wrappedProps.children = children.flat();
+
 	if (typeof componentName === 'string') {
 		return backend.createIntrinsicElement(componentName, wrappedProps);
 	} else {
