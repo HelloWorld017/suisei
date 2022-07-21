@@ -5,8 +5,8 @@ import type { Scheduler } from "@suisei/core";
 export type Owner = {
 	scheduler: Scheduler;
 	stateCount: number;
-	onEffectBeforeInitialize(effect: Effect): void;
 	onEffectSyncInitialize(effect: Effect): void;
+	onEffectInitialize(effect: Effect): void;
 	onError(error: any): void;
 	onFutureRefetchInitialize(promise: Promise<any>): void;
 	onFutureRefetchFinish(promise: Promise<any>): void;

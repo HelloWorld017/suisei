@@ -3,7 +3,7 @@ import { observeRef, readRef } from '../utils';
 import { owner } from '../owner';
 import { EffectCleanup, EffectHandle, Ref, RefOrRefs, RefSelector } from '../types';
 
-type EffectOption = { runAt?: 'before' | 'sync' };
+type EffectOption = { runAt?: 'sync' };
 
 export const effect = (
 	effectFn: (selector: RefSelector, effectHandle: EffectHandle)
@@ -86,9 +86,9 @@ export const effect = (
 		});
 	};
 
-	const initialize = ((options?.runAt ?? 'sync') === 'sync') ?
+	const initialize = (options?.runAt === 'sync') ?
 		owner.onEffectSyncInitialize :
-		owner.onEffectBeforeInitialize;
+		owner.onEffectInitialize;
 
 	initialize(() => {
 		return () => {
@@ -114,8 +114,8 @@ export const effect = (
 	});
 };
 
-export const effectBefore = (
+export const effectSync = (
 	effectFn: (selector: RefSelector, effectHandle: EffectHandle)
 		=> void | EffectCleanup | Promise<void | EffectCleanup>,
 	options?: Omit<EffectOption, 'runAt'>
-) => effect(effectFn, { ...options, runAt: 'before' });
+) => effect(effectFn, { ...options, runAt: 'sync' });
