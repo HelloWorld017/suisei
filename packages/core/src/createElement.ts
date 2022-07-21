@@ -1,22 +1,20 @@
 import { backend } from './backend';
 import { constant } from '@suisei/reactivity';
-import type { Children, Component, Propize, PropBase, Ref, PropValidated } from './types';
+import { isRef } from '@suisei/shared';
+import type { Component, PropBase, PropValidated, Propize, PropValidatedWithoutChildren } from './types';
 
 export const createElement = <P extends PropBase = PropBase>(
 	componentName: string | Component<P>,
-	props: Omit<Propize<PropValidated<P>>, 'children'>,
-	...children: Children
+	props: Omit<Propize<P>, 'children'>,
+	...children: PropValidated<P>['children']
 ) => {
+	type WrappedProps = PropValidatedWithoutChildren<P>;
 	const wrappedProps = Object
 		.keys(props)
-		.reduce<Partial<PropValidated<P>>>((wrappedProps, propKey) => {
-			const propValue = props[propKey as keyof typeof props];
-			if (!propKey.startsWith('$')) {
-				wrappedProps[propKey as Exclude<keyof PropValidated<P>, 'children'>] =
-					constant(propValue) as Ref<any> as PropValidated<P>[Exclude<keyof PropValidated<P>, 'children'>];
-			} else {
-				wrappedProps[propKey as keyof PropValidated<P>] = propValue;
-			}
+		.reduce<Partial<WrappedProps>>((wrappedProps, propKey) => {
+			const propValue = props[propKey as keyof WrappedProps];
+			wrappedProps[propKey as keyof WrappedProps] =
+				(isRef(propValue) ? propValue : constant(propValue)) as WrappedProps[keyof WrappedProps];
 
 			return wrappedProps;
 		}, {}) as PropValidated<P>;

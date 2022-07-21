@@ -33,6 +33,7 @@ export type DerivedRefUnobservedMemo<T> =
 	{ value: T, refs: Ref<any>[], refValues: any[], observed: false };
 
 export type DerivedRef<T> = RefDerivator<T> & {
+	[SymbolIs]: typeof SymbolRef,
 	[SymbolMemoizedValue]?: DerivedRefObservedMemo<T> | DerivedRefUnobservedMemo<T>
 	[SymbolObservers]?: Set<RefObserver<T>>;
 };

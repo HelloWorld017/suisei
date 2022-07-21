@@ -1,5 +1,5 @@
 import type { Children, Element } from './Element';
-import type { ExtractRefOrRefs, Ref } from '@suisei/reactivity';
+import type { Ref } from '@suisei/reactivity';
 
 export type PropBase = Record<string, Ref<any> | Children>;
 export type PropValidated<T extends PropBase> =
@@ -10,17 +10,22 @@ export type PropValidated<T extends PropBase> =
 					? Children<N>
 					: Children
 
-				: K extends `$${string}`
-					? T[K] extends Ref<any>
-						? T[K]
-						: never
+				: T[K] extends Ref<any>
+					? T[K]
 					: never;
 	}
 	& { children: Children };
 
-export type Propize<P extends PropBase = PropBase> =
-	| Partial<P>
-	| { [K in Exclude<keyof P, 'children'> as K extends `$${infer V}` ? V : never]?: ExtractRefOrRefs<P[K]> };
+export type PropValidatedWithoutChildren<T extends PropBase> =
+	{
+		[K in Exclude<keyof T, 'children'>]:
+			T[K] extends Ref<any>
+				? T[K]
+				: never;
+	};
+
+export type Propize<T extends PropBase> =
+	{ [K in keyof PropValidated<T>]: PropValidated<T>[K] extends Ref<infer T> ? T | Ref<T> : PropValidated<T>[K] };
 
 export type Component<P extends PropBase = PropBase> =
 	(props: P) => Element;
