@@ -1,10 +1,9 @@
 import { isConstantRef, isVariableRef } from '@suisei/shared';
-import { owner } from '../owner';
 import { readRef } from './readRef';
-import { DerivedRefObservedMemo, Ref, RefObserver, RefOrRefs, RefSelector } from '../types';
+import { DerivedRefObservedMemo, Owner, Ref, RefObserver, RefOrRefs, RefSelector } from '../types';
 import { SymbolMemoizedValue, SymbolObservers, SymbolRefDescriptor } from '@suisei/shared';
 
-export const observeRef = <T>(ref: Ref<T>, observer: RefObserver<T>): [T, () => void] => {
+export const observeRef = <T>(owner: Owner, ref: Ref<T>, observer: RefObserver<T>): [T, () => void] => {
 	if (isConstantRef<T>(ref)) {
 		return [ref[SymbolRefDescriptor].raw, () => {}];
 	}

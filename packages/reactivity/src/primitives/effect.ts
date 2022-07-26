@@ -1,15 +1,13 @@
 import { isPromise } from '@suisei/shared';
 import { observeRef, readRef } from '../utils';
-import { owner } from '../owner';
-import { EffectCleanup, EffectHandle, Ref, RefOrRefs, RefSelector } from '../types';
+import { EffectCleanup, EffectHandle, Owner, Ref, RefOrRefs, RefSelector } from '../types';
+
+type EffectFn = (selector: RefSelector, effectHandle: EffectHandle)
+	=> void | EffectCleanup | Promise<void | EffectCleanup>;
 
 type EffectOption = { runAt?: 'sync' };
 
-export const effect = (
-	effectFn: (selector: RefSelector, effectHandle: EffectHandle)
-		=> void | EffectCleanup | Promise<void | EffectCleanup>,
-	options?: EffectOption
-) => {
+export const effect = (owner: Owner): PrimitiveEffect => (effectFn, options?) => {
 	let currentTaskId: number | null = null;
 	let currentCleanup: EffectCleanup | null = null;
 	let currentPromise: Promise<void | EffectCleanup> | null = null;
@@ -60,7 +58,7 @@ export const effect = (
 						return readRef(refOrRefs);
 					}
 
-					const [value, cleanup] = observeRef(refOrRefs, runEffect);
+					const [value, cleanup] = observeRef(owner, refOrRefs, runEffect);
 					refCleanups.set(refOrRefs, cleanup);
 
 					return value;
@@ -114,8 +112,9 @@ export const effect = (
 	});
 };
 
-export const effectSync = (
-	effectFn: (selector: RefSelector, effectHandle: EffectHandle)
-		=> void | EffectCleanup | Promise<void | EffectCleanup>,
-	options?: Omit<EffectOption, 'runAt'>
-) => effect(effectFn, { ...options, runAt: 'sync' });
+export type PrimitiveEffect = (effectFn: EffectFn, options?: EffectOption) => void;
+
+export const effectSync = (owner: Owner): PrimitiveEffectSync =>
+	(effectFn, options) => effect(owner)(effectFn, { ...options, runAt: 'sync' });
+
+export type PrimitiveEffectSync = (effectFn: EffectFn, options?: Omit<EffectOption, 'runAt'>) => void;

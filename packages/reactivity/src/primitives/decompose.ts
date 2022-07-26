@@ -9,7 +9,7 @@ type Decomposed<T> =
 		? { [K in keyof T]: Decomposed<T[K]> } & Ref<T>
 		: Ref<T>;
 
-export const decompose = <T>(ref: Ref<T>): Decomposed<T> =>
+export const decompose: PrimitiveDecompose = <T>(ref: Ref<T>): Decomposed<T> =>
 	new Proxy<Decomposed<T>>(
 		ref as Decomposed<T>,
 		{
@@ -47,3 +47,5 @@ export const decompose = <T>(ref: Ref<T>): Decomposed<T> =>
 			}
 		}
 	);
+
+export type PrimitiveDecompose = <T>(ref: Ref<T>) => Decomposed<T>;
