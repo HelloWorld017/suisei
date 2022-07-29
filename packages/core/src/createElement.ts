@@ -1,5 +1,5 @@
 import { SymbolElement, SymbolIs } from '@suisei/shared';
-import type { Children, Component, Element, PropBase, PropValidated, Propize } from './types';
+import type { Children, Component, Element, PropsBase, PropsValidated, Propize } from './types';
 
 export const createProviderElement = (
 	providingValue: null | Record<symbol, unknown>,
@@ -12,10 +12,10 @@ export const createProviderElement = (
 	children: children.flat(),
 });
 
-export const createElement = <P extends PropBase = PropBase>(
+export const createElement = <P extends PropsBase = PropsBase>(
 	component: string | Component<P>,
 	props: Omit<Propize<P>, 'children'>,
-	...children: PropValidated<P>['children']
+	...children: PropsValidated<P>['children']
 ): Element => ({
 	[SymbolIs]: SymbolElement,
 	component,

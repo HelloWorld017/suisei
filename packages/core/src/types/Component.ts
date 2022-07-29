@@ -2,8 +2,13 @@ import type { Children, Element } from './Element';
 import type { Primitives } from '../primitives';
 import type { Ref } from '@suisei/reactivity';
 
-export type PropBase = Record<string, Ref<any> | Children>;
-export type PropValidated<T extends PropBase> =
+export type Props<T extends Component<any>> =
+	T extends Component<infer P>
+		? P
+		: never;
+
+export type PropsBase = Record<string, Ref<any> | Children>;
+export type PropsValidated<T extends PropsBase> =
 	& {
 		[K in keyof T]:
 			K extends 'children'
@@ -17,7 +22,7 @@ export type PropValidated<T extends PropBase> =
 	}
 	& { children: Children };
 
-export type PropValidatedWithoutChildren<T extends PropBase> =
+export type PropsValidatedWithoutChildren<T extends PropsBase> =
 	{
 		[K in Exclude<keyof T, 'children'>]:
 			T[K] extends Ref<any>
@@ -25,8 +30,13 @@ export type PropValidatedWithoutChildren<T extends PropBase> =
 				: never;
 	};
 
-export type Propize<T extends PropBase> =
-	{ [K in keyof PropValidated<T>]: PropValidated<T>[K] extends Ref<infer T> ? T | Ref<T> : PropValidated<T>[K] };
+export type Propize<T extends PropsBase> =
+	{
+		[K in keyof PropsValidated<T>]:
+			PropsValidated<T>[K] extends Ref<infer T>
+				? T | Ref<T>
+				: PropsValidated<T>[K]
+	};
 
-export type Component<P extends PropBase = PropBase> =
+export type Component<P extends PropsBase = PropsBase> =
 	(props: P, $: Primitives) => Element | Promise<Element>;

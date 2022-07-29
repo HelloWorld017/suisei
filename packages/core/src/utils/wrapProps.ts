@@ -1,11 +1,11 @@
 import { isRef } from '@suisei/shared';
 import type { Primitives } from '../primitives';
-import type { PropBase, Propize, PropValidatedWithoutChildren } from '../types';
+import type { PropsBase, Propize, PropsValidatedWithoutChildren } from '../types';
 
-export const wrapProps = <P extends PropBase>(
+export const wrapProps = <P extends PropsBase>(
 	props: Propize<P>, primitives: Primitives
-): PropValidatedWithoutChildren<P> => {
-	type WrappedProps = PropValidatedWithoutChildren<P>;
+): PropsValidatedWithoutChildren<P> => {
+	type WrappedProps = PropsValidatedWithoutChildren<P>;
 	return Object
 		.keys(props)
 		.reduce<Partial<WrappedProps>>((wrappedProps, propKey) => {

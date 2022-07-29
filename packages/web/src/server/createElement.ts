@@ -4,11 +4,11 @@ import { useOnce } from '@suisei/reactivity';
 import { renderer } from './renderer';
 import { runWithOwner } from '@suisei/reactivity';
 import { SymbolIntrinsicElement, SymbolIs } from '@suisei/shared';
-import type { Children, Component, Element, PropBase } from '@suisei/core';
+import type { Children, Component, Element, PropsBase } from '@suisei/core';
 import type { Owner } from '@suisei/reactivity';
 import type { ElementsAttributes, ElementsAttributesWithChildren } from '@suisei/htmltypes';
 
-export const createComponentElement = <P extends PropBase>(
+export const createComponentElement = <P extends PropsBase>(
 	component: Component<P>,
 	props: P,
 ): Element => {
@@ -51,7 +51,7 @@ export const createIntrinsicElement = <C extends keyof ElementsAttributes>(
 	return {
 		[SymbolIs]: SymbolIntrinsicElement,
 		name: component,
-		attributes: attributes as PropBase,
+		attributes: attributes as PropsBase,
 		children: children,
 	};
 };
