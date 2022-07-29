@@ -1,4 +1,5 @@
 import type { Children, Element } from './Element';
+import type { Primitives } from '../primitives';
 import type { Ref } from '@suisei/reactivity';
 
 export type PropBase = Record<string, Ref<any> | Children>;
@@ -28,4 +29,4 @@ export type Propize<T extends PropBase> =
 	{ [K in keyof PropValidated<T>]: PropValidated<T>[K] extends Ref<infer T> ? T | Ref<T> : PropValidated<T>[K] };
 
 export type Component<P extends PropBase = PropBase> =
-	(props: P) => Element;
+	(props: P, $: Primitives) => Element | Promise<Element>;
