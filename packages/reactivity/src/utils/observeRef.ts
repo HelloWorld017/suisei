@@ -71,7 +71,7 @@ export const observeRef = <T>(owner: Owner, ref: Ref<T>, observer: RefObserver<T
 				return readRef(refOrRefs);
 			}
 
-			const [value, cleanup] = observeRef(refOrRefs, subscribe);
+			const [value, cleanup] = observeRef(owner, refOrRefs, subscribe);
 			newMemo.refCleanups.set(refOrRefs, cleanup);
 
 			return value;
