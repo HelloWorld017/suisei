@@ -1,29 +1,25 @@
-import { backend } from './backend';
-import { constant } from '@suisei/reactivity';
-import { isRef } from '@suisei/shared';
-import type { Component, PropBase, PropValidated, Propize, PropValidatedWithoutChildren } from './types';
+import { SymbolElement, SymbolIs } from '@suisei/shared';
+import type { Children, Component, Element, PropBase, PropValidated, Propize } from './types';
+
+export const createProviderElement = (
+	providingValue: null | Record<symbol, unknown>,
+	children: Children
+): Element => ({
+	[SymbolIs]: SymbolElement,
+	component: null,
+	props: {},
+	provide: providingValue,
+	children: children.flat(),
+});
 
 export const createElement = <P extends PropBase = PropBase>(
-	componentName: string | Component<P>,
+	component: string | Component<P>,
 	props: Omit<Propize<P>, 'children'>,
 	...children: PropValidated<P>['children']
-) => {
-	type WrappedProps = PropValidatedWithoutChildren<P>;
-	const wrappedProps = Object
-		.keys(props)
-		.reduce<Partial<WrappedProps>>((wrappedProps, propKey) => {
-			const propValue = props[propKey as keyof WrappedProps];
-			wrappedProps[propKey as keyof WrappedProps] =
-				(isRef(propValue) ? propValue : constant(propValue)) as WrappedProps[keyof WrappedProps];
-
-			return wrappedProps;
-		}, {}) as PropValidated<P>;
-
-	wrappedProps.children = children.flat();
-
-	if (typeof componentName === 'string') {
-		return backend.createIntrinsicElement(componentName, wrappedProps);
-	} else {
-		return backend.createComponentElement(componentName, wrappedProps);
-	}
-};
+): Element => ({
+	[SymbolIs]: SymbolElement,
+	component,
+	props,
+	provide: null,
+	children: children.flat(),
+});

@@ -1,33 +1,19 @@
 import type {
 	Equals,
-	SymbolComponentElement,
-	SymbolFragmentElement,
-	SymbolIntrinsicElement,
+	SymbolElement,
 	SymbolIs
 } from '@suisei/shared';
-import type { Component, PropBase } from './Component';
+import type { Component } from './Component';
 import type { Ref } from './Ref';
 
-export type ComponentElement = {
-	[SymbolIs]: typeof SymbolComponentElement,
-	component: Component,
-	props: PropBase
-};
-
-export type AsyncComponentElement = Promise<ComponentElement>;
-
-export type FragmentElement = {
-	[SymbolIs]: typeof SymbolFragmentElement,
+export type Element = {
+	[SymbolIs]: typeof SymbolElement,
+	component: string | Component<any> | null,
+	props: Record<string, any>,
+	provide: Record<symbol, unknown> | null,
 	children: NodeChildren
 };
 
-export type IntrinsicElement = {
-	[SymbolIs]: typeof SymbolIntrinsicElement,
-	name: string,
-	props: PropBase
-};
-
-export type Element = ComponentElement | AsyncComponentElement | FragmentElement | IntrinsicElement;
 export type { Element as SuiseiElement };
 
 type NodeValuePrimitive = Element | string | number | null;
