@@ -11,7 +11,7 @@ export type Element = {
 	component: string | Component<any> | null,
 	props: Record<string, any>,
 	provide: Record<symbol, unknown> | null,
-	children: NodeChildren
+	children: Children
 };
 
 export type { Element as SuiseiElement };

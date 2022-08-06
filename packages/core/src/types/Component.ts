@@ -31,12 +31,13 @@ export type PropsValidatedWithoutChildren<T extends PropsBase> =
 	};
 
 export type Propize<T extends PropsBase> =
-	{
+	& {
 		[K in keyof PropsValidated<T>]:
 			PropsValidated<T>[K] extends Ref<infer T>
 				? T | Ref<T>
-				: PropsValidated<T>[K]
-	};
+				: PropsValidated<T>[K];
+	}
+	& { key?: string | Ref<string> };
 
 export type Component<P extends PropsBase = PropsBase> =
-	(props: P, $: Primitives) => Element | Promise<Element>;
+	(props: PropsValidated<P>, $: Primitives) => Element | Promise<Element>;

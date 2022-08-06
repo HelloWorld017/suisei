@@ -1,1 +1,3 @@
-export * from './createContext';
+export * from './utils';
+
+export * from './ErrorBoundaryContext';

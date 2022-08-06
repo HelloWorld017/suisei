@@ -3,11 +3,12 @@ import type { Children, Component, Element, PropsBase, PropsValidated, Propize }
 
 export const createProviderElement = (
 	providingValue: null | Record<symbol, unknown>,
+	props: Omit<Propize<{}>, 'children'>,
 	children: Children
 ): Element => ({
 	[SymbolIs]: SymbolElement,
 	component: null,
-	props: {},
+	props,
 	provide: providingValue,
 	children: children.flat(),
 });
