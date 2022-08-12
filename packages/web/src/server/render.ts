@@ -2,7 +2,7 @@ import { assertsIsElement, isElement, isPromise, isRef } from '@suisei/shared';
 import { createHtmlChunkFromElement } from './utils';
 import { createPrimitives, PropsValidated, readContext, wrapProps } from '@suisei/core';
 import { renderer } from './renderer';
-import { ErrorBoundaryContext } from '@suisei/core';
+import { ErrorBoundaryContext, SuspenseContext } from '@suisei/core';
 import { ServerRendererContext } from './contexts/ServerRendererContext';
 import { SymbolIs } from '@suisei/shared';
 import type { Children, Component, ContextRegistry, Element, Propize, PropsBase } from '@suisei/core';
@@ -53,6 +53,10 @@ const renderFragmentElement = (
 		.forEach(child => {
 			if (isElement(child)) {
 				if (provide) {
+					if (SuspenseContext.key in provide) {
+						
+					}
+					
 					render(child, { contextRegistry, ...provide });
 					return;
 				}
@@ -74,7 +78,7 @@ export const renderComponentElement = <P extends PropsBase>(
 	component: Component<P>,
 	props: Propize<P>,
 	children: PropsValidated<P>['children']
-): Element => {
+) => {
 	const renderer = getRendererFromRegistry(contextRegistry);
 	const owner = createOwner(renderer, contextRegistry);
 	const $ = createPrimitives(contextRegistry, owner);
@@ -84,10 +88,18 @@ export const renderComponentElement = <P extends PropsBase>(
 
 	const result = component(propsWrapped, $);
 	if(!isPromise(result)) {
-		return result;
+		render(result, contextRegistry);
+		return;
 	}
 
-	const suspense =
+	const suspense = $.consume(SuspenseContext);
+	if (suspense) {
+		renderer.cork();
+		suspense.registerSuspensedElement(result);
+		result.then((element) => {
+			renderer.uncork(() => render(element, contextRegistry));
+		});
+	}
 };
 
 export const renderIntrinsicElement = <C extends keyof ElementsAttributes>(

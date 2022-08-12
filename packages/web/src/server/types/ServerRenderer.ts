@@ -12,6 +12,10 @@ export type ParsedServerRendererConfig = {
 export type ServerRenderer = {
 	emit(chunk: string): void;
 	registerComponent(component: Component<any>): string;
+	getSuspensedRenderer(): ServerRenderer;
+	cork(): void;
+	uncork(beforeFlush: () => void): void;
+	ensureHybridScript(): void;
 	componentMap: WeakMap<Component<any>, string>;
 	config: ParsedServerRendererConfig;
 	scheduler: Scheduler;
