@@ -1,9 +1,9 @@
 import { SymbolElement, SymbolIs } from '@suisei/shared';
-import type { Children, Component, Element, PropsBase, PropsValidated, Propize } from './types';
+import type { Children, Component, Element, PropsBase, PropsValidated, Propize, Ref } from './types';
 
 export const createProviderElement = (
 	providingValue: null | Record<symbol, unknown>,
-	props: Omit<Propize<{}>, 'children'>,
+	props: Omit<Propize<{ raw: Ref<undefined | boolean> }>, 'children'>,
 	children: Children
 ): Element => ({
 	[SymbolIs]: SymbolElement,

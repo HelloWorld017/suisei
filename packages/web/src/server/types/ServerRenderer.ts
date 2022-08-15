@@ -2,21 +2,26 @@ import { Component, Scheduler } from '@suisei/core';
 
 export type ParsedServerRendererConfig = {
 	namespace: {
-		hybridRender: string;
+		namespace: string;
+		templateId: string;
 		templateClass: string;
-		templateDataComponentId: string;
 		templateDataIntrinsicId: string;
-	}
+	};
+
+	nonce?: string;
 };
 
+export type ServerRendererInitScripts = 'suspense' | 'hybrid';
+
 export type ServerRenderer = {
-	emit(chunk: string): void;
+	allocateId(): string;
 	registerComponent(component: Component<any>): string;
-	getSuspensedRenderer(): ServerRenderer;
+	emit(chunk: string): void;
 	cork(): void;
 	uncork(beforeFlush: () => void): void;
-	ensureHybridScript(): void;
+	getChildRenderer(): ServerRenderer;
 	componentMap: WeakMap<Component<any>, string>;
 	config: ParsedServerRendererConfig;
 	scheduler: Scheduler;
+	renderedInitScripts: Set<ServerRendererInitScripts>;
 };

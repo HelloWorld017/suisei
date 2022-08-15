@@ -1,7 +1,8 @@
 import { createContext } from './utils';
+import type { Element } from '../types';
 
 export type SuspenseContextType = {
-	registerSuspensedElement: (promise: Promise<unknown>) => void
+	fallback: Element
 };
 
 export const [ SuspenseContext, SuspenseContextProvider ] =

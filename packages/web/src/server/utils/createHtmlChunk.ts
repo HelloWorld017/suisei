@@ -1,4 +1,3 @@
-import type { Element } from '@suisei/core';
 import type { ElementsAttributes } from '@suisei/htmltypes';
 import {
 	createAttribute,
@@ -32,8 +31,9 @@ const attributeHandlers = new Map<string, AttributeHandler>();
 attributeHandlers.set('className', createClassNameAttribute as AttributeHandler);
 attributeHandlers.set('style', createStyleAttribute as AttributeHandler);
 
-export const createHtmlChunk = <T extends keyof ElementsAttributes>
-	(tagName: T, props: ElementsAttributes[T], children: string): string =>
+
+export const createHtmlOpenChunk = <T extends keyof ElementsAttributes>
+	(tagName: T, props: ElementsAttributes[T]): string =>
 {
 	let s = '<' + tagName;
 	const propNames = Object.keys(props);
@@ -64,7 +64,16 @@ export const createHtmlChunk = <T extends keyof ElementsAttributes>
 
 		s += ` ${propName}="${encodeEntities(propValue)}"`;
 	}
+
 	s += '>';
+
+	return s;
+};
+
+export const createHtmlChunk = <T extends keyof ElementsAttributes>
+	(tagName: T, props: ElementsAttributes[T], children: string): string =>
+{
+	let s = createHtmlOpenChunk(tagName, props);
 
 	if (VOID_ELEMENTS.test(tagName)) {
 		return s;
@@ -75,14 +84,3 @@ export const createHtmlChunk = <T extends keyof ElementsAttributes>
 
 	return s;
 };
-
-export const createHtmlChunkFromElement = (element: Element)
-	: string =>
-{
-	const children = element.children.map(element => createHtmlChunkFromElement(element)).join('');
-	return createHtmlChunk(
-		element.name as keyof ElementsAttributes,
-		element.attributes as ElementsAttributes[keyof ElementsAttributes],
-		children
-	);
-}

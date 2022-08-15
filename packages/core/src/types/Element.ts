@@ -22,7 +22,7 @@ type NodeValue = NodeValueList | Ref<NodeValueList>;
 type NodeChildren = NodeValue[];
 type Node = NodeValue | NodeChildren;
 
-export type { Node, NodeChildren, NodeValue };
+export type { Node, NodeChildren, NodeValue, NodeValueList, NodeValuePrimitive };
 export type { Node as SuiseiNode };
 
 type ChildrenImpl<T extends Node[], N extends number> =

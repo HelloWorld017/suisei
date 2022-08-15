@@ -1,61 +1,75 @@
 import { createScheduler } from '../scheduler/createScheduler';
-import { nanoid } from 'nanoid';
 import { DEFAULT_NAMESPACE } from '@suisei/shared';
 import type { Component } from '@suisei/core';
 import type { ServerRenderer } from '../types/ServerRenderer';
 import type { Writable } from 'stream';
 
-export let renderer: ServerRenderer;
-
 export type ServerRendererConfig = Partial<{
 	namespace: string;
 }>;
 
-export const runWithRenderer = <T>(stream: Writable, fn: () => T, config?: ServerRendererConfig): T => {
-	let length = 5;
-	const allocatedIds = new Set();
-	const previousRenderer = renderer;
+export const createRenderer = (stream: Writable, config?: ServerRendererConfig): ServerRenderer => {
+	let lastId = 0;
 	const namespace = config?.namespace ?? DEFAULT_NAMESPACE;
-	renderer = {
-		registerComponent(component: Component<any>) {
-			let id = nanoid(length);
 
-			let collision = 0;
-			while (allocatedIds.has(id)) {
-				collision++;
+	const createStreamRenderer = () => {
+		let corked = false;
+		let corkedValue = '';
 
-				if (collision >= 3) {
-					length++;
-					collision = 0;
+		return {
+			cork() {
+				corked = true;
+			},
+
+			uncork(prepend: () => void) {
+				corked = false;
+				prepend();
+				this.emit(corkedValue);
+
+				corkedValue = '';
+			},
+
+			emit(chunk: string) {
+				if (corked) {
+					corkedValue += chunk;
+					return;
 				}
 
-				id = nanoid(length);
-			}
+				stream.write(chunk);
+			},
+		}
+	};
 
-			allocatedIds.add(id);
-			this.componentMap.set(component, id);
+	return {
+		...createStreamRenderer(),
+
+		allocateId() {
+			const id = (++lastId).toString(36);
 			return id;
 		},
 
-		emit(chunk) {
-			stream.write(chunk);
+		registerComponent(component: Component<any>) {
+			const id = this.allocateId();
+			this.componentMap.set(component, id);
+
+			return id;
+		},
+
+		getChildRenderer() {
+			return { ...this, ...createStreamRenderer() };
 		},
 
 		config: {
 			...config,
 			namespace: {
-				hybridRender: `$${namespace}`,
+				namespace: `$${namespace}`,
 				templateClass: namespace,
-				templateDataComponentId: `data-${namespace}`,
+				templateId: namespace,
 				templateDataIntrinsicId: `data-${namespace}`
 			}
 		},
 		componentMap: new WeakMap(),
-		scheduler: createScheduler()
+		scheduler: createScheduler(),
+		renderedInitScripts: new Set(),
 	};
-
-	const value = fn();
-	renderer = previousRenderer;
-
-	return value;
 };

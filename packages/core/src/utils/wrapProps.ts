@@ -9,7 +9,7 @@ export const wrapProps = <P extends PropsBase>(
 	return Object
 		.keys(props)
 		.reduce<Partial<WrappedProps>>((wrappedProps, propKey) => {
-			const propValue = props[propKey as keyof WrappedProps];
+			const propValue = props[propKey as keyof Propize<P>];
 			wrappedProps[propKey as keyof WrappedProps] =
 				(isRef(propValue) ? propValue : primitives.constant(propValue)) as WrappedProps[keyof WrappedProps];
 
