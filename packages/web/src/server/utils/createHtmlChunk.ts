@@ -3,28 +3,13 @@ import {
 	createAttribute,
 	createClassNameAttribute,
 	createStyleAttribute,
+	encodeEntities,
+	isUnsafeAttributeName,
 	standardizeAttributeName
 } from '../../shared';
 
-const ENCODED_ENTITIES = /[&<>"]/;
-export const encodeEntities = (input: string | number | boolean) => {
-	const s = String(input);
-
-	if (!ENCODED_ENTITIES.test(s))
-		return s;
-	
-	return s
-		.replace(/&/g, '&amp;')
-		.replace(/</g, '&lt;')
-		.replace(/>/g, '&gt;')
-		.replace(/"/g, '&quot;');
-};
-
-
 const VOID_ELEMENTS =
 	/^(area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)$/;
-
-const UNSAFE_NAME = /[\s\n\\/='"\0<>]/;
 
 type AttributeHandler = (value: unknown) => string;
 const attributeHandlers = new Map<string, AttributeHandler>();
@@ -43,7 +28,7 @@ export const createHtmlOpenChunk = <T extends keyof ElementsAttributes>
 		const rawPropValue = props[rawPropName];
 
 		const propName = standardizeAttributeName(rawPropName);
-		if (UNSAFE_NAME.test(propName))
+		if (isUnsafeAttributeName(propName))
 			continue;
 
 		let propValue: string | true | undefined;

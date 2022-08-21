@@ -4,9 +4,9 @@ import {
 	createHtmlOpenChunk,
 	createSuspenseInitInlineScript,
 	createSuspenseInlineScript,
-	encodeEntities
 } from './utils';
 import { createPrimitives, readContext, wrapProps } from '@suisei/core';
+import { encodeEntities } from '../shared';
 import { ErrorBoundaryContext, SuspenseContext } from '@suisei/core';
 import { ServerRendererContext } from './contexts/ServerRendererContext';
 import type {

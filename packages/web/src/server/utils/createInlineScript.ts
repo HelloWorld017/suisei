@@ -1,5 +1,14 @@
+import { encodeEntities, safeJSONStringify } from '../../shared';
+
 export const createInlineScript = (body: string, nonce?: string): string => {
-	return '<script>' + body + '</script>';
+	let s = '<script';
+	if (typeof nonce === 'string') {
+		s += ` nonce="${encodeEntities(nonce)}"`;
+	}
+	
+	s += `>${body}</script>`;
+	
+	return s;
 };
 
 export const createSuspenseInitInlineScript = (namespace: string, nonce?: string) => {
@@ -33,8 +42,8 @@ export const createSuspenseInlineScript = (
 ) => {
 	return createInlineScript(
 		`${namespace}.s(` +
-			`${JSON.stringify(suspenseId)},` +
-			`${JSON.stringify(replacement)}` +
+			`${safeJSONStringify(suspenseId)},` +
+			`${safeJSONStringify(replacement)}` +
 		')',
 		nonce
 	);
