@@ -26,7 +26,7 @@ export const isPromise = <T>(obj: unknown): obj is Promise<T> =>
 
 export type AssertsIsRef = <T>(ref: unknown) => asserts ref is Ref<T>;
 export const assertsIsRef: AssertsIsRef = <T>(ref: unknown) => {
-	if (!isRef<T>(ref)) {
+	if (!isRef<T, unknown>(ref)) {
 		throwError(ErrorCodes.E_NOT_REFERENCE, ref);
 	}
 };
