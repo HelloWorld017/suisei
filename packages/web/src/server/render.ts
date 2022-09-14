@@ -237,6 +237,7 @@ export const renderIntrinsicElement = <C extends keyof ElementsAttributes>(
 
 export const render = (element: Element, contextRegistry: ContextRegistry = {}): RenderResult => {
 	assertsIsElement(element);
+
 	if (element.component === null) {
 		return renderFragmentElement(contextRegistry, element.props, element.provide, element.children);
 	}

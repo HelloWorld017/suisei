@@ -1,4 +1,4 @@
-import { createScheduler } from '../scheduler/createScheduler';
+import { createDefaultScheduler } from '@suisei/core';
 import { DEFAULT_NAMESPACE } from '@suisei/shared';
 import type { Component } from '@suisei/core';
 import type { ServerRenderer } from '../types/ServerRenderer';
@@ -69,7 +69,7 @@ export const createRenderer = (stream: Writable, config?: ServerRendererConfig):
 			}
 		},
 		componentMap: new WeakMap(),
-		scheduler: createScheduler(),
+		scheduler: createDefaultScheduler(),
 		renderedInitScripts: new Set(),
 	};
 };

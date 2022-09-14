@@ -1,6 +1,6 @@
-import type { Scheduler } from "@suisei/core";
+import type { Scheduler } from '../types';
 
-export const createScheduler = (): Scheduler => {
+export const createDefaultScheduler = (): Scheduler => {
 	let taskId = 0;
 
 	return {
