@@ -1,6 +1,6 @@
 import { constant } from './constant';
-import { derive } from './derive';
 import { decompose } from './decompose';
+import { derive } from './derive';
 import { effect, effectSync } from './effect';
 import { future } from './future';
 import { state } from './state';
@@ -15,27 +15,29 @@ import type { PrimitiveState } from './state';
 import type { PrimitiveUseOnce } from './useOnce';
 
 export type ReactivityPrimitives = PrimitiveDerive & {
-	constant: PrimitiveConstant;
-	decompose: PrimitiveDecompose;
-	derive: PrimitiveDerive;
-	effect: PrimitiveEffect;
-	effectSync: PrimitiveEffectSync;
-	future: PrimitiveFuture;
-	state: PrimitiveState;
-	useOnce: PrimitiveUseOnce;
+  constant: PrimitiveConstant;
+  decompose: PrimitiveDecompose;
+  derive: PrimitiveDerive;
+  effect: PrimitiveEffect;
+  effectSync: PrimitiveEffectSync;
+  future: PrimitiveFuture;
+  state: PrimitiveState;
+  useOnce: PrimitiveUseOnce;
 };
 
-export const createReactivityPrimitives = (owner: Owner): ReactivityPrimitives => {
-	const $ = derive;
+export const createReactivityPrimitives = (
+  owner: Owner
+): ReactivityPrimitives => {
+  const $ = derive;
 
-	return Object.assign($, {
-		constant: constant(owner),
-		decompose,
-		derive,
-		effect: effect(owner),
-		effectSync: effectSync(owner),
-		future: future(owner),
-		state: state(owner),
-		useOnce,
-	});
+  return Object.assign($, {
+    constant: constant(owner),
+    decompose,
+    derive,
+    effect: effect(owner),
+    effectSync: effectSync(owner),
+    future: future(owner),
+    state: state(owner),
+    useOnce,
+  });
 };

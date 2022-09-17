@@ -1,16 +1,19 @@
-import { consume } from './consume';
 import { createReactivityPrimitives } from '@suisei/reactivity';
+import { consume } from './consume';
 import type { ContextRegistry } from '../types';
-import type { Owner, ReactivityPrimitives } from '@suisei/reactivity';
 import type { PrimitiveConsume } from './consume';
+import type { Owner, ReactivityPrimitives } from '@suisei/reactivity';
 
 export type Primitives = ReactivityPrimitives & {
-	consume: PrimitiveConsume;
+  consume: PrimitiveConsume;
 };
 
-export const createPrimitives = (contextRegistry: ContextRegistry, owner: Owner): Primitives => {
-	const primitives = createReactivityPrimitives(owner) as Primitives;
-	primitives.consume = consume(contextRegistry);
+export const createPrimitives = (
+  contextRegistry: ContextRegistry,
+  owner: Owner
+): Primitives => {
+  const primitives = createReactivityPrimitives(owner) as Primitives;
+  primitives.consume = consume(contextRegistry);
 
-	return primitives;
+  return primitives;
 };

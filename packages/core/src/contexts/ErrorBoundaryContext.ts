@@ -1,6 +1,6 @@
-import { createContext } from "./utils";
+import { createContext } from './utils';
 
 export type ErrorBoundaryContextType = (error: unknown) => void;
 
-export const [ ErrorBoundaryContext, ErrorBoundaryContextProvider ] =
-	createContext(null as null | ErrorBoundaryContextType);
+export const [ErrorBoundaryContext, ErrorBoundaryContextProvider] =
+  createContext(null as null | ErrorBoundaryContextType);

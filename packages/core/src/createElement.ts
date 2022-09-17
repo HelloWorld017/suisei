@@ -1,26 +1,34 @@
 import { SymbolElement, SymbolIs } from '@suisei/shared';
-import type { Children, Component, Element, PropsBase, PropsValidated, Propize, Ref } from './types';
+import type {
+  Children,
+  Component,
+  Element,
+  PropsBase,
+  PropsValidated,
+  Propize,
+  Ref,
+} from './types';
 
 export const createProviderElement = (
-	providingValue: null | Record<symbol, unknown>,
-	props: Omit<Propize<{ raw: Ref<undefined | boolean> }>, 'children'>,
-	children: Children
+  providingValue: null | Record<symbol, unknown>,
+  props: Omit<Propize<{ raw: Ref<undefined | boolean> }>, 'children'>,
+  children: Children
 ): Element => ({
-	[SymbolIs]: SymbolElement,
-	component: null,
-	props,
-	provide: providingValue,
-	children: children.flat(),
+  [SymbolIs]: SymbolElement,
+  component: null,
+  props,
+  provide: providingValue,
+  children: children.flat(),
 });
 
 export const createElement = <P extends PropsBase = PropsBase>(
-	component: string | Component<P>,
-	props: Omit<Propize<P>, 'children'>,
-	...children: PropsValidated<P>['children']
+  component: string | Component<P>,
+  props: Omit<Propize<P>, 'children'>,
+  ...children: PropsValidated<P>['children']
 ): Element => ({
-	[SymbolIs]: SymbolElement,
-	component,
-	props,
-	provide: null,
-	children: children.flat(),
+  [SymbolIs]: SymbolElement,
+  component,
+  props,
+  provide: null,
+  children: children.flat(),
 });

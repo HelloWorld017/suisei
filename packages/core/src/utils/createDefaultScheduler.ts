@@ -1,20 +1,20 @@
 import type { Scheduler } from '../types';
 
 export const createDefaultScheduler = (): Scheduler => {
-	let taskId = 0;
+  let taskId = 0;
 
-	return {
-		queueTask(task) {
-			task();
-			return taskId++;
-		},
+  return {
+    queueTask(task) {
+      task();
+      return taskId++;
+    },
 
-		createLane() {
-			return 0;
-		},
+    createLane() {
+      return 0;
+    },
 
-		runWithLane(_, fn) {
-			fn();
-		}
-	};
+    runWithLane(_, fn) {
+      fn();
+    },
+  };
 };

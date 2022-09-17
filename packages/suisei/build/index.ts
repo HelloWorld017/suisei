@@ -7,19 +7,19 @@ const typesConfig = {
     dts({
       compilerOptions: {
         paths: { '@/*': ['./dist/types/*'] },
-      }
-    })
-  ]
+      },
+    }),
+  ],
 };
 
 const defaultConfig = {
-  plugins: [swc()]
+  plugins: [swc()],
 };
 
 // TODO
 const builds = [];
-builds.push(rollup(
-  {
+builds.push(
+  rollup({
     input: 'src/index.ts',
     output: [
       {
@@ -32,18 +32,18 @@ builds.push(rollup(
       },
     ],
     ...defaultConfig,
-  }
-));
+  })
+);
 
-builds.push(rollup(
-  {
+builds.push(
+  rollup({
     input: 'dist/types/index.d.ts',
     output: {
       file: 'dist/index.d.ts',
-      format: 'es'
+      format: 'es',
     },
-    ...typesConfig
-  },
-));
+    ...typesConfig,
+  })
+);
 
 Promise.all(builds);

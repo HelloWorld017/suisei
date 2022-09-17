@@ -21,7 +21,8 @@ module.exports = {
   },
   rules: {
     '@typescript-eslint/no-misused-promises': 'off',
-    '@typescript-eslint/no-floating-promises': 'off',
+    // '@typescript-eslint/no-floating-promises': 'off',
+    '@typescript-eslint/no-empty-function': 'off',
     '@typescript-eslint/no-empty-interface': 'off',
     '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     'import/first': 'error',
@@ -39,7 +40,6 @@ module.exports = {
     'import/prefer-default-export': 'off',
     'camelcase': ['error', { properties: 'never' }],
     'class-methods-use-this': 'off',
-    'comma-dangle': ['error', 'always-multiline'],
     'curly': ['error', 'all'],
     'lines-around-comment': [
       'error',
@@ -57,6 +57,7 @@ module.exports = {
     'no-multi-spaces': ['error', { ignoreEOLComments: true }],
     'no-tabs': 'error',
     'prefer-promise-reject-errors': 'off',
+    'prettier/prettier': 'error',
     'quotes': ['error', 'single', {
       avoidEscape: true,
       allowTemplateLiterals: false,
@@ -69,5 +70,5 @@ module.exports = {
       typescript: {},
     },
   },
-  ignorePatterns: ['dist'],
+  ignorePatterns: ['dist', 'node_modules'],
 };
