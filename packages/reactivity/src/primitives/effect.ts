@@ -5,7 +5,6 @@ import {
   EffectHandle,
   Owner,
   Ref,
-  RefOrRefs,
   RefSelector,
 } from '../types';
 import { observeRef, readRef } from '../utils';
@@ -62,18 +61,14 @@ export const effect =
           }
 
           const unusedDependencies = new Set(refCleanups.keys());
-          const selector: RefSelector = (refOrRefs: RefOrRefs) => {
-            if (Array.isArray(refOrRefs)) {
-              return refOrRefs.map(selector);
+          const selector: RefSelector = ref => {
+            if (refCleanups.has(ref as Ref<unknown>)) {
+              unusedDependencies.delete(ref as Ref<unknown>);
+              return readRef(ref);
             }
 
-            if (refCleanups.has(refOrRefs)) {
-              unusedDependencies.delete(refOrRefs);
-              return readRef(refOrRefs);
-            }
-
-            const [value, cleanup] = observeRef(owner, refOrRefs, runEffect);
-            refCleanups.set(refOrRefs, cleanup);
+            const [value, cleanup] = observeRef(owner, ref, runEffect);
+            refCleanups.set(ref as Ref<unknown>, cleanup);
 
             return value;
           };

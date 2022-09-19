@@ -4,7 +4,7 @@ import {
   SymbolMemoizedValue,
   SymbolRefDescriptor,
 } from '@suisei/shared';
-import { Ref, RefOrRefs, RefSelector } from '../types';
+import { Ref, RefSelector } from '../types';
 
 export const readRef = <T>(ref: Ref<T>): T => {
   if (isConstantOrVariableRef<T>(ref)) {
@@ -25,13 +25,9 @@ export const readRef = <T>(ref: Ref<T>): T => {
 
   const selectedRefs: Ref[] = [];
   const selectedRefValues: unknown[] = [];
-  const selector: RefSelector = (refOrRefs: RefOrRefs) => {
-    if (Array.isArray(refOrRefs)) {
-      return refOrRefs.map(selector);
-    }
-
-    const values = readRef(refOrRefs);
-    selectedRefs.push(refOrRefs);
+  const selector: RefSelector = ref => {
+    const values = readRef(ref);
+    selectedRefs.push(ref);
     selectedRefValues.push(values);
 
     return values;

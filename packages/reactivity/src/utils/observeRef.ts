@@ -10,7 +10,6 @@ import {
   Owner,
   Ref,
   RefObserver,
-  RefOrRefs,
   RefSelector,
 } from '../types';
 import { readRef } from './readRef';
@@ -80,18 +79,14 @@ export const observeRef = <T>(
     };
 
     const unusedDependencies = new Set(newMemo.refCleanups.keys());
-    const selector: RefSelector = (refOrRefs: RefOrRefs) => {
-      if (Array.isArray(refOrRefs)) {
-        return refOrRefs.map(selector);
+    const selector: RefSelector = ref => {
+      if (newMemo.refCleanups.has(ref as Ref<unknown>)) {
+        unusedDependencies.delete(ref as Ref<unknown>);
+        return readRef(ref);
       }
 
-      if (newMemo.refCleanups.has(refOrRefs)) {
-        unusedDependencies.delete(refOrRefs);
-        return readRef(refOrRefs);
-      }
-
-      const [value, cleanup] = observeRef(owner, refOrRefs, subscribe);
-      newMemo.refCleanups.set(refOrRefs, cleanup);
+      const [value, cleanup] = observeRef(owner, ref, subscribe);
+      newMemo.refCleanups.set(ref as Ref<unknown>, cleanup);
 
       return value;
     };

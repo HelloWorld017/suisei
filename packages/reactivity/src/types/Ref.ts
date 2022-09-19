@@ -8,7 +8,7 @@ import type {
 } from '@suisei/shared';
 
 export type RefObserver<T> = (newValue: T) => void;
-export type RefSelector = <T extends RefOrRefs>(ref: T) => ExtractRefOrRefs<T>;
+export type RefSelector = <T>(ref: Ref<T>) => T;
 export type RefDerivator<T> = (_: RefSelector) => T;
 
 export type VariableRef<T> = {
@@ -55,23 +55,6 @@ export type DerivedRef<T> = RefDerivator<T> & {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Ref<T = any> = VariableRef<T> | ConstantRef<T> | DerivedRef<T>;
-
-export type RefOrRefs = [Ref, ...Ref[]] | Ref;
-
-// prettier-ignore
-export type ExtractRefs<R extends unknown[]> =
-  R extends [Ref<infer T>, ...infer Rest]
-    ? [T, ...ExtractRefs<Rest>]
-    : R extends []
-      ? []
-      : never;
-
-// prettier-ignore
-export type ExtractRefOrRefs<R> =
-  R extends unknown[]
-    ? ExtractRefs<R>
-    : R extends Ref<infer T>
-      ? T
-      : never;
+export type ExtractRef<R extends Ref> = R extends Ref<infer T> ? T : never;
 
 export type PackToRef<R> = R extends Ref<unknown> ? R : Ref<R>;
