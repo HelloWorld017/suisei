@@ -12,12 +12,14 @@
     "esModuleInterop": true,
     "jsx": "preserve",
     "declaration": true,
+    "skipLibCheck": true,
     "paths": {
       "@suisei/*": ["packages/*/src"],
       "suisei": ["packages/suisei/src"]
     }
   },
   "exclude": [
+    "node_modules",
     "packages/*/types/**",
     "packages/*/lib/**",
     "packages/*/esm/**"

@@ -15,7 +15,7 @@ export const standardAttributeNames = new Map<string, string>([
 );
 
 const camelize = (name: string): string =>
-  name.replace(/[\-\:]([a-z])/g, token => token[1].toUpperCase());
+  name.replace(/[-:]([a-z])/g, token => token[1].toUpperCase());
 
 // Camelize
 [
@@ -192,7 +192,7 @@ export const standardizeCssValue = <T extends keyof CSSProperties>(
   value: CSSProperties[T]
 ): string => {
   if (typeof value === 'number' && IS_NON_DIMENSIONAL.test(name)) {
-    return value + 'px';
+    return `${value}px`;
   }
 
   return String(value);

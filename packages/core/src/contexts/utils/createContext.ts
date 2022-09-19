@@ -1,20 +1,17 @@
 import { createProviderElement } from '../../createElement';
 import type { Children, Context, Provider } from '../../types';
 
+type ContextProviderProps<T> = { value: T; children: Children };
 export const createContext = <T>(
   defaultValue: T,
   name?: string
 ): [Context<T>, Provider<T>] => {
   const GeneratedContext = { key: Symbol(), name, defaultValue } as Context<T>;
   const GeneratedContextProvider: Provider<T> = ({
-    key,
     value,
     children,
-  }: {
-    key?: string;
-    value: T;
-    children: Children;
-  }) => createProviderElement(value, { key }, children);
+  }: ContextProviderProps<T>) =>
+    createProviderElement({ [GeneratedContext.key]: value }, {}, children);
 
   return [GeneratedContext, GeneratedContextProvider];
 };

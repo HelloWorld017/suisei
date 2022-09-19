@@ -11,8 +11,8 @@ export type Owner = {
   stateCount: number;
   onEffectSyncInitialize(effect: Effect): void;
   onEffectInitialize(effect: Effect): void;
-  onError(error: any): void;
-  onFutureRefetchInitialize(promise: Promise<any>, flags?: number): void;
-  onFutureRefetchFinish(promise: Promise<any>): void;
-  onStateUpdate(ref: Ref<any>, flags: number): void;
+  onError(error: unknown): void;
+  onFutureRefetchInitialize(promise: Promise<unknown>, flags?: number): void;
+  onFutureRefetchFinish(promise: Promise<unknown>): void;
+  onStateUpdate(ref: Ref, flags: number): void;
 };

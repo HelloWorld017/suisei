@@ -25,7 +25,8 @@ export const state =
         return;
       }
 
-      owner.onStateUpdate(ref);
+      // FIXME Add flag for defer()
+      owner.onStateUpdate(ref, 0);
       ref[SymbolRefDescriptor].raw = newValue;
       ref[SymbolObservers].forEach(observer => {
         observer(newValue);

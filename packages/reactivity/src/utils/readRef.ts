@@ -23,8 +23,8 @@ export const readRef = <T>(ref: Ref<T>): T => {
     }
   }
 
-  const selectedRefs: Ref<any>[] = [];
-  const selectedRefValues: any[] = [];
+  const selectedRefs: Ref[] = [];
+  const selectedRefValues: unknown[] = [];
   const selector: RefSelector = (refOrRefs: RefOrRefs) => {
     if (Array.isArray(refOrRefs)) {
       return refOrRefs.map(selector);

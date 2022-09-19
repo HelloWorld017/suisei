@@ -112,7 +112,7 @@ const renderFragmentElement = (
   let suspense: { fallback: Element; renderer: ServerRenderer } | null = null;
 
   if (provide) {
-    nextRegistry = { contextRegistry, ...provide };
+    nextRegistry = { ...contextRegistry, ...provide };
 
     if (SuspenseContext.key in provide) {
       const suspenseContext = readContext(nextRegistry, SuspenseContext);
@@ -263,8 +263,15 @@ export const renderIntrinsicElement = <C extends keyof ElementsAttributes>(
 
   const propsWrapped = wrapProps(props, $) as ElementsAttributes[C];
   renderer.emit(createHtmlOpenChunk(component, propsWrapped));
-  renderChildren(contextRegistry, children);
-  renderer.emit(`</${component}>`);
+
+  const renderResult = renderChildren(contextRegistry, children);
+  const closingChunk = `</${component}>`;
+
+  if (isPromise(renderResult)) {
+    return renderResult.then(() => renderer.emit(closingChunk));
+  }
+
+  renderer.emit(closingChunk);
 };
 
 export const render = (

@@ -4,6 +4,7 @@ import type {
   PropsBase,
   Propize,
   PropsValidatedWithoutChildren,
+  Ref,
 } from '../types';
 
 export const wrapProps = <P extends PropsBase>(
@@ -14,8 +15,11 @@ export const wrapProps = <P extends PropsBase>(
   return Object.keys(props).reduce<Partial<WrappedProps>>(
     (wrappedProps, propKey) => {
       const propValue = props[propKey as keyof Propize<P>];
+
       wrappedProps[propKey as keyof WrappedProps] = (
-        isRef(propValue) ? propValue : primitives.constant(propValue)
+        isRef(propValue as Ref<unknown>)
+          ? propValue
+          : primitives.constant(propValue)
       ) as WrappedProps[keyof WrappedProps];
 
       return wrappedProps;

@@ -53,23 +53,25 @@ export type DerivedRef<T> = RefDerivator<T> & {
   [SymbolObservers]?: Set<RefObserver<T>>;
 };
 
-export type Ref<T> = VariableRef<T> | ConstantRef<T> | DerivedRef<T>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type Ref<T = any> = VariableRef<T> | ConstantRef<T> | DerivedRef<T>;
 
-export type RefOrRefs = [Ref<unknown>, ...Ref<unknown>[]] | Ref<unknown>;
+export type RefOrRefs = [Ref, ...Ref[]] | Ref;
 
-export type ExtractRefs<R extends unknown[]> = R extends [
-  Ref<infer T>,
-  ...infer Rest
-]
-  ? [T, ...ExtractRefs<Rest>]
-  : R extends []
-  ? []
-  : never;
+// prettier-ignore
+export type ExtractRefs<R extends unknown[]> =
+  R extends [Ref<infer T>, ...infer Rest]
+    ? [T, ...ExtractRefs<Rest>]
+    : R extends []
+      ? []
+      : never;
 
-export type ExtractRefOrRefs<R> = R extends unknown[]
-  ? ExtractRefs<R>
-  : R extends Ref<infer T>
-  ? T
-  : never;
+// prettier-ignore
+export type ExtractRefOrRefs<R> =
+  R extends unknown[]
+    ? ExtractRefs<R>
+    : R extends Ref<infer T>
+      ? T
+      : never;
 
 export type PackToRef<R> = R extends Ref<unknown> ? R : Ref<R>;

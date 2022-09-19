@@ -1,120 +1,146 @@
 import { isPromise } from '@suisei/shared';
+import {
+  Effect,
+  EffectCleanup,
+  EffectHandle,
+  Owner,
+  Ref,
+  RefOrRefs,
+  RefSelector,
+} from '../types';
 import { observeRef, readRef } from '../utils';
-import { EffectCleanup, EffectHandle, Owner, Ref, RefOrRefs, RefSelector } from '../types';
 
-type EffectFn = (selector: RefSelector, effectHandle: EffectHandle)
-	=> void | EffectCleanup | Promise<void | EffectCleanup>;
+type EffectFn = (
+  selector: RefSelector,
+  effectHandle: EffectHandle
+) => void | EffectCleanup | Promise<void | EffectCleanup>;
 
 type EffectOption = { runAt?: 'sync' };
 
-export const effect = (owner: Owner): PrimitiveEffect => (effectFn, options?) => {
-	let currentTaskId: number | null = null;
-	let currentCleanup: EffectCleanup | null = null;
-	let currentPromise: Promise<void | EffectCleanup> | null = null;
+export const effect =
+  (owner: Owner): PrimitiveEffect =>
+  (effectFn, options?) => {
+    let currentTaskId: number | null = null;
+    let currentCleanup: EffectCleanup | null = null;
+    let currentPromise: Promise<void | EffectCleanup> | null = null;
 
-	let isCancelled = false;
-	const effectHandle: EffectHandle = {
-		isCancelled: () => isCancelled
-	};
+    let isCancelled = false;
+    const effectHandle: EffectHandle = {
+      isCancelled: () => isCancelled,
+    };
 
-	const refCleanups = new Map<Ref<any>, () => void>();
-	const runEffect = () => {
-		if (currentTaskId !== null) {
-			return;
-		}
+    const refCleanups = new Map<Ref<unknown>, () => void>();
+    const runEffect = () => {
+      if (currentTaskId !== null) {
+        return;
+      }
 
-		if (currentPromise) {
-			isCancelled = true;
+      if (currentPromise) {
+        isCancelled = true;
 
-			currentPromise.then(() => {
-				try {
-					currentCleanup?.();
-					runEffect();
-				} catch(error) {
-					owner.onError(error);
-				}
-			});
-			return;
-		}
+        currentPromise
+          .then(() => {
+            try {
+              currentCleanup?.();
+              runEffect();
+            } catch (error) {
+              owner.onError(error);
+            }
+          })
+          .catch(() => {});
+        return;
+      }
 
-		const cleanupFn = currentCleanup;
-		currentTaskId = owner.scheduler.queueTask(() => {
-			isCancelled = false;
-			currentTaskId = null;
+      const cleanupFn = currentCleanup;
+      currentTaskId = owner.scheduler.queueTask(() => {
+        isCancelled = false;
+        currentTaskId = null;
 
-			try {
-				if (cleanupFn) {
-					cleanupFn();
-				}
+        try {
+          if (cleanupFn) {
+            cleanupFn();
+          }
 
-				const unusedDependencies = new Set(refCleanups.keys());
-				const selector: RefSelector = (refOrRefs: RefOrRefs) => {
-					if (Array.isArray(refOrRefs)) {
-						return refOrRefs.map(selector);
-					}
+          const unusedDependencies = new Set(refCleanups.keys());
+          const selector: RefSelector = (refOrRefs: RefOrRefs) => {
+            if (Array.isArray(refOrRefs)) {
+              return refOrRefs.map(selector);
+            }
 
-					if (refCleanups.has(refOrRefs)) {
-						unusedDependencies.delete(refOrRefs);
-						return readRef(refOrRefs);
-					}
+            if (refCleanups.has(refOrRefs)) {
+              unusedDependencies.delete(refOrRefs);
+              return readRef(refOrRefs);
+            }
 
-					const [value, cleanup] = observeRef(owner, refOrRefs, runEffect);
-					refCleanups.set(refOrRefs, cleanup);
+            const [value, cleanup] = observeRef(owner, refOrRefs, runEffect);
+            refCleanups.set(refOrRefs, cleanup);
 
-					return value;
-				};
+            return value;
+          };
 
-				const newCleanup = effectFn(selector, effectHandle);
-				unusedDependencies.forEach(dependency => {
-					refCleanups.get(dependency)?.();
-					refCleanups.delete(dependency);
-				});
+          const newCleanup = effectFn(selector, effectHandle);
+          unusedDependencies.forEach(dependency => {
+            refCleanups.get(dependency)?.();
+            refCleanups.delete(dependency);
+          });
 
-				if (isPromise<void | EffectCleanup>(newCleanup)) {
-					currentPromise = newCleanup.then((awaitedNewCleanup) => {
-						currentPromise = null;
-						currentCleanup = awaitedNewCleanup || null;
-					});
-				} else if (newCleanup) {
-					currentCleanup = newCleanup;
-				}
-			} catch(error) {
-				owner.onError(error);
-			}
-		});
-	};
+          if (isPromise<void | EffectCleanup>(newCleanup)) {
+            currentPromise = newCleanup.then(awaitedNewCleanup => {
+              currentPromise = null;
+              currentCleanup = awaitedNewCleanup || null;
+            });
+          } else if (newCleanup) {
+            currentCleanup = newCleanup;
+          }
+        } catch (error) {
+          owner.onError(error);
+        }
+      });
+    };
 
-	const initialize = (options?.runAt === 'sync') ?
-		owner.onEffectSyncInitialize :
-		owner.onEffectInitialize;
+    const initialize = (effect: Effect) => {
+      options?.runAt === 'sync'
+        ? owner.onEffectSyncInitialize(effect)
+        : owner.onEffectInitialize(effect);
+    };
 
-	initialize(() => {
-		return () => {
-			refCleanups.forEach(refCleanup => refCleanup());
+    initialize(() => {
+      runEffect();
 
-			if (currentPromise) {
-				isCancelled = true;
-				return currentPromise.then(() => {
-					try {
-						currentCleanup?.();
-					} catch(error) {
-						owner.onError(error);
-					}
-				});
-			}
+      return () => {
+        refCleanups.forEach(refCleanup => refCleanup());
 
-			try {
-				currentCleanup?.();
-			} catch(error) {
-				owner.onError(error);
-			}
-		};
-	});
-};
+        if (currentPromise) {
+          isCancelled = true;
+          return currentPromise.then(() => {
+            try {
+              currentCleanup?.();
+            } catch (error) {
+              owner.onError(error);
+            }
+          });
+        }
 
-export type PrimitiveEffect = (effectFn: EffectFn, options?: EffectOption) => void;
+        try {
+          currentCleanup?.();
+        } catch (error) {
+          owner.onError(error);
+        }
+      };
+    });
+  };
 
-export const effectSync = (owner: Owner): PrimitiveEffectSync =>
-	(effectFn, options) => effect(owner)(effectFn, { ...options, runAt: 'sync' });
+export type PrimitiveEffect = (
+  effectFn: EffectFn,
+  options?: EffectOption
+) => void;
 
-export type PrimitiveEffectSync = (effectFn: EffectFn, options?: Omit<EffectOption, 'runAt'>) => void;
+export const effectSync =
+  (owner: Owner): PrimitiveEffectSync =>
+  (effectFn, options) =>
+    effect(owner)(effectFn, { ...options, runAt: 'sync' });
+
+export type PrimitiveEffectSync = (
+  effectFn: EffectFn,
+  options?: Omit<EffectOption, 'runAt'>
+) => void;
