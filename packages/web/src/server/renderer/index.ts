@@ -51,7 +51,7 @@ export const createRenderer = (
       return id;
     },
 
-    registerComponent(component: Component<any>) {
+    registerComponent(component: Component) {
       const id = this.allocateId();
       this.componentMap.set(component, id);
 

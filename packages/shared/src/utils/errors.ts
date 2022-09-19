@@ -12,6 +12,15 @@ export const ErrorMessages = {
   [ErrorCodes.E_SET_ON_DECOMPOSE]: 'Tried to set key $1 to a decomposed ref',
 } as const;
 
-export const throwError = (code: ErrorCodes, ...args: any[]): never => {
-  throw new Error();
+export const throwError = (code: ErrorCodes, ...args: unknown[]): never => {
+  if (__DEV__) {
+    throw new Error(
+      args.reduce<string>(
+        (str, arg, index) => str.replace(`$${index}`, String(arg)),
+        ErrorMessages[code]
+      )
+    );
+  }
+
+  throw new Error(`Minified error $${code}, args: ${JSON.stringify(args)}`);
 };

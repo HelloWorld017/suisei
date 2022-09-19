@@ -15,12 +15,12 @@ export type ServerRendererInitScripts = 'suspense' | 'hybrid';
 
 export type ServerRenderer = {
   allocateId(): string;
-  registerComponent(component: Component<any>): string;
+  registerComponent(component: Component): string;
   emit(chunk: string): void;
   cork(): void;
   uncork(beforeFlush: () => void): void;
   getChildRenderer(): ServerRenderer;
-  componentMap: WeakMap<Component<any>, string>;
+  componentMap: WeakMap<Component, string>;
   config: ParsedServerRendererConfig;
   scheduler: Scheduler;
   renderedInitScripts: Set<ServerRendererInitScripts>;

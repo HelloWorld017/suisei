@@ -33,7 +33,8 @@ export type Depropize<T> = {
   [K in keyof T]: T[K] | Ref<T[K]>;
 };
 
-export type Component<P extends PropsBase = PropsBase> = (
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type Component<P extends PropsBase = any> = (
   props: PropsValidated<P>,
   $: Primitives
 ) => Element | Promise<Element>;
