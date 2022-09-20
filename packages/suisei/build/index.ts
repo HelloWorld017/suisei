@@ -46,4 +46,6 @@ builds.push(
   })
 );
 
-Promise.all(builds);
+Promise.all(builds).catch(err => {
+  console.error('Failed to build!', err);
+});

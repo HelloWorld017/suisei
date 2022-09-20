@@ -1,4 +1,8 @@
-import { createDefaultOwner, createPrimitives } from '@suisei/core';
+import {
+  ContextRegistry,
+  createDefaultOwner,
+  createPrimitives,
+} from '@suisei/core';
 
 export {
   createContext,
@@ -8,4 +12,7 @@ export {
   Suspense,
 } from '@suisei/core';
 
-export const $$ = createPrimitives(createDefaultOwner(), Object.create(null));
+export const $$ = createPrimitives(
+  Object.create(null) as ContextRegistry,
+  createDefaultOwner()
+);
