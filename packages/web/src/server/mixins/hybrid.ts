@@ -1,12 +1,10 @@
 import { createElement } from '@suisei/core';
-import { constant } from '@suisei/reactivity';
-import { SymbolIntrinsicElement, SymbolIs } from '@suisei/shared';
-import { renderer } from '../renderer';
+import { SymbolIs } from '@suisei/shared';
 import type { Component, Element, PropsBase } from '@suisei/core';
 
 export const hybrid =
   <P extends PropsBase>(component: Component<P>): Component<P> =>
-  ({ children, ...props }: P) => {
+  ({ children, ...props }: PropsValidated<P>) => {
     const element = createElement(component, props);
 
     // TODO Handle Suspense

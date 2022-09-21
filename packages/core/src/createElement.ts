@@ -4,7 +4,6 @@ import type {
   Component,
   Element,
   PropsBase,
-  PropsValidated,
   Propize,
   Ref,
 } from './types';
@@ -24,7 +23,7 @@ export const createProviderElement = (
 export const createElement = <P extends PropsBase = PropsBase>(
   component: string | Component<P>,
   props: Omit<Propize<P>, 'children'>,
-  ...children: PropsValidated<P>['children']
+  ...children: P['children'] extends Children ? P['children'] : []
 ): Element => ({
   [SymbolIs]: SymbolElement,
   component,

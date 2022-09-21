@@ -1,29 +1,20 @@
 import { isRef } from '@suisei/shared';
 import type { Primitives } from '../primitives';
-import type {
-  PropsBase,
-  Propize,
-  PropsValidatedWithoutChildren,
-  Ref,
-} from '../types';
+import type { PropsBase, Propize, Ref } from '../types';
 
 export const wrapProps = <P extends PropsBase>(
   props: Propize<P>,
   primitives: Primitives
-): PropsValidatedWithoutChildren<P> => {
-  type WrappedProps = PropsValidatedWithoutChildren<P>;
-  return Object.keys(props).reduce<Partial<WrappedProps>>(
-    (wrappedProps, propKey) => {
-      const propValue = props[propKey as keyof Propize<P>];
+): P => {
+  return Object.keys(props).reduce<Partial<P>>((wrappedProps, propKey) => {
+    const propValue = props[propKey as keyof Propize<P>];
 
-      wrappedProps[propKey as keyof WrappedProps] = (
-        isRef(propValue as Ref<unknown>)
-          ? propValue
-          : primitives.constant(propValue)
-      ) as WrappedProps[keyof WrappedProps];
+    wrappedProps[propKey as keyof P] = (
+      isRef(propValue as Ref<unknown>)
+        ? propValue
+        : primitives.constant(propValue)
+    ) as P[keyof P];
 
-      return wrappedProps;
-    },
-    {}
-  ) as WrappedProps;
+    return wrappedProps;
+  }, {}) as P;
 };

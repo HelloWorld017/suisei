@@ -23,7 +23,6 @@ import type {
   Element,
   Propize,
   PropsBase,
-  PropsValidated,
 } from '@suisei/core';
 import type { ElementsAttributes } from '@suisei/htmltypes';
 import type { Owner } from '@suisei/reactivity';
@@ -216,13 +215,13 @@ export const renderComponentElement = <P extends PropsBase>(
   contextRegistry: ContextRegistry,
   component: Component<P>,
   props: Propize<P>,
-  children: PropsValidated<P>['children']
+  children: P['children']
 ): RenderResult => {
   const renderer = getRendererFromRegistry(contextRegistry);
   const owner = createOwner(renderer, contextRegistry);
   const $ = createPrimitives(contextRegistry, owner);
 
-  const propsWrapped = wrapProps(props, $) as PropsValidated<P>;
+  const propsWrapped = wrapProps(props, $);
   propsWrapped.children = children;
 
   let result;

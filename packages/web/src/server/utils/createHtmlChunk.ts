@@ -27,9 +27,8 @@ export const createHtmlOpenChunk = <T extends keyof ElementsAttributes>(
   const propNames = Object.keys(props);
 
   for (let i = 0; i < propNames.length; i++) {
-    const rawPropName = propNames[
-      i
-    ] as keyof ElementsAttributes[keyof ElementsAttributes];
+    type PropName = keyof ElementsAttributes[keyof ElementsAttributes];
+    const rawPropName = propNames[i] as PropName;
     const rawPropValue = props[rawPropName];
 
     const propName = standardizeAttributeName(rawPropName);
