@@ -31,3 +31,5 @@ export const createElement = <P extends PropsBase = PropsBase>(
   provide: null,
   children: children.flat(),
 });
+
+// TODO Support new jsx transform

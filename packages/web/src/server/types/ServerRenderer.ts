@@ -11,15 +11,16 @@ export type ParsedServerRendererConfig = {
   nonce?: string;
 };
 
-export type ServerRendererInitScripts = 'suspense' | 'hybrid';
+export type CorkNode = unknown & { __brand?: 'CorkNode' };
 
+export type ServerRendererInitScripts = 'suspense' | 'hybrid';
 export type ServerRenderer = {
   allocateId(): string;
   registerComponent(component: Component): string;
   emit(chunk: string): void;
-  cork(): void;
-  uncork(beforeFlush: () => void): void;
-  getChildRenderer(): ServerRenderer;
+  cork(): CorkNode;
+  uncork(node: CorkNode, beforeFlush?: () => void): void;
+  getChildRenderer(): [ServerRenderer, CorkNode];
   componentMap: WeakMap<Component, string>;
   config: ParsedServerRendererConfig;
   scheduler: Scheduler;

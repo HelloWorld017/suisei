@@ -1,12 +1,18 @@
 import { createDefaultScheduler } from '@suisei/core';
 import { DEFAULT_NAMESPACE } from '@suisei/shared';
-import type { ServerRenderer } from '../types/ServerRenderer';
+import type { CorkNode, ServerRenderer } from '../types/ServerRenderer';
 import type { Component } from '@suisei/core';
 import type { Writable } from 'stream';
 
 export type ServerRendererConfig = Partial<{
   namespace: string;
 }>;
+
+type Node = {
+  value: string;
+  prev: Node | null;
+  next: Node | null;
+};
 
 export const createRenderer = (
   stream: Writable,
@@ -15,36 +21,56 @@ export const createRenderer = (
   let lastId = 0;
   const namespace = config?.namespace ?? DEFAULT_NAMESPACE;
 
-  const createStreamRenderer = () => {
-    let corked = false;
-    let corkedValue = '';
+  const createStreamRenderer = (emitToStream: (chunk: string) => void) => {
+    let tail: Node | null = null;
 
-    return {
+    const streamRenderer = {
       cork() {
-        corked = true;
+        const node = { value: '', prev: tail, next: null };
+        if (tail) {
+          tail.next = node;
+        }
+
+        tail = node;
+        return node as CorkNode;
       },
 
-      uncork(prepend: () => void) {
-        corked = false;
-        prepend();
-        this.emit(corkedValue);
+      uncork(node: CorkNode, prepend?: () => void) {
+        const prevNode = (node as Node).prev;
+        if (prevNode) {
+          prevNode.next = (node as Node).next;
+          prevNode.value += (node as Node).value;
+        }
 
-        corkedValue = '';
+        // Write to the stream / previous node
+        const oldTail = tail;
+        tail = prevNode;
+
+        prepend?.();
+        streamRenderer.emit((node as Node).value);
+        tail = oldTail;
+
+        // Update tail
+        if (tail === node) {
+          tail = prevNode;
+        }
       },
 
       emit(chunk: string) {
-        if (corked) {
-          corkedValue += chunk;
+        if (!tail) {
+          emitToStream(chunk);
           return;
         }
 
-        stream.write(chunk);
+        tail.value += chunk;
       },
     };
+
+    return streamRenderer;
   };
 
-  return {
-    ...createStreamRenderer(),
+  const renderer: ServerRenderer = {
+    ...createStreamRenderer(value => stream.write(value)),
 
     allocateId() {
       const id = (++lastId).toString(36);
@@ -52,14 +78,19 @@ export const createRenderer = (
     },
 
     registerComponent(component: Component) {
-      const id = this.allocateId();
-      this.componentMap.set(component, id);
+      const id = renderer.allocateId();
+      renderer.componentMap.set(component, id);
 
       return id;
     },
 
     getChildRenderer() {
-      return { ...this, ...createStreamRenderer() };
+      const node = renderer.cork();
+      const renderToParent = (chunk: string) => {
+        (node as Node).value += chunk;
+      };
+
+      return [{ ...renderer, ...createStreamRenderer(renderToParent) }, node];
     },
 
     config: {
@@ -75,4 +106,6 @@ export const createRenderer = (
     scheduler: createDefaultScheduler(),
     renderedInitScripts: new Set(),
   };
+
+  return renderer;
 };

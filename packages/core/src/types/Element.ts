@@ -27,6 +27,7 @@ export type {
 };
 export type { Node as SuiseiNode };
 
+// TODO Support function children?
 type ChildrenImpl<T extends Node[], N extends number> = T['length'] extends N
   ? T
   : ChildrenImpl<[...T, NodeValue], N>;

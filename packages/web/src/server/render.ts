@@ -4,6 +4,7 @@ import {
   wrapProps,
   ErrorBoundaryContext,
   SuspenseContext,
+  SuspenseContextType,
 } from '@suisei/core';
 import { assertsIsElement, isElement, isPromise, isRef } from '@suisei/shared';
 import { encodeEntities } from '../shared';
@@ -99,6 +100,90 @@ const renderChildren = (
   return Promise.allSettled(promises).then(() => {});
 };
 
+const renderSuspendedElement = (
+  contextRegistry: ContextRegistry,
+  suspense: SuspenseContextType,
+  children: Children
+) => {
+  const renderer = getRendererFromRegistry(contextRegistry);
+  const [suspendedRenderer, suspendedRendererCork] =
+    renderer.getChildRenderer();
+
+  const nextRegistry = {
+    ...contextRegistry,
+    [SuspenseContext.key]: suspense,
+    [ServerRendererContext.key]: suspendedRenderer,
+  };
+
+  const childrenResult = renderChildren(nextRegistry, children);
+  if (!childrenResult) {
+    // No promises are registered, just uncork
+    renderer.uncork(suspendedRendererCork, () => {});
+    return;
+  }
+
+  if (!suspense.fallback) {
+    return childrenResult.then(() => {
+      renderer.uncork(suspendedRendererCork);
+    });
+  }
+
+  const suspenseId = `${
+    renderer.config.namespace.templateId
+  }:${renderer.allocateId()}`;
+
+  // Should not render with next registry
+  renderer.emit(createHtmlChunk('template', { id: suspenseId }, ''));
+
+  const fallbackBoundary = `<!--/${suspenseId}-->`;
+  const fallbackResult = render(suspense.fallback, contextRegistry);
+  const promises = [childrenResult];
+  if (fallbackResult) {
+    promises.push(fallbackResult.then(() => renderer.emit(fallbackBoundary)));
+  } else {
+    renderer.emit(fallbackBoundary);
+  }
+
+  return Promise.allSettled(promises).then(() => {
+    const replacementId = `${
+      renderer.config.namespace.templateId
+    }:${renderer.allocateId()}`;
+    suspendedRenderer.uncork(() => {
+      suspendedRenderer.emit(
+        createHtmlChunk('template', { id: replacementId }, '')
+      );
+    });
+
+    suspendedRenderer.emit(`<!--/${replacementId}-->`);
+
+    if (!renderer.renderedInitScripts.has('suspense')) {
+      suspendedRenderer.emit(
+        createHtmlChunk(
+          'script',
+          {},
+          createSuspenseInitInlineScript(
+            renderer.config.namespace.namespace,
+            renderer.config.nonce
+          )
+        )
+      );
+    }
+
+    suspendedRenderer.emit(
+      createHtmlChunk(
+        'script',
+        {},
+        createSuspenseInlineScript(
+          renderer.config.namespace.namespace,
+          suspenseId,
+          replacementId,
+          renderer.config.nonce
+        )
+      )
+    );
+  });
+};
+
 const renderFragmentElement = (
   contextRegistry: ContextRegistry,
   props: Record<string, unknown>,
@@ -106,29 +191,14 @@ const renderFragmentElement = (
   children: Children
 ): RenderResult => {
   const renderer = getRendererFromRegistry(contextRegistry);
-
   let nextRegistry = contextRegistry;
-  let suspense: { fallback: Element; renderer: ServerRenderer } | null = null;
 
   if (provide) {
     nextRegistry = { ...contextRegistry, ...provide };
 
     if (SuspenseContext.key in provide) {
       const suspenseContext = readContext(nextRegistry, SuspenseContext);
-      if (suspenseContext) {
-        type NextRegistry = {
-          [K in typeof ServerRendererContext.key]: ServerRenderer;
-        };
-
-        const suspendedRenderer = renderer.getChildRenderer();
-        (nextRegistry as NextRegistry)[ServerRendererContext.key] =
-          suspendedRenderer;
-
-        suspense = {
-          fallback: suspenseContext.fallback,
-          renderer: suspendedRenderer,
-        };
-      }
+      return renderSuspendedElement(contextRegistry, suspenseContext, children);
     }
   }
 
@@ -136,76 +206,9 @@ const renderFragmentElement = (
   const childrenResult = renderChildren(nextRegistry, children, {
     shouldEscape,
   });
+
   if (!childrenResult) {
-    if (suspense) {
-      // No promises are registered, just uncork
-      suspense.renderer.uncork(() => {});
-    }
     return;
-  }
-
-  if (suspense) {
-    const suspendedRenderer = suspense.renderer;
-    if (suspense.fallback) {
-      const suspenseId = `${
-        renderer.config.namespace.templateId
-      }:${renderer.allocateId()}`;
-
-      // Should not render with next registry
-      renderer.emit(createHtmlChunk('template', { id: suspenseId }, ''));
-
-      const fallbackBoundary = `<!--/${suspenseId}-->`;
-      const fallbackResult = render(suspense.fallback, contextRegistry);
-      const promises = [childrenResult];
-      if (fallbackResult) {
-        promises.push(
-          fallbackResult.then(() => renderer.emit(fallbackBoundary))
-        );
-      } else {
-        renderer.emit(fallbackBoundary);
-      }
-
-      return Promise.allSettled(promises).then(() => {
-        const replacementId = `${
-          renderer.config.namespace.templateId
-        }:${renderer.allocateId()}`;
-        suspendedRenderer.uncork(() => {
-          suspendedRenderer.emit(
-            createHtmlChunk('template', { id: replacementId }, '')
-          );
-        });
-
-        suspendedRenderer.emit(`<!--/${replacementId}-->`);
-
-        if (!renderer.renderedInitScripts.has('suspense')) {
-          suspendedRenderer.emit(
-            createHtmlChunk(
-              'script',
-              {},
-              createSuspenseInitInlineScript(
-                renderer.config.namespace.namespace,
-                renderer.config.nonce
-              )
-            )
-          );
-        }
-
-        suspendedRenderer.emit(
-          createHtmlChunk(
-            'script',
-            {},
-            createSuspenseInlineScript(
-              renderer.config.namespace.namespace,
-              suspenseId,
-              replacementId,
-              renderer.config.nonce
-            )
-          )
-        );
-      });
-    }
-
-    return childrenResult.then(() => suspendedRenderer.uncork(() => {}));
   }
 
   return childrenResult;
