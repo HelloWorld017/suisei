@@ -8,7 +8,6 @@ import {
 } from '@suisei/core';
 import { assertsIsElement, isElement, isPromise, isRef } from '@suisei/shared';
 import { encodeEntities } from '../shared';
-import { ServerRendererContext } from './contexts/ServerRendererContext';
 import {
   createHtmlChunk,
   createHtmlOpenChunk,
@@ -27,10 +26,6 @@ import type {
 } from '@suisei/core';
 import type { ElementsAttributes } from '@suisei/htmltypes';
 import type { Owner } from '@suisei/reactivity';
-
-const getRendererFromRegistry = (
-  contextRegistry: ContextRegistry
-): ServerRenderer => readContext(contextRegistry, ServerRendererContext);
 
 const createOwner = (
   renderer: ServerRenderer,
@@ -57,12 +52,12 @@ const createOwner = (
 type RenderResult = Promise<void> | void;
 
 const renderChildren = (
+  renderer: ServerRenderer,
   contextRegistry: ContextRegistry,
   children: Children,
   { shouldEscape = true } = {}
 ): RenderResult => {
   const promises: Promise<void>[] = [];
-  const renderer = getRendererFromRegistry(contextRegistry);
   const owner = createOwner(renderer, contextRegistry);
   const $ = createPrimitives(contextRegistry, owner);
 
@@ -76,7 +71,7 @@ const renderChildren = (
     })
     .forEach(child => {
       if (isElement(child)) {
-        const result = render(child, contextRegistry);
+        const result = render(renderer, child, contextRegistry);
         if (result) {
           promises.push(result);
         }
@@ -97,100 +92,91 @@ const renderChildren = (
     return;
   }
 
-  return Promise.allSettled(promises).then(() => {});
+  return Promise.all(promises).then(() => {});
 };
 
 const renderSuspendedElement = (
+  renderer: ServerRenderer,
   contextRegistry: ContextRegistry,
   suspense: SuspenseContextType,
   children: Children
 ) => {
-  const renderer = getRendererFromRegistry(contextRegistry);
-  const [suspendedRenderer, suspendedRendererCork] =
-    renderer.getChildRenderer();
+  const suspendedRenderer = renderer.forkRenderer();
+  const namespace = renderer.config.namespace.templateId;
 
   const nextRegistry = {
     ...contextRegistry,
     [SuspenseContext.key]: suspense,
-    [ServerRendererContext.key]: suspendedRenderer,
   };
 
-  const childrenResult = renderChildren(nextRegistry, children);
+  const childrenResult = renderChildren(renderer, nextRegistry, children);
   if (!childrenResult) {
     // No promises are registered, just uncork
-    renderer.uncork(suspendedRendererCork, () => {});
+    renderer.mergeRenderer(suspendedRenderer);
     return;
   }
 
   if (!suspense.fallback) {
+    // No fallback
+    // > Wait until the promises resolve and uncork
     return childrenResult.then(() => {
-      renderer.uncork(suspendedRendererCork);
+      renderer.mergeRenderer(suspendedRenderer);
     });
   }
 
-  const suspenseId = `${
-    renderer.config.namespace.templateId
-  }:${renderer.allocateId()}`;
+  // Uncork, but write ours later with `mergeRenderer`
+  renderer.yieldRenderer(suspendedRenderer);
 
-  // Should not render with next registry
+  // Should not render fallback with next registry
+  const suspenseId = `${namespace}:${renderer.allocateId()}`;
   renderer.emit(createHtmlChunk('template', { id: suspenseId }, ''));
 
-  const fallbackBoundary = `<!--/${suspenseId}-->`;
-  const fallbackResult = render(suspense.fallback, contextRegistry);
   const promises = [childrenResult];
+  const fallbackBoundary = `<!--/${suspenseId}-->`;
+  const fallbackResult = render(renderer, suspense.fallback, contextRegistry);
+  renderer.emit(fallbackBoundary);
+
   if (fallbackResult) {
-    promises.push(fallbackResult.then(() => renderer.emit(fallbackBoundary)));
-  } else {
-    renderer.emit(fallbackBoundary);
+    promises.push(fallbackResult);
   }
 
-  return Promise.allSettled(promises).then(() => {
-    const replacementId = `${
-      renderer.config.namespace.templateId
-    }:${renderer.allocateId()}`;
-    suspendedRenderer.uncork(() => {
-      suspendedRenderer.emit(
-        createHtmlChunk('template', { id: replacementId }, '')
-      );
-    });
-
+  return Promise.all(promises).then(() => {
+    const replacementId = `${namespace}:${renderer.allocateId()}`;
     suspendedRenderer.emit(`<!--/${replacementId}-->`);
 
+    let scriptPreamble = '';
     if (!renderer.renderedInitScripts.has('suspense')) {
-      suspendedRenderer.emit(
-        createHtmlChunk(
-          'script',
-          {},
-          createSuspenseInitInlineScript(
-            renderer.config.namespace.namespace,
-            renderer.config.nonce
-          )
-        )
+      scriptPreamble += createSuspenseInitInlineScript(
+        renderer.config.namespace.namespace
       );
     }
 
     suspendedRenderer.emit(
       createHtmlChunk(
         'script',
-        {},
-        createSuspenseInlineScript(
-          renderer.config.namespace.namespace,
-          suspenseId,
-          replacementId,
-          renderer.config.nonce
-        )
+        { nonce: renderer.config.nonce },
+        scriptPreamble +
+          createSuspenseInlineScript(
+            renderer.config.namespace.namespace,
+            suspenseId,
+            replacementId
+          )
       )
     );
+
+    renderer.mergeRenderer(suspendedRenderer, () => {
+      renderer.emit(createHtmlChunk('template', { id: replacementId }, ''));
+    });
   });
 };
 
 const renderFragmentElement = (
+  renderer: ServerRenderer,
   contextRegistry: ContextRegistry,
   props: Record<string, unknown>,
   provide: Record<symbol, unknown> | null,
   children: Children
 ): RenderResult => {
-  const renderer = getRendererFromRegistry(contextRegistry);
   let nextRegistry = contextRegistry;
 
   if (provide) {
@@ -198,29 +184,27 @@ const renderFragmentElement = (
 
     if (SuspenseContext.key in provide) {
       const suspenseContext = readContext(nextRegistry, SuspenseContext);
-      return renderSuspendedElement(contextRegistry, suspenseContext, children);
+      return renderSuspendedElement(
+        renderer,
+        contextRegistry,
+        suspenseContext as SuspenseContextType,
+        children
+      );
     }
   }
 
   const shouldEscape = !props.raw;
-  const childrenResult = renderChildren(nextRegistry, children, {
-    shouldEscape,
-  });
-
-  if (!childrenResult) {
-    return;
-  }
-
-  return childrenResult;
+  const options = { shouldEscape };
+  return renderChildren(renderer, nextRegistry, children, options);
 };
 
 export const renderComponentElement = <P extends PropsBase>(
+  renderer: ServerRenderer,
   contextRegistry: ContextRegistry,
   component: Component<P>,
   props: Propize<P>,
   children: P['children']
 ): RenderResult => {
-  const renderer = getRendererFromRegistry(contextRegistry);
   const owner = createOwner(renderer, contextRegistry);
   const $ = createPrimitives(contextRegistry, owner);
 
@@ -236,47 +220,48 @@ export const renderComponentElement = <P extends PropsBase>(
   }
 
   if (!isPromise(result)) {
-    return render(result, contextRegistry);
+    return render(renderer, result, contextRegistry);
   }
 
   // Prevent other elements being flushed
-  renderer.cork();
+  // > As we are the source of the promises, we should guarantee corking
+  const componentRenderer = renderer.forkRenderer();
 
-  return result
-    .then(element => {
+  return (
+    result
       // Render and flush other elements
-      renderer.uncork(() => render(element, contextRegistry));
-    })
-    .catch(err => {
-      // TODO handle errors for async component
-      owner.onError(err);
-    });
+      .then(element => render(componentRenderer, element, contextRegistry))
+      .then(() => renderer.mergeRenderer(componentRenderer))
+      .catch(err => {
+        // TODO handle errors for async component
+        owner.onError(err);
+      })
+  );
 };
 
 export const renderIntrinsicElement = <C extends keyof ElementsAttributes>(
+  renderer: ServerRenderer,
   contextRegistry: ContextRegistry,
   component: C,
   props: Depropize<ElementsAttributes[C]>,
   children: Children
 ): RenderResult => {
-  const renderer = getRendererFromRegistry(contextRegistry);
   const owner = createOwner(renderer, contextRegistry);
   const $ = createPrimitives(contextRegistry, owner);
 
   const propsWrapped = wrapProps(props, $) as ElementsAttributes[C];
   renderer.emit(createHtmlOpenChunk(component, propsWrapped));
 
-  const renderResult = renderChildren(contextRegistry, children);
-  const closingChunk = `</${component}>`;
+  const renderResult = renderChildren(renderer, contextRegistry, children);
+  renderer.emit(`</${component}>`);
 
-  if (isPromise(renderResult)) {
-    return renderResult.then(() => renderer.emit(closingChunk));
-  }
-
-  renderer.emit(closingChunk);
+  return renderResult;
 };
 
+// WARN You should not wait for the `render()`.
+// > But if you're dealing with the `renderer.mergeRenderer()`, you should wait for it
 export const render = (
+  renderer: ServerRenderer,
   element: Element,
   contextRegistry: ContextRegistry = {}
 ): RenderResult => {
@@ -284,6 +269,7 @@ export const render = (
 
   if (element.component === null) {
     return renderFragmentElement(
+      renderer,
       contextRegistry,
       element.props,
       element.provide,
@@ -293,6 +279,7 @@ export const render = (
 
   if (typeof element.component === 'string') {
     return renderIntrinsicElement(
+      renderer,
       contextRegistry,
       element.component as keyof ElementsAttributes,
       element.props,
@@ -301,6 +288,7 @@ export const render = (
   }
 
   return renderComponentElement(
+    renderer,
     contextRegistry,
     element.component,
     element.props,

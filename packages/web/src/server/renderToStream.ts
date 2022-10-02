@@ -1,4 +1,3 @@
-import { ServerRendererContext } from './contexts/ServerRendererContext';
 import { render } from './render';
 import { createRenderer } from './renderer';
 import type { ServerRendererConfig } from './renderer';
@@ -10,6 +9,4 @@ export const renderToStream = (
   element: Element,
   config?: ServerRendererConfig
 ): Promise<void> | void =>
-  render(element, {
-    [ServerRendererContext.key]: createRenderer(stream, config),
-  });
+  render(createRenderer(stream, config), element);

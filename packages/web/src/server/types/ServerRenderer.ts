@@ -18,9 +18,9 @@ export type ServerRenderer = {
   allocateId(): string;
   registerComponent(component: Component): string;
   emit(chunk: string): void;
-  cork(): CorkNode;
-  uncork(node: CorkNode, beforeFlush?: () => void): void;
-  getChildRenderer(): [ServerRenderer, CorkNode];
+  forkRenderer(): ServerRenderer;
+  mergeRenderer(childRenderer: ServerRenderer, prepend?: () => void): void;
+  yieldRenderer(childRenderer: ServerRenderer): void;
   componentMap: WeakMap<Component, string>;
   config: ParsedServerRendererConfig;
   scheduler: Scheduler;
