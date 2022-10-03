@@ -54,7 +54,17 @@ export type DerivedRef<T> = RefDerivator<T> & {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type Ref<T = any> = VariableRef<T> | ConstantRef<T> | DerivedRef<T>;
+export type InternalRef<T = any> =
+  | VariableRef<T>
+  | ConstantRef<T>
+  | DerivedRef<T>;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type Ref<T = any> = {
+  [SymbolIs]: typeof SymbolRef;
+  [SymbolRefDescriptor]?: { raw: T };
+};
+
 export type ExtractRef<R extends Ref> = R extends Ref<infer T> ? T : never;
 
 export type PackToRef<R> = R extends Ref<unknown> ? R : Ref<R>;

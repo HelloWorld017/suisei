@@ -4,7 +4,7 @@ import {
   SymbolRefDescriptor,
   SymbolObservers,
 } from '@suisei/shared';
-import { Owner, VariableRef } from '../types';
+import type { Owner, Ref, VariableRef } from '../types';
 
 export const state =
   (owner: Owner): PrimitiveState =>
@@ -38,4 +38,4 @@ export const state =
 
 export type PrimitiveState = <T>(
   initialValue: T
-) => [VariableRef<T>, (newValue: T) => void];
+) => [Ref<T>, (newValue: T) => void];

@@ -7,6 +7,7 @@ import {
 } from '@suisei/shared';
 import {
   DerivedRefObservedMemo,
+  InternalRef,
   Owner,
   Ref,
   RefObserver,
@@ -16,9 +17,11 @@ import { readRef } from './readRef';
 
 export const observeRef = <T>(
   owner: Owner,
-  ref: Ref<T>,
+  target: Ref<T>,
   observer: RefObserver<T>
 ): [T, () => void] => {
+  const ref = target as InternalRef<T>;
+
   if (isConstantRef<T>(ref)) {
     return [ref[SymbolRefDescriptor].raw, () => {}];
   }

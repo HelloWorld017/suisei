@@ -1,6 +1,6 @@
 import { isRef } from '@suisei/shared';
 import type { Primitives } from '../primitives';
-import type { PropsBase, Propize, Ref } from '../types';
+import type { PropsBase, Propize } from '../types';
 
 export const wrapProps = <P extends PropsBase>(
   props: Propize<P>,
@@ -10,9 +10,7 @@ export const wrapProps = <P extends PropsBase>(
     const propValue = props[propKey as keyof Propize<P>];
 
     wrappedProps[propKey as keyof P] = (
-      isRef(propValue as Ref<unknown>)
-        ? propValue
-        : primitives.constant(propValue)
+      isRef(propValue) ? propValue : primitives.constant(propValue)
     ) as P[keyof P];
 
     return wrappedProps;

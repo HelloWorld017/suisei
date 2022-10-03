@@ -4,9 +4,11 @@ import {
   SymbolMemoizedValue,
   SymbolRefDescriptor,
 } from '@suisei/shared';
-import { Ref, RefSelector } from '../types';
+import { InternalRef, Ref, RefSelector } from '../types';
 
-export const readRef = <T>(ref: Ref<T>): T => {
+export const readRef = <T>(target: Ref<T>): T => {
+  const ref = target as InternalRef<T>;
+
   if (isConstantOrVariableRef<T>(ref)) {
     return ref[SymbolRefDescriptor].raw;
   }

@@ -1,9 +1,9 @@
 import { SymbolIs, SymbolRef, SymbolRefDescriptor } from '@suisei/shared';
-import type { ConstantRef, Owner } from '../types';
+import type { ConstantRef, Ref, Owner } from '../types';
 
 export const constant =
   (owner: Owner): PrimitiveConstant =>
-  constantValue => ({
+  <T>(constantValue: T): ConstantRef<T> => ({
     [SymbolIs]: SymbolRef,
     [SymbolRefDescriptor]: {
       id: owner.stateCount++,
@@ -13,4 +13,4 @@ export const constant =
     },
   });
 
-export type PrimitiveConstant = <T>(constantValue: T) => ConstantRef<T>;
+export type PrimitiveConstant = <T>(constantValue: T) => Ref<T>;

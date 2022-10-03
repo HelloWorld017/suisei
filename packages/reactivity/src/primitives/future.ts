@@ -1,6 +1,6 @@
 import { observeRef } from '../utils';
 import { state } from './state';
-import type { Owner, Ref, VariableRef } from '../types';
+import type { Owner, Ref } from '../types';
 
 export const future =
   (owner: Owner): PrimitiveFuture =>
@@ -23,6 +23,4 @@ export const future =
     return value;
   };
 
-export type PrimitiveFuture = <T>(
-  ref: Ref<Promise<T>>
-) => Promise<VariableRef<T>>;
+export type PrimitiveFuture = <T>(ref: Ref<Promise<T>>) => Promise<Ref<T>>;
