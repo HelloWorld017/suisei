@@ -1,4 +1,4 @@
-import { createProviderElement } from '../../createElement';
+import { createFragmentElement } from '../../createElement';
 import type { Children, Context, Provider } from '../../types';
 
 type ContextProviderProps<T> = { value: T; children: Children };
@@ -11,7 +11,7 @@ export const createContext = <T>(
     value,
     children,
   }: ContextProviderProps<T>) =>
-    createProviderElement({ [GeneratedContext.key]: value }, {}, children);
+    createFragmentElement({ [GeneratedContext.key]: value }, { children });
 
   return [GeneratedContext, GeneratedContextProvider];
 };

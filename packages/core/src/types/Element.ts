@@ -4,10 +4,10 @@ import type { Equals, SymbolElement, SymbolIs } from '@suisei/shared';
 
 export type Element = {
   [SymbolIs]: typeof SymbolElement;
+  key?: string;
   component: string | Component | null;
   props: Record<string, unknown>;
   provide: Record<symbol, unknown> | null;
-  children: Children;
 };
 
 export type { Element as SuiseiElement };
@@ -27,7 +27,6 @@ export type {
 };
 export type { Node as SuiseiNode };
 
-// TODO Support function children?
 type ChildrenImpl<T extends Node[], N extends number> = T['length'] extends N
   ? T
   : ChildrenImpl<[...T, NodeValue], N>;

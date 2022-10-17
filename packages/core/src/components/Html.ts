@@ -1,11 +1,6 @@
-import { createProviderElement } from '../createElement';
+import { createFragmentElement } from '../createElement';
 import type { Children, Element } from '../types';
 
-export const Html = ({
-  key,
-  markup,
-}: {
-  key?: string;
-  markup: string;
-  children: Children<0>;
-}): Element => createProviderElement(null, { key, raw: true }, [markup]);
+type HtmlProps = { markup: string; children: Children<0> };
+export const Html = ({ markup }: HtmlProps): Element =>
+  createFragmentElement(null, { children: [markup], raw: true });

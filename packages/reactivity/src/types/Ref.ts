@@ -66,5 +66,3 @@ export type Ref<T = any> = {
 };
 
 export type ExtractRef<R extends Ref> = R extends Ref<infer T> ? T : never;
-
-export type PackToRef<R> = R extends Ref<unknown> ? R : Ref<R>;

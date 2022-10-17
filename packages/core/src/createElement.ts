@@ -3,33 +3,34 @@ import type {
   Children,
   Component,
   Element,
+  FragmentProps,
   PropsBase,
+  PropsWithKey,
   Propize,
   Ref,
+  WrapProps,
 } from './types';
 
-export const createProviderElement = (
+export const createFragmentElement = (
   providingValue: null | Record<symbol, unknown>,
-  props: Omit<Propize<{ raw: Ref<undefined | boolean> }>, 'children'>,
-  children: Children
+  props: PropsWithKey<WrapProps<FragmentProps>>
 ): Element => ({
   [SymbolIs]: SymbolElement,
   component: null,
   props,
   provide: providingValue,
-  children: children.flat(),
 });
 
 export const createElement = <P extends PropsBase = PropsBase>(
   component: string | Component<P>,
-  props: Omit<Propize<P>, 'children'>,
+  props: PropsWithKey<Omit<Propize<P>, 'children'>>,
   ...children: P['children'] extends Children ? P['children'] : []
 ): Element => ({
   [SymbolIs]: SymbolElement,
   component,
-  props,
+  props: { ...props, children: children.flat() },
   provide: null,
-  children: children.flat(),
+  key: props.key,
 });
 
-// TODO Support new jsx transform
+// TODO export const jsx =

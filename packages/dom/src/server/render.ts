@@ -1,3 +1,4 @@
+import { unwrapProps } from 'packages/core/src/utils/unwrapProps';
 import {
   createPrimitives,
   readContext,
@@ -7,7 +8,7 @@ import {
   SuspenseContextType,
 } from '@suisei/core';
 import { assertsIsElement, isElement, isPromise, isRef } from '@suisei/shared';
-import { encodeEntities } from '../shared';
+import { encodeEntities, isVoidElement } from '../shared';
 import {
   createHtmlChunk,
   createHtmlOpenChunk,
@@ -25,7 +26,7 @@ import type {
   PropsBase,
 } from '@suisei/core';
 import type { ElementsAttributes } from '@suisei/htmltypes';
-import type { Owner } from '@suisei/reactivity';
+import type { Owner, Ref } from '@suisei/reactivity';
 
 const createOwner = (
   renderer: ServerRenderer,
@@ -174,9 +175,21 @@ const renderFragmentElement = (
   renderer: ServerRenderer,
   contextRegistry: ContextRegistry,
   props: Record<string, unknown>,
-  provide: Record<symbol, unknown> | null,
-  children: Children
+  provide: Record<symbol, unknown> | null
 ): RenderResult => {
+  let children: Children = [];
+  if ('children' in props) {
+    const childrenProp = props.children as Children | Ref<Children>;
+
+    if (isRef(childrenProp)) {
+      const owner = createOwner(renderer, contextRegistry);
+      const $ = createPrimitives(contextRegistry, owner);
+      children = $.useOnce(childrenProp);
+    } else {
+      children = childrenProp;
+    }
+  }
+
   let nextRegistry = contextRegistry;
 
   if (provide) {
@@ -202,18 +215,16 @@ export const renderComponentElement = <P extends PropsBase>(
   renderer: ServerRenderer,
   contextRegistry: ContextRegistry,
   component: Component<P>,
-  props: Propize<P>,
-  children: P['children']
+  props: Propize<P>
 ): RenderResult => {
   const owner = createOwner(renderer, contextRegistry);
   const $ = createPrimitives(contextRegistry, owner);
 
   const propsWrapped = wrapProps(props, $);
-  propsWrapped.children = children;
 
   let result;
   try {
-    result = component(propsWrapped, $);
+    result = component(propsWrapped as PropsBase as P, $);
   } catch (err) {
     owner.onError(err);
     return;
@@ -243,18 +254,28 @@ export const renderIntrinsicElement = <C extends keyof ElementsAttributes>(
   renderer: ServerRenderer,
   contextRegistry: ContextRegistry,
   component: C,
-  props: Depropize<ElementsAttributes[C]>,
-  children: Children
+  props: Depropize<ElementsAttributes[C]>
 ): RenderResult => {
   const owner = createOwner(renderer, contextRegistry);
   const $ = createPrimitives(contextRegistry, owner);
 
-  const propsWrapped = wrapProps(props, $) as ElementsAttributes[C];
-  renderer.emit(createHtmlOpenChunk(component, propsWrapped));
+  const propsUnwrapped = unwrapProps(props, $) as ElementsAttributes[C];
+  renderer.emit(createHtmlOpenChunk(component, propsUnwrapped));
 
-  const renderResult = renderChildren(renderer, contextRegistry, children);
+  if (isVoidElement(component)) {
+    return;
+  }
+
+  let renderResult: void | Promise<void>;
+  if (propsUnwrapped.children) {
+    renderResult = renderChildren(
+      renderer,
+      contextRegistry,
+      propsUnwrapped.children
+    );
+  }
+
   renderer.emit(`</${component}>`);
-
   return renderResult;
 };
 
@@ -272,8 +293,7 @@ export const render = (
       renderer,
       contextRegistry,
       element.props,
-      element.provide,
-      element.children
+      element.provide
     );
   }
 
@@ -282,8 +302,7 @@ export const render = (
       renderer,
       contextRegistry,
       element.component as keyof ElementsAttributes,
-      element.props,
-      element.children
+      element.props
     );
   }
 
@@ -291,7 +310,6 @@ export const render = (
     renderer,
     contextRegistry,
     element.component,
-    element.props,
-    element.children
+    element.props
   );
 };
