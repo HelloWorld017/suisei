@@ -1,0 +1,8 @@
+{
+  "name": "suisei-example-helloworld",
+  "version": "0.0.1",
+  "description": "An example application for suisei",
+  "repository": "https://github.com/HelloWorld017/suisei",
+  "author": "Khinenw",
+  "license": "MIT"
+}

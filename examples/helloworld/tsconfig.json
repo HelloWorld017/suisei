@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    "lib": ["esnext"],
+    "lib": ["esnext", "node"],
     "module": "esnext",
     "moduleResolution": "node",
     "strict": true,
@@ -10,19 +10,15 @@
     "noUnusedLocals": true,
     "experimentalDecorators": true,
     "esModuleInterop": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
+    "jsxImportSource": "suisei",
     "declaration": true,
     "skipLibCheck": true,
     "paths": {
-      "@suisei/*": ["packages/*/src"],
-      "suisei": ["packages/suisei/src"]
+      "suisei": ["../packages/suisei/src"]
     }
   },
   "exclude": [
-    "examples",
-    "node_modules",
-    "packages/*/types/**",
-    "packages/*/lib/**",
-    "packages/*/esm/**"
+    "node_modules"
   ]
 }
