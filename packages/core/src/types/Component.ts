@@ -7,7 +7,9 @@ export type Props<T extends Component> = T extends Component<infer P>
   : never;
 
 export type PropsBase = Record<string, Ref | undefined>;
-export type PropsWithKey<P extends PropsBase> = P & { key?: Ref<string> };
+export type PropsWithKey<P extends PropsBase> = P & {
+  key?: Ref<string | undefined>;
+};
 
 // Propize: { K: Ref<T> } -> { K: T | Ref<T> }
 type PropizeImpl<P extends PropsBase> = {

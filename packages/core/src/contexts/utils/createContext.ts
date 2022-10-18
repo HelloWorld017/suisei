@@ -1,7 +1,7 @@
 import { createFragmentElement } from '../../createElement';
-import type { Children, Context, Provider } from '../../types';
+import type { Children, Context, Provider, WrapProps } from '../../types';
 
-type ContextProviderProps<T> = { value: T; children: Children };
+type ContextProviderProps<T> = WrapProps<{ value: T; children: Children }>;
 export const createContext = <T>(
   defaultValue: T,
   name?: string
@@ -11,7 +11,10 @@ export const createContext = <T>(
     value,
     children,
   }: ContextProviderProps<T>) =>
-    createFragmentElement({ [GeneratedContext.key]: value }, { children });
+    createFragmentElement(
+      { [GeneratedContext.key]: value },
+      { children, raw: false }
+    );
 
   return [GeneratedContext, GeneratedContextProvider];
 };

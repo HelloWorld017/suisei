@@ -1,5 +1,6 @@
 import { createFragmentElement } from '../createElement';
-import type { Children, Element } from '../types';
+import type { Children, Element, WrapProps } from '../types';
 
-export const Fragment = ({ children }: { children: Children }): Element =>
-  createFragmentElement(null, { children });
+type FragmentProps = WrapProps<{ children: Children }>;
+export const Fragment = ({ children }: FragmentProps): Element =>
+  createFragmentElement(null, { raw: false, children });

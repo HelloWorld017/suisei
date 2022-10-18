@@ -8,29 +8,29 @@ import type {
   PropsWithKey,
   Propize,
   Ref,
-  WrapProps,
 } from './types';
 
 export const createFragmentElement = (
   providingValue: null | Record<symbol, unknown>,
-  props: PropsWithKey<WrapProps<FragmentProps>>
+  props: Propize<PropsWithKey<FragmentProps>>
 ): Element => ({
   [SymbolIs]: SymbolElement,
   component: null,
   props,
   provide: providingValue,
+  key: props.key,
 });
 
 export const createElement = <P extends PropsBase = PropsBase>(
   component: string | Component<P>,
-  props: PropsWithKey<Omit<Propize<P>, 'children'>>,
+  propsWithoutChildren: Propize<PropsWithKey<Omit<P, 'children'>>>,
   ...children: P['children'] extends Children ? P['children'] : []
 ): Element => ({
   [SymbolIs]: SymbolElement,
   component,
-  props: { ...props, children: children.flat() },
+  props: { ...propsWithoutChildren, children: children.flat() },
   provide: null,
-  key: props.key,
+  key: propsWithoutChildren.key as Ref<string | undefined> | undefined,
 });
 
 // TODO export const jsx =

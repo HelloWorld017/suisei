@@ -1,7 +1,10 @@
 import { SuspenseContext } from '../contexts';
 import { createFragmentElement } from '../createElement';
-import type { Children, Element } from '../types';
+import type { Children, Element, WrapProps } from '../types';
 
-type SuspenseProps = { fallback: Element; children: Children };
+type SuspenseProps = WrapProps<{ fallback: Element; children: Children }>;
 export const Suspense = ({ fallback, children }: SuspenseProps): Element =>
-  createFragmentElement({ [SuspenseContext.key]: { fallback } }, { children });
+  createFragmentElement(
+    { [SuspenseContext.key]: { fallback } },
+    { raw: false, children }
+  );
