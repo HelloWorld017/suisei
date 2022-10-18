@@ -4,7 +4,7 @@ import type { Equals, SymbolElement, SymbolIs } from '@suisei/shared';
 
 export type Element = {
   [SymbolIs]: typeof SymbolElement;
-  key?: Ref<string | undefined>;
+  key: string | null;
   component: string | Component | null;
   props: Record<string, unknown>;
   provide: Record<symbol, unknown> | null;

@@ -1,4 +1,12 @@
-import { SymbolElement, SymbolIs } from '@suisei/shared';
+import {
+  ErrorCodes,
+  isConstantRef,
+  isRef,
+  SymbolElement,
+  SymbolIs,
+  throwError,
+} from '@suisei/shared';
+import { globalPrimitives } from './primitives';
 import type {
   Children,
   Component,
@@ -10,27 +18,54 @@ import type {
   Ref,
 } from './types';
 
+export const createElement = <P extends PropsBase = PropsBase>(
+  component: string | Component<P>,
+  propsWithoutChildren: Propize<PropsWithKey<Omit<P, 'children'>>>,
+  ...children: P['children'] extends Children ? P['children'] : []
+): Element => {
+  let key: string | undefined;
+
+  if (isRef(propsWithoutChildren.key)) {
+    if (!isConstantRef(propsWithoutChildren.key)) {
+      throwError(ErrorCodes.E_KEY_NONCONSTANT_REF);
+    }
+
+    key = globalPrimitives.useOnce(
+      propsWithoutChildren.key as Ref<string | undefined>
+    );
+  } else {
+    key = propsWithoutChildren.key as string | undefined;
+  }
+
+  return {
+    [SymbolIs]: SymbolElement,
+    component,
+    props: { ...propsWithoutChildren, children: children.flat() },
+    provide: null,
+    key: typeof key === 'string' ? key : null,
+  };
+};
+
 export const createFragmentElement = (
   providingValue: null | Record<symbol, unknown>,
-  props: Propize<PropsWithKey<FragmentProps>>
+  props: Propize<FragmentProps>,
+  key?: string
 ): Element => ({
   [SymbolIs]: SymbolElement,
   component: null,
   props,
   provide: providingValue,
-  key: props.key,
+  key: typeof key === 'string' ? key : null,
 });
 
-export const createElement = <P extends PropsBase = PropsBase>(
+export const jsx = <P extends PropsBase = PropsBase>(
   component: string | Component<P>,
-  propsWithoutChildren: Propize<PropsWithKey<Omit<P, 'children'>>>,
-  ...children: P['children'] extends Children ? P['children'] : []
-): Element => ({
+  props: Propize<P>,
+  key?: string
+) => ({
   [SymbolIs]: SymbolElement,
   component,
-  props: { ...propsWithoutChildren, children: children.flat() },
+  props,
   provide: null,
-  key: propsWithoutChildren.key as Ref<string | undefined> | undefined,
+  key,
 });
-
-// TODO export const jsx =

@@ -6,6 +6,7 @@ import {
   ErrorBoundaryContext,
   SuspenseContext,
   SuspenseContextType,
+  globalPrimitives,
 } from '@suisei/core';
 import { assertsIsElement, isElement, isPromise, isRef } from '@suisei/shared';
 import { encodeEntities, isVoidElement } from '../shared';
@@ -39,7 +40,10 @@ const createOwner = (
   onFutureRefetchInitialize() {},
   onFutureRefetchFinish() {},
   onError(error) {
-    const errorBoundary = readContext(contextRegistry, ErrorBoundaryContext);
+    const errorBoundary = globalPrimitives.useOnce(
+      readContext(contextRegistry, ErrorBoundaryContext)
+    );
+
     if (errorBoundary) {
       errorBoundary(error);
       return;
@@ -196,7 +200,9 @@ const renderFragmentElement = (
     nextRegistry = { ...contextRegistry, ...provide };
 
     if (SuspenseContext.key in provide) {
-      const suspenseContext = readContext(nextRegistry, SuspenseContext);
+      const suspenseContext = globalPrimitives.useOnce(
+        readContext(nextRegistry, SuspenseContext)
+      );
       return renderSuspendedElement(
         renderer,
         contextRegistry,
