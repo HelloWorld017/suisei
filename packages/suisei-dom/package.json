@@ -1,0 +1,9 @@
+{
+  "name": "suisei-dom",
+  "version": "0.0.1",
+  "description": "A lightweight library for creating user interfaces in a declarative way",
+  "types": "dist/index.d.ts",
+  "repository": "https://github.com/HelloWorld017/suisei",
+  "author": "Khinenw",
+  "license": "MIT"
+}
