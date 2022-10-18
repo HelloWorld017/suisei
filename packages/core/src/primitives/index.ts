@@ -1,4 +1,5 @@
 import { createReactivityPrimitives } from '@suisei/reactivity';
+import { createDefaultOwner } from '../utils';
 import { consume } from './consume';
 import type { ContextRegistry } from '../types';
 import type { PrimitiveConsume } from './consume';
@@ -17,3 +18,8 @@ export const createPrimitives = (
 
   return primitives;
 };
+
+export const globalPrimitives = createPrimitives(
+  Object.create(null) as ContextRegistry,
+  createDefaultOwner()
+);
