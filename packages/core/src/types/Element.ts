@@ -7,7 +7,7 @@ export type Element = {
   key: string | null;
   component: string | Component | null;
   props: Record<string, unknown>;
-  provide: Record<symbol, unknown> | null;
+  provide: Record<symbol, Ref<unknown>> | null;
 };
 
 export type { Element as SuiseiElement };

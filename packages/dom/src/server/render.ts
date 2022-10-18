@@ -103,15 +103,16 @@ const renderChildren = (
 const renderSuspendedElement = (
   renderer: ServerRenderer,
   contextRegistry: ContextRegistry,
-  suspense: SuspenseContextType,
+  suspenseRef: Ref<SuspenseContextType>,
   children: Children
 ) => {
+  const suspense = globalPrimitives.useOnce(suspenseRef);
   const suspendedRenderer = renderer.forkRenderer();
   const namespace = renderer.config.namespace.templateId;
 
   const nextRegistry = {
     ...contextRegistry,
-    [SuspenseContext.key]: suspense,
+    [SuspenseContext.key]: suspenseRef,
   };
 
   const childrenResult = renderChildren(renderer, nextRegistry, children);
@@ -179,7 +180,7 @@ const renderFragmentElement = (
   renderer: ServerRenderer,
   contextRegistry: ContextRegistry,
   props: Record<string, unknown>,
-  provide: Record<symbol, unknown> | null
+  provide: Record<symbol, Ref<unknown>> | null
 ): RenderResult => {
   let children: Children = [];
   if ('children' in props) {
@@ -200,13 +201,10 @@ const renderFragmentElement = (
     nextRegistry = { ...contextRegistry, ...provide };
 
     if (SuspenseContext.key in provide) {
-      const suspenseContext = globalPrimitives.useOnce(
-        readContext(nextRegistry, SuspenseContext)
-      );
       return renderSuspendedElement(
         renderer,
         contextRegistry,
-        suspenseContext as SuspenseContextType,
+        readContext(nextRegistry, SuspenseContext) as Ref<SuspenseContextType>,
         children
       );
     }

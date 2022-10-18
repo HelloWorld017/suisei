@@ -47,7 +47,7 @@ export const createElement = <P extends PropsBase = PropsBase>(
 };
 
 export const createFragmentElement = (
-  providingValue: null | Record<symbol, unknown>,
+  providingValue: null | Record<symbol, Ref<unknown>>,
   props: Propize<FragmentProps>,
   key?: string
 ): Element => ({
