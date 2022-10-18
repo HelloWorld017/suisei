@@ -45,6 +45,8 @@ interface HTMLHtmlElement extends HTMLElement {}
 interface HTMLIFrameElement extends HTMLElement {}
 interface HTMLImageElement extends HTMLElement {}
 interface HTMLInputElement extends HTMLElement {}
+interface HTMLMediaElement extends HTMLElement {}
+interface HTMLMenuElement extends HTMLElement {}
 interface HTMLModElement extends HTMLElement {}
 interface HTMLLabelElement extends HTMLElement {}
 interface HTMLLegendElement extends HTMLElement {}
@@ -86,6 +88,7 @@ interface HTMLWebViewElement extends HTMLElement {}
 
 interface SVGElement extends Element {}
 interface SVGSVGElement extends SVGElement {}
+interface SVGAnimateElement extends HTMLElement {}
 interface SVGCircleElement extends SVGElement {}
 interface SVGClipPathElement extends SVGElement {}
 interface SVGDefsElement extends SVGElement {}
