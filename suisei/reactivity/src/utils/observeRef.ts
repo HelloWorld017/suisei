@@ -5,6 +5,7 @@ import {
   SymbolObservers,
   SymbolRefDescriptor,
 } from '@suisei/shared';
+
 import {
   DerivedRefObservedMemo,
   InternalRef,
@@ -13,6 +14,7 @@ import {
   RefObserver,
   RefSelector,
 } from '../types';
+
 import { readRef } from './readRef';
 
 export const observeRef = <T>(

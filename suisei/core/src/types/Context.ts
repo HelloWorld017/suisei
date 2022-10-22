@@ -8,6 +8,6 @@ export type Context<T> = {
   defaultValue: Ref<T>;
 };
 export type ContextRegistry = Record<symbol, Ref<unknown>>;
-export type Provider<T> = (
+export type ContextProvider<T> = (
   props: WrapProps<{ value: T; children: Children }>
 ) => Element;

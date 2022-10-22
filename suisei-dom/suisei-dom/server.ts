@@ -1,3 +1,1 @@
-import { server } from '@suisei/dom';
-
-export const { renderToStream } = server;
+export { renderToStream } from '@suisei-dom/server';

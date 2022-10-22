@@ -5,8 +5,8 @@ import {
   encodeEntities,
   isUnsafeAttributeName,
   standardizeAttributeName,
-} from '../../shared';
-import type { ElementsAttributes } from '@suisei/htmltypes';
+} from '@suisei-dom/shared';
+import type { ElementsAttributes } from '@suisei-dom/htmltypes';
 
 const VOID_ELEMENTS =
   /^(area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)$/;

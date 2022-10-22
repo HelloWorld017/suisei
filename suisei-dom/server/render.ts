@@ -1,15 +1,17 @@
-import { unwrapProps } from 'packages/core/src/utils/unwrapProps';
+import { $$ as globalPrimitives } from 'suisei';
 import {
+  assertsIsElement,
   createPrimitives,
+  isElement,
+  isPromise,
+  isRef,
   readContext,
+  unwrapProps,
   wrapProps,
   ErrorBoundaryContext,
   SuspenseContext,
-  SuspenseContextType,
-  globalPrimitives,
-} from '@suisei/core';
-import { assertsIsElement, isElement, isPromise, isRef } from '@suisei/shared';
-import { encodeEntities, isVoidElement } from '../shared';
+} from 'suisei/unsafe-internals';
+import { encodeEntities, isVoidElement } from '@suisei-dom/shared';
 import {
   createHtmlChunk,
   createHtmlOpenChunk,
@@ -17,17 +19,21 @@ import {
   createSuspenseInlineScript,
 } from './utils';
 import type { ServerRenderer } from './types';
+import type { SuiseiElementsAttributes } from '@suisei-dom/shared';
 import type {
   Children,
   Component,
+  SuiseiElement as Element,
+  Ref,
+  PropsBase,
+} from 'suisei';
+import type {
   ContextRegistry,
   Depropize,
-  Element,
   Propize,
-  PropsBase,
-} from '@suisei/core';
-import type { ElementsAttributes } from '@suisei/htmltypes';
-import type { Owner, Ref } from '@suisei/reactivity';
+  Owner,
+  SuspenseContextType,
+} from 'suisei/unsafe-internals';
 
 const createOwner = (
   renderer: ServerRenderer,
@@ -254,16 +260,18 @@ export const renderComponentElement = <P extends PropsBase>(
   );
 };
 
-export const renderIntrinsicElement = <C extends keyof ElementsAttributes>(
+export const renderIntrinsicElement = <
+  C extends keyof SuiseiElementsAttributes
+>(
   renderer: ServerRenderer,
   contextRegistry: ContextRegistry,
   component: C,
-  props: Depropize<ElementsAttributes[C]>
+  props: Depropize<SuiseiElementsAttributes[C]>
 ): RenderResult => {
   const owner = createOwner(renderer, contextRegistry);
   const $ = createPrimitives(contextRegistry, owner);
 
-  const propsUnwrapped = unwrapProps(props, $) as ElementsAttributes[C];
+  const propsUnwrapped = unwrapProps(props, $) as SuiseiElementsAttributes[C];
   renderer.emit(createHtmlOpenChunk(component, propsUnwrapped));
 
   if (isVoidElement(component)) {
@@ -305,7 +313,7 @@ export const render = (
     return renderIntrinsicElement(
       renderer,
       contextRegistry,
-      element.component as keyof ElementsAttributes,
+      element.component as keyof SuiseiElementsAttributes,
       element.props
     );
   }

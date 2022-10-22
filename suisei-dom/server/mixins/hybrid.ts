@@ -1,6 +1,6 @@
-import { createElement } from '@suisei/core';
-import { SymbolIs } from '@suisei/shared';
-import type { Element } from '@suisei/core';
+import { createElement } from 'suisei';
+import { SymbolIs } from 'suisei/unsafe-internals';
+import type { SuiseiElement as Element } from 'suisei';
 
 export const hybrid = (element: Element): Element => {
   const element = createElement(component, props);

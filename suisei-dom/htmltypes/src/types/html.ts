@@ -1,7 +1,6 @@
 import type { AriaAttributes } from './aria';
 import type { CSSAttributes } from './css';
 import type { DOMEventAttributes } from './dom';
-import type { SuiseiAttributes } from './suisei';
 
 type HTMLAttributeReferrerPolicy =
   | ''
@@ -17,8 +16,7 @@ type HTMLAttributeReferrerPolicy =
 export interface HTMLAttributes<E extends HTMLElement>
   extends AriaAttributes,
     CSSAttributes,
-    DOMEventAttributes<E>,
-    SuiseiAttributes {
+    DOMEventAttributes<E> {
   // Standard HTML Attributes
   accessKey?: string;
   contentEditable?: boolean | 'inherit';

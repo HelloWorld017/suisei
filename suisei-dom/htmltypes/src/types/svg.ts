@@ -1,13 +1,11 @@
 import type { AriaAttributes } from './aria';
 import type { CSSAttributes } from './css';
 import type { DOMEventAttributes } from './dom';
-import type { SuiseiAttributes } from './suisei';
 
 export interface SVGAttributes<E extends SVGElement>
   extends AriaAttributes,
     CSSAttributes,
-    DOMEventAttributes<E>,
-    SuiseiAttributes {
+    DOMEventAttributes<E> {
   /**
    * SVG Styling Attributes
    * @see https://www.w3.org/TR/SVG/styling.html#ElementSpecificStyling

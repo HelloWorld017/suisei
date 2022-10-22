@@ -1,7 +1,7 @@
 import type {
   ElementsAttributes,
   VoidElementsAttributes,
-} from '@suisei/htmltypes';
+} from '@suisei-dom/htmltypes';
 
 const voidElementNames = new Set([
   'area',

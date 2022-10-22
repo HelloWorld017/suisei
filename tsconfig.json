@@ -14,15 +14,20 @@
     "declaration": true,
     "skipLibCheck": true,
     "paths": {
-      "@suisei/*": ["packages/*/src"],
-      "suisei": ["packages/suisei/src"]
+      "@suisei/*": ["suisei/*/src"],
+      "@suisei-dom/*": ["suisei-dom/*/src"],
+      "suisei": ["suisei/suisei"],
+      "suisei-dom": ["suisei/suisei-dom"]
     }
   },
   "exclude": [
     "examples",
     "node_modules",
-    "packages/*/types/**",
-    "packages/*/lib/**",
-    "packages/*/esm/**"
+    "suisei/*/types/**",
+    "suisei/*/lib/**",
+    "suisei/*/esm/**",
+    "suisei-dom/*/types/**",
+    "suisei-dom/*/lib/**",
+    "suisei-dom/*/esm/**"
   ]
 }

@@ -1,4 +1,4 @@
-import { safeJSONStringify } from '../../shared';
+import { safeJSONStringify } from '@suisei-dom/shared';
 
 export const createSuspenseInitInlineScript = (namespace: string) =>
   //prettier-ignore

@@ -34,5 +34,3 @@ type ChildrenImpl<T extends Node[], N extends number> = T['length'] extends N
 export type Children<T extends number = number> = Equals<T, number> extends true
   ? NodeValue[]
   : ChildrenImpl<[], T>;
-
-export type { Children as SuiseiChildren };

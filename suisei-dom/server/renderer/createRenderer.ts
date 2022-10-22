@@ -1,8 +1,8 @@
-import { createDefaultScheduler } from '@suisei/core';
-import { DEFAULT_NAMESPACE } from '@suisei/shared';
+import { createDefaultScheduler } from 'suisei';
+import { DEFAULT_NAMESPACE } from '@suisei-dom/shared';
 import type { CorkNode, ServerRenderer } from '../types/ServerRenderer';
-import type { Component } from '@suisei/core';
-import type { Writable } from 'stream';
+import type { Writable } from 'node:stream';
+import type { Component } from 'suisei';
 
 export type ServerRendererConfig = Partial<{
   namespace: string;

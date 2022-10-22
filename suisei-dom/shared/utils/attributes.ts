@@ -2,7 +2,7 @@ import type {
   ClassName,
   CSSProperties,
   ElementsAttributes,
-} from '@suisei/htmltypes';
+} from '@suisei-dom/htmltypes';
 
 export const standardAttributeNames = new Map<string, string>([
   ['className', 'class'],

@@ -253,13 +253,14 @@ export type VoidElementsAttributes = Pick<
   ElementsAttributes,
   VoidElementsNames
 >;
+
 export type ElementsAttributesWithChildren<
   ChildrenType,
   VoidChildrenType = []
 > = {
   [K in keyof ElementsAttributes]: K extends VoidElementsNames
-    ? ElementsAttributes[K] & { children: VoidChildrenType }
-    : ElementsAttributes[K] & { children: ChildrenType };
+    ? ElementsAttributes[K] & { children?: VoidChildrenType }
+    : ElementsAttributes[K] & { children?: ChildrenType };
 };
 
 export * from './aria';

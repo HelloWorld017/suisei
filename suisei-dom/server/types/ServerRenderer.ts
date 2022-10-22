@@ -1,4 +1,5 @@
-import { Component, Scheduler } from '@suisei/core';
+import type { Component } from 'suisei';
+import type { Scheduler } from 'suisei/unsafe-internals';
 
 export type ParsedServerRendererConfig = {
   namespace: {
