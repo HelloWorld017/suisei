@@ -1,4 +1,4 @@
-import { readContext } from '../contexts';
+import { readContext } from '../contexts/utils/readContext';
 import type { Context, ContextRegistry, Ref } from '../types';
 
 export const consume =

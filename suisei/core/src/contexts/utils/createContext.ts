@@ -1,19 +1,24 @@
 import { createFragmentElement } from '../../createElement';
 import { globalPrimitives } from '../../primitives';
-import type { Children, Context, Provider, WrapProps } from '../../types';
+import type {
+  Children,
+  Context,
+  ContextProvider,
+  WrapProps,
+} from '../../types';
 
 type ContextProviderProps<T> = WrapProps<{ value: T; children: Children }>;
 export const createContext = <T>(
   defaultValue: T,
   name?: string
-): [Context<T>, Provider<T>] => {
+): [Context<T>, ContextProvider<T>] => {
   const GeneratedContext = {
     key: Symbol(),
     name,
     defaultValue: globalPrimitives.constant(defaultValue),
   } as Context<T>;
 
-  const GeneratedContextProvider: Provider<T> = ({
+  const GeneratedContextProvider: ContextProvider<T> = ({
     value,
     children,
   }: ContextProviderProps<T>) =>
