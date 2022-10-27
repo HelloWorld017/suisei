@@ -14,9 +14,10 @@
     "jsxImportSource": "suisei",
     "declaration": true,
     "skipLibCheck": true,
-    "paths": {
-      "suisei": ["../packages/suisei/src"]
-    }
+    "types": [
+      "suisei",
+      "suisei-dom"
+    ]
   },
   "exclude": [
     "node_modules"

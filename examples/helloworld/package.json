@@ -4,5 +4,8 @@
   "description": "An example application for suisei",
   "repository": "https://github.com/HelloWorld017/suisei",
   "author": "Khinenw",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "tsx": "^3.10.4"
+  }
 }
