@@ -65,7 +65,7 @@ module.exports = {
     'quote-props': ['error', 'consistent']
   },
   settings: {
-    'import/internal-regex': '^@suisei/',
+    'import/internal-regex': '^(?:suisei|suisei-dom|@suisei/|@suisei-dom/)',
     'import/resolver': {
       typescript: {},
     },
