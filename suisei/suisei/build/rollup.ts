@@ -34,16 +34,16 @@ const prodConfig = defineConfig({
   output: [
     {
       name: 'suisei',
-      chunkFileNames: 'cjs/chunks-[hash].prod.cjs',
-      entryFileNames: '[name].prod.cjs',
+      chunkFileNames: 'cjs/chunks/chunks-[hash].prod.js',
+      entryFileNames: 'cjs/[name].prod.js',
       dir: dist,
       format: 'cjs',
       sourcemap: true,
     },
     {
       name: 'suisei',
-      chunkFileNames: 'esm/chunks-[hash].prod.mjs',
-      entryFileNames: '[name].prod.mjs',
+      chunkFileNames: 'esm/chunks/chunks-[hash].prod.js',
+      entryFileNames: 'esm/[name].prod.js',
       dir: dist,
       format: 'esm',
       sourcemap: true,
@@ -66,16 +66,16 @@ const devConfig = defineConfig({
   output: [
     {
       name: 'suisei',
-      chunkFileNames: 'cjs/chunks-[hash].dev.cjs',
-      entryFileNames: '[name].dev.cjs',
+      chunkFileNames: 'cjs/chunks/chunks-[hash].dev.cjs',
+      entryFileNames: 'cjs/[name].dev.js',
       dir: dist,
       format: 'cjs',
       sourcemap: true,
     },
     {
       name: 'suisei',
-      chunkFileNames: 'esm/chunks-[hash].dev.mjs',
-      entryFileNames: '[name].dev.mjs',
+      chunkFileNames: 'esm/chunks/chunks-[hash].dev.mjs',
+      entryFileNames: 'esm/[name].dev.js',
       dir: dist,
       format: 'esm',
       sourcemap: true,
@@ -92,18 +92,30 @@ const devConfig = defineConfig({
   ],
 });
 
+const typeRoot = resolve(dist, 'typeRoot');
 const typesConfig = defineConfig({
-  input: 'dist/types/index.d.ts',
+  input: {
+    'index': resolve(typeRoot, 'suisei/index.d.ts'),
+    'jsx-runtime': resolve(typeRoot, 'suisei/jsx-runtime.d.ts'),
+    'unsafe-internals': resolve(typeRoot, 'suisei/unsafe-internals.d.ts'),
+  },
   output: {
-    file: 'dist/index.d.ts',
-    format: 'es',
+    name: 'suisei',
+    entryFileNames: 'types/[name].d.ts',
+    chunkFileNames: 'types/chunks/chunks-[hash].d.ts',
+    dir: dist,
+    format: 'esm',
   },
   plugins: [
-    dts({
-      compilerOptions: {
-        paths: { '@/*': ['./dist/types/*'] },
-      },
+    alias({
+      entries: [
+        {
+          find: /^@suisei\/([a-z-]+)/,
+          replacement: join(typeRoot, '$1/src/index.d.ts'),
+        },
+      ],
     }),
+    dts(),
   ],
 });
 

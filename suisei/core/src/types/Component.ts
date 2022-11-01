@@ -12,11 +12,9 @@ export type PropsWithKey<P extends PropsBase> = P & {
 };
 
 // Propize: { K: Ref<T> } -> { K: T | Ref<T> }
-type PropizeImpl<P extends PropsBase> = {
+export type Propize<P extends PropsBase> = {
   [K in keyof P]: P[K] extends Ref<infer T> ? T | Ref<T> : P[K];
 };
-
-export type Propize<T extends PropsBase> = PropizeImpl<T>;
 
 // Depropize: { K: T } -> { K: T | Ref<T> }
 export type Depropize<T> = {
