@@ -1,3 +1,5 @@
+import type { SuiseiElement } from '@suisei/core';
+
 export {
   createContext,
   createElement,
@@ -20,3 +22,8 @@ export type {
   WrapProps,
   UnwrapProps,
 } from '@suisei/core';
+
+// eslint-disable-next-line @typescript-eslint/no-namespace
+export declare namespace JSX {
+  interface Element extends SuiseiElement {}
+}

@@ -30,16 +30,15 @@ const createPackageJson = async (): Promise<PackageJson> => {
 
   return {
     ...packageJson,
-    name: 'suisei',
+    name: 'suisei-dom',
     devDependencies: {},
     scripts: {},
-    main: './cjs/suisei.js',
-    types: './suisei.d.ts',
-    browser: './umd/suisei.min.js',
+    main: './cjs/server.js',
+    types: './server.d.ts',
+    browser: './umd/client.min.js',
     exports: {
-      ...createExports('.', 'suisei'),
-      ...createExports('./jsx-runtime', 'jsx-runtime'),
-      ...createExports('./unsafe-internals', 'unsafe-internals'),
+      ...createExports('./client', 'client'),
+      ...createExports('./server', 'server'),
     },
   };
 };
@@ -73,18 +72,13 @@ if (process.env.NODE_ENV === 'production') {
     ),
 
     fs.writeFile(
-      './dist/cjs/suisei.js',
-      createConditionalImport('suisei')
+      './dist/cjs/client.js',
+      createConditionalImport('client')
     ),
 
     fs.writeFile(
-      './dist/cjs/jsx-runtime.js',
-      createConditionalImport('jsx-runtime')
-    ),
-
-    fs.writeFile(
-      './dist/cjs/unsafe-internals.js',
-      createConditionalImport('unsafe-internals')
+      './dist/cjs/server.js',
+      createConditionalImport('server')
     ),
   ]);
 })().catch(err => {

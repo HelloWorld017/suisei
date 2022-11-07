@@ -7,6 +7,7 @@
   },
   "include": [
     "./global.d.ts",
-    "suisei/*.ts"
+    "./htmltypes/global.d.ts",
+    "suisei-dom/*.ts"
   ]
 }

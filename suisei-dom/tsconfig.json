@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.json",
+  "types": ["suisei"],
+  "compilerOptions": {
+    "paths": {
+      "@suisei-dom/*": ["suisei-dom/*/src"],
+      "suisei-dom": ["suisei-dom/suisei-dom"]
+    }
+  }
+}
