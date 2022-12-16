@@ -1,1 +1,1 @@
-export { jsx } from '@suisei/core';
+export { jsx, jsxs } from '@suisei/core';

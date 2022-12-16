@@ -65,7 +65,9 @@ export const jsx = <P extends PropsBase = PropsBase>(
 ) => ({
   [SymbolIs]: SymbolElement,
   component,
-  props,
+  props: { ...props, children: [props.children] },
   provide: null,
   key,
 });
+
+export const jsxs = jsx;
