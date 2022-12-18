@@ -8,6 +8,7 @@
     "examples/*"
   ],
   "scripts": {
+    "build": "yarn run build:suisei && yarn && yarn run build:suisei-dom && yarn",
     "build:suisei": "yarn workspace @suisei/suisei run build",
     "build:suisei-dom": "yarn workspace @suisei-dom/suisei-dom run build",
     "typecheck": "tsc --noEmit",

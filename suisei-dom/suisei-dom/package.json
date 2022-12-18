@@ -17,7 +17,7 @@
     "clean": "rimraf dist && mkdirp dist",
     "build": "yarn clean && yarn build:types && yarn build:dist && yarn build:package && yarn build:cleanup",
     "build:types": "tsc -p ../tsconfig.build.json --declarationDir dist/typeRoot",
-    "build:dist": "rollup -c build/rollup.ts --configPlugin rollup-plugin-esbuild={target:'esnext'}",
+    "build:dist": "rollup -c build/rollup.ts --configPlugin 'rollup-plugin-esbuild={target:\"esnext\"}'",
     "build:package": "tsx build/createPackage.ts",
     "build:cleanup": "rimraf dist/typeRoot"
   },
