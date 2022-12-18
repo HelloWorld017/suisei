@@ -5,6 +5,13 @@
   "repository": "https://github.com/HelloWorld017/suisei",
   "author": "Khinenw",
   "license": "MIT",
+  "scripts": {
+    "dev": "tsx index.tsx"
+  },
+  "dependencies": {
+    "suisei": "*",
+    "suisei-dom": "*"
+  },
   "devDependencies": {
     "tsx": "^3.10.4"
   }

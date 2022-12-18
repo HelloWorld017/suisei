@@ -27,16 +27,29 @@ const BookList = () => {
     { title: '봇치 더 록!', author: '하마지 아키', starRate: 4.9}
   ];
 
-  return <Book book={bookList[0]} />;
-  /*
+  return (
     <>
-      {bookList.map(book => <Book book={bookList} />)}
+      {bookList.map(book => <Book book={book} />)}
     </>
-  ) */
+  );
 }
 
 const server = http.createServer(async (req, res) => {
+  res.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <title>Suisei Test</title>
+      </head>
+      <body>
+  `.trim());
   await renderToStream(res, <BookList />);
+  res.write(`
+      </body>
+    </html>
+  `);
+  res.end();
 });
 
 server.listen(3000, () => {
