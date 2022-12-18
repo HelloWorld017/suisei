@@ -1,3 +1,4 @@
+import { encodeEntities, isVoidElement } from '@suisei-dom/shared';
 import { $$ as globalPrimitives } from 'suisei';
 import {
   assertsIsElement,
@@ -11,7 +12,6 @@ import {
   ErrorBoundaryContext,
   SuspenseContext,
 } from 'suisei/unsafe-internals';
-import { encodeEntities, isVoidElement } from '@suisei-dom/shared';
 import {
   createHtmlChunk,
   createHtmlOpenChunk,
@@ -90,7 +90,7 @@ const renderChildren = (
         return;
       }
 
-      if (child === null) {
+      if (child === null || child === undefined) {
         return;
       }
 

@@ -59,15 +59,25 @@ export const createFragmentElement = (
 });
 
 export const jsx = <P extends PropsBase = PropsBase>(
+  component: undefined | string | Component<P>,
+  props: Propize<P>,
+  key?: string
+): Element => ({
+  [SymbolIs]: SymbolElement,
+  component: component ?? null,
+  props: { ...props, children: [props.children] },
+  provide: null,
+  key: key ?? null,
+});
+
+export const jsxs = <P extends PropsBase = PropsBase>(
   component: string | Component<P>,
   props: Propize<P>,
   key?: string
-) => ({
+): Element => ({
   [SymbolIs]: SymbolElement,
   component,
-  props: { ...props, children: [props.children] },
+  props: { ...props, children: props.children },
   provide: null,
-  key,
+  key: key ?? null,
 });
-
-export const jsxs = jsx;

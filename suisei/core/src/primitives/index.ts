@@ -1,5 +1,5 @@
 import { createReactivityPrimitives } from '@suisei/reactivity';
-import { createDefaultOwner } from '../utils';
+import { createDefaultOwner } from '../utils/createDefaultOwner';
 import { consume } from './consume';
 import type { ContextRegistry } from '../types';
 import type { PrimitiveConsume } from './consume';
