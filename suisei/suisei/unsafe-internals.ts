@@ -2,6 +2,7 @@ export {
   createDefaultOwner,
   createDefaultScheduler,
   createPrimitives,
+  debugElement,
   readContext,
   unwrapProps,
   wrapProps,
