@@ -1,3 +1,3 @@
-export type EffectCleanup = () => void;
-export type EffectHandle = { isCancelled(): boolean };
+export type EffectCleanup = () => void | Promise<void>;
+export type EffectHandle = { abortSignal: AbortSignal };
 export type Effect = () => () => Promise<void> | void;

@@ -22,11 +22,7 @@ export const effect =
     let currentTaskId: number | null = null;
     let currentCleanup: EffectCleanup | null = null;
     let currentPromise: Promise<void | EffectCleanup> | null = null;
-
-    let isCancelled = false;
-    const effectHandle: EffectHandle = {
-      isCancelled: () => isCancelled,
-    };
+    let currentAbortController: AbortController | null = null;
 
     const refCleanups = new Map<Ref<unknown>, () => void>();
     const runEffect = () => {
@@ -35,12 +31,11 @@ export const effect =
       }
 
       if (currentPromise) {
-        isCancelled = true;
-
+        currentAbortController?.abort();
         currentPromise
-          .then(() => {
+          .then(async () => {
             try {
-              currentCleanup?.();
+              await currentCleanup?.();
               runEffect();
             } catch (error) {
               owner.onError(error);
@@ -51,44 +46,70 @@ export const effect =
       }
 
       const cleanupFn = currentCleanup;
-      currentTaskId = owner.scheduler.queueTask(() => {
-        isCancelled = false;
+      currentTaskId = owner.scheduler.queueTask(async () => {
         currentTaskId = null;
+        currentAbortController =
+          typeof AbortController !== undefined ? new AbortController() : null;
 
-        try {
-          if (cleanupFn) {
-            cleanupFn();
+        const effectHandle = {
+          abortSignal: currentAbortController?.signal as AbortSignal,
+        };
+
+        if (cleanupFn) {
+          try {
+            await cleanupFn();
+          } catch (error) {
+            owner.onError(error);
+          }
+        }
+
+        const unusedDependencies = new Set(refCleanups.keys());
+        const selector: RefSelector = ref => {
+          if (refCleanups.has(ref as Ref<unknown>)) {
+            unusedDependencies.delete(ref as Ref<unknown>);
+            return readRef(owner, ref);
           }
 
-          const unusedDependencies = new Set(refCleanups.keys());
-          const selector: RefSelector = ref => {
-            if (refCleanups.has(ref as Ref<unknown>)) {
-              unusedDependencies.delete(ref as Ref<unknown>);
-              return readRef(ref);
-            }
+          const [value, cleanup] = observeRef(owner, ref, runEffect);
+          refCleanups.set(ref as Ref<unknown>, cleanup);
 
-            const [value, cleanup] = observeRef(owner, ref, runEffect);
-            refCleanups.set(ref as Ref<unknown>, cleanup);
+          return value;
+        };
 
-            return value;
-          };
+        let newCleanup;
+        try {
+          newCleanup = effectFn(selector, effectHandle);
+        } catch (error) {
+          owner.onError(error);
+          newCleanup = undefined;
+        }
 
-          const newCleanup = effectFn(selector, effectHandle);
+        const removeUnusedDependenciesObserver = () => {
           unusedDependencies.forEach(dependency => {
             refCleanups.get(dependency)?.();
             refCleanups.delete(dependency);
           });
+        };
 
-          if (isPromise<void | EffectCleanup>(newCleanup)) {
-            currentPromise = newCleanup.then(awaitedNewCleanup => {
+        if (isPromise<void | EffectCleanup>(newCleanup)) {
+          currentPromise = newCleanup
+            .then(
+              awaitedNewCleanup => {
+                removeUnusedDependenciesObserver();
+                currentCleanup = awaitedNewCleanup || null;
+              },
+              error => {
+                owner.onError(error);
+              }
+            )
+            .finally(() => {
+              currentAbortController = null;
               currentPromise = null;
-              currentCleanup = awaitedNewCleanup || null;
             });
-          } else if (newCleanup) {
-            currentCleanup = newCleanup;
-          }
-        } catch (error) {
-          owner.onError(error);
+        } else if (newCleanup) {
+          removeUnusedDependenciesObserver();
+          currentAbortController = null;
+          currentCleanup = newCleanup;
         }
       });
     };
@@ -102,22 +123,21 @@ export const effect =
     initialize(() => {
       runEffect();
 
-      return () => {
+      return async () => {
         refCleanups.forEach(refCleanup => refCleanup());
 
         if (currentPromise) {
-          isCancelled = true;
-          return currentPromise.then(() => {
-            try {
-              currentCleanup?.();
-            } catch (error) {
-              owner.onError(error);
-            }
-          });
+          currentAbortController?.abort();
+          try {
+            await currentPromise;
+          } catch (error) {
+            owner.onError(error);
+            return;
+          }
         }
 
         try {
-          currentCleanup?.();
+          await currentCleanup?.();
         } catch (error) {
           owner.onError(error);
         }

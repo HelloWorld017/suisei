@@ -1,5 +1,6 @@
 import {
   isConstantRef,
+  isPromise,
   isVariableRef,
   SymbolMemoizedValue,
   SymbolObservers,
@@ -87,7 +88,7 @@ export const observeRef = <T>(
     const selector: RefSelector = ref => {
       if (newMemo.refCleanups.has(ref as Ref<unknown>)) {
         unusedDependencies.delete(ref as Ref<unknown>);
-        return readRef(ref);
+        return readRef(owner, ref);
       }
 
       const [value, cleanup] = observeRef(owner, ref, subscribe);
@@ -96,23 +97,48 @@ export const observeRef = <T>(
       return value;
     };
 
-    const value = ref(selector);
-    unusedDependencies.forEach(dependency => {
-      newMemo.refCleanups.get(dependency)?.();
-      newMemo.refCleanups.delete(dependency);
-    });
+    const result = ref(selector);
 
-    newMemo.value = value;
+    const removeUnusedDependenciesObserver = () => {
+      unusedDependencies.forEach(dependency => {
+        newMemo.refCleanups.get(dependency)?.();
+        newMemo.refCleanups.delete(dependency);
+      });
+    };
+
+    if (isPromise(result)) {
+      // Add refs after await to the dependencies.
+      // But don't catch and report to the owner here,
+      // as the user may want something like $(_ => Promise.reject())
+
+      result.finally(() => {
+        // Update the value first, and remove unused dependencies later.
+        // Watch out for the race condition.
+        // > There might be no consistent view (time slice) for refs.
+        // > Example
+        // >> UpdateA: reads refA@0 refB@0, awaits for a sec, reads refC@2
+        // >> UpdateB: reads refA@1 refB@1, does not await,   reads refC@1
+        // >> UpdateC: awaits for a sec, only reads refB@2
+        // >
+        // > Then what refs should be unobserved might be confusing
+        // We take a simple
+        removeUnusedDependenciesObserver();
+      });
+    } else {
+      removeUnusedDependenciesObserver();
+    }
+
+    newMemo.value = result;
     ref[SymbolMemoizedValue] = newMemo as DerivedRefObservedMemo<T>;
 
     if (oldMemo && oldMemo.value !== newMemo.value) {
       const observers = ref[SymbolObservers];
       if (observers) {
-        observers.forEach(observer => observer(value));
+        observers.forEach(observer => observer(result));
       }
     }
 
-    return value;
+    return oldMemo?.value as T;
   };
 
   ref[SymbolObservers] = new Set([observer]);

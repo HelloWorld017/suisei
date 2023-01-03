@@ -32,7 +32,19 @@ const BookList = () => {
       {bookList.map(book => <Book book={book} />)}
     </>
   );
-}
+};
+
+const App = async (_props: Record<string, never>, $: Primitives) => {
+  const bookListId = $.constant(234);
+  $.future($(async _ => {
+    const bookList = _(bookListId);
+
+    await new Promise(resolve => {
+      setTimeout(resolve, 1000);
+    });
+    // Fetched
+  }))
+};
 
 const server = http.createServer(async (req, res) => {
   res.write(`

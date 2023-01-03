@@ -38,6 +38,6 @@ export const createReactivityPrimitives = (
     effectSync: effectSync(owner),
     future: future(owner),
     state: state(owner),
-    useOnce,
+    useOnce: useOnce(owner),
   });
 };

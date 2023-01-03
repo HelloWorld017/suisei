@@ -1,10 +1,12 @@
 import { assertsIsRef } from '@suisei/shared';
 import { readRef } from '../utils';
-import type { RefSelector } from '../types';
+import type { Owner, RefSelector } from '../types';
 
-export const useOnce: PrimitiveUseOnce = ref => {
-  assertsIsRef(ref);
-  return readRef(ref);
-};
+export const useOnce =
+  (owner: Owner): PrimitiveUseOnce =>
+  ref => {
+    assertsIsRef(ref);
+    return readRef(owner, ref);
+  };
 
 export type PrimitiveUseOnce = RefSelector;

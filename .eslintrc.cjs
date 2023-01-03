@@ -24,6 +24,7 @@ module.exports = {
     // '@typescript-eslint/no-floating-promises': 'off',
     '@typescript-eslint/no-empty-function': 'off',
     '@typescript-eslint/no-empty-interface': 'off',
+    '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     'import/first': 'error',
     'import/newline-after-import': 'error',
