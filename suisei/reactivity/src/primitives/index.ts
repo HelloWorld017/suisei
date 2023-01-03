@@ -28,12 +28,12 @@ export type ReactivityPrimitives = PrimitiveDerive & {
 export const createReactivityPrimitives = (
   owner: Owner
 ): ReactivityPrimitives => {
-  const $ = derive;
+  const $ = derive(owner);
 
   return Object.assign($, {
     constant: constant(owner),
-    decompose,
-    derive,
+    decompose: decompose(owner),
+    derive: derive(owner),
     effect: effect(owner),
     effectSync: effectSync(owner),
     future: future(owner),
