@@ -63,10 +63,8 @@ export const effect =
           }
         }
 
-        const unusedDependencies = new Set(refCleanups.keys());
         const selector: RefSelector = ref => {
           if (refCleanups.has(ref as Ref<unknown>)) {
-            unusedDependencies.delete(ref as Ref<unknown>);
             return readRef(owner, ref);
           }
 
@@ -84,18 +82,10 @@ export const effect =
           newCleanup = undefined;
         }
 
-        const removeUnusedDependenciesObserver = () => {
-          unusedDependencies.forEach(dependency => {
-            refCleanups.get(dependency)?.();
-            refCleanups.delete(dependency);
-          });
-        };
-
         if (isPromise<void | EffectCleanup>(newCleanup)) {
           currentPromise = newCleanup
             .then(
               awaitedNewCleanup => {
-                removeUnusedDependenciesObserver();
                 currentCleanup = awaitedNewCleanup || null;
               },
               error => {
@@ -107,7 +97,6 @@ export const effect =
               currentPromise = null;
             });
         } else if (newCleanup) {
-          removeUnusedDependenciesObserver();
           currentAbortController = null;
           currentCleanup = newCleanup;
         }

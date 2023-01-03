@@ -1,6 +1,5 @@
 import {
   isConstantRef,
-  isPromise,
   isVariableRef,
   SymbolMemoizedValue,
   SymbolObservers,
@@ -98,35 +97,6 @@ export const observeRef = <T>(
     };
 
     const result = ref(selector);
-
-    const removeUnusedDependenciesObserver = () => {
-      unusedDependencies.forEach(dependency => {
-        newMemo.refCleanups.get(dependency)?.();
-        newMemo.refCleanups.delete(dependency);
-      });
-    };
-
-    if (isPromise(result)) {
-      // Add refs after await to the dependencies.
-      // But don't catch and report to the owner here,
-      // as the user may want something like $(_ => Promise.reject())
-
-      result.finally(() => {
-        // Update the value first, and remove unused dependencies later.
-        // Watch out for the race condition.
-        // > There might be no consistent view (time slice) for refs.
-        // > Example
-        // >> UpdateA: reads refA@0 refB@0, awaits for a sec, reads refC@2
-        // >> UpdateB: reads refA@1 refB@1, does not await,   reads refC@1
-        // >> UpdateC: awaits for a sec, only reads refB@2
-        // >
-        // > Then what refs should be unobserved might be confusing
-        // We take a simple
-        removeUnusedDependenciesObserver();
-      });
-    } else {
-      removeUnusedDependenciesObserver();
-    }
 
     newMemo.value = result;
     ref[SymbolMemoizedValue] = newMemo as DerivedRefObservedMemo<T>;
