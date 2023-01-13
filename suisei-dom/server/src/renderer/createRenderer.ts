@@ -1,5 +1,5 @@
-import { createDefaultScheduler } from 'suisei/unsafe-internals';
 import { DEFAULT_NAMESPACE } from '@suisei-dom/shared';
+import { createDefaultScheduler } from 'suisei/unsafe-internals';
 import type { CorkNode, ServerRenderer } from '../types/ServerRenderer';
 import type { Writable } from 'node:stream';
 import type { Component } from 'suisei';

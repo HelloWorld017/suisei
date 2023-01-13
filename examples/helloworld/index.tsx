@@ -21,29 +21,27 @@ const Book = ({ book }: BookProps, $: Primitives) => {
   );
 };
 
-const BookList = () => {
-  const bookList = [
-    { title: '푸른 상자', author: '미우라 코우지', starRate: 5 },
-    { title: '봇치 더 록!', author: '하마지 아키', starRate: 4.9}
-  ];
-
-  return (
-    <>
-      {bookList.map(book => <Book book={book} />)}
-    </>
-  );
-};
-
 const App = async (_props: Record<string, never>, $: Primitives) => {
   const bookListId = $.constant(234);
-  $.future($(async _ => {
-    const bookList = _(bookListId);
+  const value  = await $.future($(async _ => {
+    const unusedId = _(bookListId);
+    // TODO fetch unusedId
 
     await new Promise(resolve => {
       setTimeout(resolve, 1000);
     });
-    // Fetched
-  }))
+
+    return [
+      { title: '푸른 상자', author: '미우라 코우지', starRate: 5 },
+      { title: '봇치 더 록!', author: '하마지 아키', starRate: 4.9}
+    ];
+  }));
+
+  return (
+    <main id="App">
+      {$(_ => _(value).map(book => <Book book={book} />))}
+    </main>
+  );
 };
 
 const server = http.createServer(async (req, res) => {
@@ -56,7 +54,7 @@ const server = http.createServer(async (req, res) => {
       </head>
       <body>
   `.trim());
-  await renderToStream(res, <BookList />);
+  await renderToStream(res, <App />);
   res.write(`
       </body>
     </html>

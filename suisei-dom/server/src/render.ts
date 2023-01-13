@@ -50,6 +50,7 @@ const createOwner = (
       readContext(contextRegistry, ErrorBoundaryContext)
     );
 
+    // FIXME fix error boundary
     if (errorBoundary) {
       errorBoundary(error);
       return;
