@@ -7,7 +7,7 @@ import type {
   SymbolRefDescriptor,
 } from '@suisei/shared';
 
-export type RefObserver<T> = (newValue: T) => void;
+export type RefObserver<T> = (newValue: T, flags: number) => void;
 export type RefSelector = <T>(ref: Ref<T>) => T;
 export type RefDerivator<T> = (_: RefSelector) => T;
 

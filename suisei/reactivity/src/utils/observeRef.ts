@@ -74,7 +74,7 @@ export const observeRef = <T>(
       return { value: undefined, refCleanups: new Map(), observed: true };
     })();
 
-    const subscribe = () => {
+    const subscribe = (newValue: unknown, flags: number) => {
       if (currentTaskId === null) {
         currentTaskId = owner.scheduler.queueTask(() => {
           currentTaskId = null;
@@ -97,7 +97,6 @@ export const observeRef = <T>(
     };
 
     const result = ref(selector);
-
     newMemo.value = result;
     ref[SymbolMemoizedValue] = newMemo as DerivedRefObservedMemo<T>;
 
@@ -108,7 +107,7 @@ export const observeRef = <T>(
       }
     }
 
-    return oldMemo?.value as T;
+    return result;
   };
 
   ref[SymbolObservers] = new Set([observer]);

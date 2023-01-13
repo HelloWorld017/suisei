@@ -19,14 +19,14 @@ type EffectOption = { runAt?: 'sync' };
 export const effect =
   (owner: Owner): PrimitiveEffect =>
   (effectFn, options?) => {
-    let currentTaskId: number | null = null;
+    let hasActiveTask = false;
     let currentCleanup: EffectCleanup | null = null;
     let currentPromise: Promise<void | EffectCleanup> | null = null;
     let currentAbortController: AbortController | null = null;
 
     const refCleanups = new Map<Ref<unknown>, () => void>();
     const runEffect = () => {
-      if (currentTaskId !== null) {
+      if (hasActiveTask) {
         return;
       }
 
@@ -46,8 +46,9 @@ export const effect =
       }
 
       const cleanupFn = currentCleanup;
-      currentTaskId = owner.scheduler.queueTask(async () => {
-        currentTaskId = null;
+      hasActiveTask = true;
+      owner.scheduler.queueTask(async () => {
+        hasActiveTask = false;
         currentAbortController =
           typeof AbortController !== undefined ? new AbortController() : null;
 
@@ -103,13 +104,7 @@ export const effect =
       });
     };
 
-    const initialize = (effect: Effect) => {
-      options?.runAt === 'sync'
-        ? owner.onEffectSyncInitialize(effect)
-        : owner.onEffectInitialize(effect);
-    };
-
-    initialize(() => {
+    owner.onEffectInitialize(() => {
       runEffect();
 
       return async () => {
@@ -131,7 +126,7 @@ export const effect =
           owner.onError(error);
         }
       };
-    });
+    }, options?.runAt);
   };
 
 export type PrimitiveEffect = (
