@@ -28,10 +28,11 @@ export const state =
       // FIXME Add flag for defer()
       const flags = 0;
 
-      owner.onStateUpdate(ref, flags);
-      ref[SymbolRefDescriptor].raw = newValue;
-      ref[SymbolObservers].forEach(observer => {
-        observer(newValue, flags);
+      owner.onStateUpdate(ref, flags, () => {
+        ref[SymbolRefDescriptor].raw = newValue;
+        ref[SymbolObservers].forEach(observer => {
+          observer(newValue, flags);
+        });
       });
     };
 

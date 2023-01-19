@@ -1,12 +1,5 @@
 import { isPromise } from '@suisei/shared';
-import {
-  Effect,
-  EffectCleanup,
-  EffectHandle,
-  Owner,
-  Ref,
-  RefSelector,
-} from '../types';
+import { EffectCleanup, EffectHandle, Owner, Ref, RefSelector } from '../types';
 import { observeRef, readRef } from '../utils';
 
 type EffectFn = (
@@ -47,7 +40,7 @@ export const effect =
 
       const cleanupFn = currentCleanup;
       hasActiveTask = true;
-      owner.scheduler.queueTask(async () => {
+      owner.onEffectUpdate(async () => {
         hasActiveTask = false;
         currentAbortController =
           typeof AbortController !== undefined ? new AbortController() : null;

@@ -7,10 +7,10 @@ export const UpdateFlags = {
 
 export type Owner = {
   stateCount: number;
-  onStateUpdate(ref: Ref, flags: number): void;
-  onComputeDerive(compute: () => void): void;
+  onStateUpdate(ref: Ref, flags: number, runUpdate: () => void): void;
+  onComputeDerive(runCompute: () => void, flags: number): void;
   onEffectInitialize(effect: Effect, runAt?: 'sync'): void;
   onEffectUpdate(runEffect: () => void): void;
   onError(error: unknown): void;
-  onFutureUpdate(promise: Promise<unknown>, flags?: number): void;
+  onFutureUpdate(promise: Promise<unknown>, flags: number): void;
 };

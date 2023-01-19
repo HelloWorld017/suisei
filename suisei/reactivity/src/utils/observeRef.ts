@@ -63,7 +63,7 @@ export const observeRef = <T>(
     return [memo.value, unsubscribe];
   }
 
-  let currentTaskId: number | null = null;
+  let hasActiveTask = false;
   const update = () => {
     const oldMemo = ref[SymbolMemoizedValue];
     const newMemo = ((): DerivedRefObservedMemo<T | undefined> => {
@@ -75,18 +75,18 @@ export const observeRef = <T>(
     })();
 
     const subscribe = (newValue: unknown, flags: number) => {
-      if (currentTaskId === null) {
-        currentTaskId = owner.scheduler.queueTask(() => {
-          currentTaskId = null;
-          update();
-        });
+      if (hasActiveTask) {
+        return;
       }
+
+      owner.scheduler.queueTask(() => {
+        hasActiveTask = false;
+        update();
+      });
     };
 
-    const unusedDependencies = new Set(newMemo.refCleanups.keys());
     const selector: RefSelector = ref => {
       if (newMemo.refCleanups.has(ref as Ref<unknown>)) {
-        unusedDependencies.delete(ref as Ref<unknown>);
         return readRef(owner, ref);
       }
 
