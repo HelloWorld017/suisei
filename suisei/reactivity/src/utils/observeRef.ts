@@ -6,6 +6,8 @@ import {
   SymbolRefDescriptor,
 } from '@suisei/shared';
 
+import { FLAG_INITIAL_OBSERVE } from '../constants';
+
 import {
   DerivedRefObservedMemo,
   InternalRef,
@@ -64,7 +66,7 @@ export const observeRef = <T>(
   }
 
   let hasActiveTask = false;
-  const update = () => {
+  const update = (flags: number) => {
     const oldMemo = ref[SymbolMemoizedValue];
     const newMemo = ((): DerivedRefObservedMemo<T | undefined> => {
       if (oldMemo?.observed) {
@@ -74,14 +76,14 @@ export const observeRef = <T>(
       return { value: undefined, refCleanups: new Map(), observed: true };
     })();
 
-    const subscribe = (newValue: unknown, flags: number) => {
+    const subscribe = (ref: Ref) => (_newValue: unknown, flags: number) => {
       if (hasActiveTask) {
         return;
       }
 
-      owner.scheduler.queueTask(() => {
+      owner.onDeriveUpdateByObserve(ref, flags, () => {
         hasActiveTask = false;
-        update();
+        update(flags);
       });
     };
 
@@ -90,7 +92,7 @@ export const observeRef = <T>(
         return readRef(owner, ref);
       }
 
-      const [value, cleanup] = observeRef(owner, ref, subscribe);
+      const [value, cleanup] = observeRef(owner, ref, subscribe(ref));
       newMemo.refCleanups.set(ref as Ref<unknown>, cleanup);
 
       return value;
@@ -103,7 +105,7 @@ export const observeRef = <T>(
     if (oldMemo && oldMemo.value !== newMemo.value) {
       const observers = ref[SymbolObservers];
       if (observers) {
-        observers.forEach(observer => observer(result));
+        observers.forEach(observer => observer(result, flags));
       }
     }
 
@@ -111,5 +113,5 @@ export const observeRef = <T>(
   };
 
   ref[SymbolObservers] = new Set([observer]);
-  return [update(), unsubscribe];
+  return [update(FLAG_INITIAL_OBSERVE), unsubscribe];
 };
