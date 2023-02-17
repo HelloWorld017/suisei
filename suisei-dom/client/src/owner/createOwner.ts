@@ -1,13 +1,12 @@
 import type { Owner, Scheduler } from 'suisei/unsafe-internals';
 
-export const createOwner = (scheduler: Scheduler): Owner => ({
+export const createOwner = (scheduler: Scheduler): Owner => {
+  return {
   stateCount: 0,
   scheduler,
-  onStateUpdate(ref, flags) {
-    // TODO
-  },
+  onStateUpdate(_ref, _flags) {},
   onComputeDerive(compute) {
-    // TODO
+    scheduler.queueTask(() => 
   },
   onEffectInitialize(effect) {
     // TODO
@@ -24,4 +23,5 @@ export const createOwner = (scheduler: Scheduler): Owner => ({
   onError(error) {
     // TODO
   },
-});
+};
+};
