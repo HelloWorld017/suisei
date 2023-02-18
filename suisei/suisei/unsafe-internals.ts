@@ -18,6 +18,7 @@ export type {
   NodeValuePrimitive,
   Propize,
   Scheduler,
+  SchedulerPriority,
   ErrorBoundaryContextType,
   SuspenseContextType,
 } from '@suisei/core';

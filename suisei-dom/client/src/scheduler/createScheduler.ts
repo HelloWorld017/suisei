@@ -1,37 +1,54 @@
-import type { Scheduler } from 'suisei/unsafe-internals';
+import type { Scheduler, SchedulerPriority } from 'suisei/unsafe-internals';
 
-export const createScheduler = (): Scheduler => {
-  type Task = () => void;
-  type SchedulerTask = {
-    priority: number;
-    prev: SchedulerTask | null;
-    next: SchedulerTask | null;
-    run(): void;
+const DEFAULT_PRIORITY: SchedulerPriority = 4;
+
+type Task = () => void;
+type SchedulerLane = {
+  rootTask: SchedulerTask;
+  tailTask: SchedulerTask;
+};
+
+type SchedulerTask = {
+  prev: SchedulerTask | null;
+  next: SchedulerTask | null;
+  run: Task;
+};
+
+type ClientScheduler = Scheduler & {
+  onIdle(deadline: { timeRemaining(): number }): void;
+  onRenderFrame(): void;
+};
+
+export const createScheduler = (): ClientScheduler => {
+  const lanes: SchedulerLane[] = [];
+  const createLane = (priority: number): SchedulerLane => {
+    if (lanes[priority]) {
+      return lanes[priority];
+    }
+
+    const rootTask = { prev: null, next: null, run: () => {} };
+    const lane = { rootTask, tailTask: rootTask };
+    lanes[priority] = lane;
+
+    return lane;
   };
 
-  const rootTask: SchedulerTask = {
-    priority: number;
-    prev: null,
-    next: null,
-    run() {},
+  const addTaskToLane = ({ tailTask }: SchedulerLane, task: Task) => {
+    const schedulerTask = { prev: tailTask, next: null, run: task };
+    tailTask.next = schedulerTask;
   };
 
-  let tailTask = rootTask;
+  const activeLane = createLane(DEFAULT_PRIORITY);
 
-  const createLane = (priority: number) => {
-  };
-  let activeLane = createLane(0);
+  const onRenderFrame = () => {};
 
   return {
-    createLane(_priority: number) {
-      // TODO implement lane
-      return 0;
+    runWithPriority(priority: number, fn: Task) {
+      addTaskToLane(createLane(priority), fn);
     },
-    runWithLane(_lane: number, fn) {
-      fn();
-    },
+
     queueTask(task: Task) {
-      tasks.push(task);
+      addTaskToLane(activeLane, task);
     },
   };
 };

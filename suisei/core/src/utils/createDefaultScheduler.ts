@@ -9,11 +9,7 @@ export const createDefaultScheduler = (): Scheduler => {
       return taskId++;
     },
 
-    createLane() {
-      return 0;
-    },
-
-    runWithLane(_, fn) {
+    runWithPriority(_, fn) {
       fn();
     },
   };

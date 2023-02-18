@@ -1,11 +1,5 @@
-export const enum SchedulerPriority {
-  HIGHEST = 50,
-  LOWEST = 1,
-}
-
-export type SchedulerLane = number;
+export type SchedulerPriority = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 export type Scheduler = {
-  createLane(priority: number): SchedulerLane;
-  runWithLane(lane: SchedulerLane, fn: () => void): void;
-  queueTask(task: () => void): number;
+  runWithPriority(priority: SchedulerPriority, fn: () => void): void;
+  queueTask(task: () => void): void;
 };
