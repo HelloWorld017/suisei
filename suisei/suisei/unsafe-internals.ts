@@ -19,6 +19,7 @@ export type {
   Propize,
   Scheduler,
   SchedulerPriority,
+  Task,
   ErrorBoundaryContextType,
   SuspenseContextType,
 } from '@suisei/core';
