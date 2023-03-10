@@ -1,5 +1,6 @@
 import {
   isConstantRef,
+  isDerivedRef,
   isVariableRef,
   SymbolMemoizedValue,
   SymbolObservers,
@@ -73,27 +74,48 @@ export const observeRef = <T>(
         return oldMemo;
       }
 
-      return { value: undefined, refCleanups: new Map(), observed: true };
+      return {
+        value: undefined,
+        refCleanups: new Map(),
+        observed: true,
+        isDirty: false,
+      };
     })();
 
-    const subscribe = (ref: Ref) => (_newValue: unknown, flags: number) => {
-      if (hasActiveTask) {
-        return;
+    const getObserver = (): RefObserver<unknown> => ({
+      onCommit(_newValue: unknown, flags: number) {
+        if (hasActiveTask) {
+          return;
+        }
+
+        owner.onDeriveUpdateByObserve(ref, flags, () => {
+          hasActiveTask = false;
+          update(flags);
+        });
+
+        if (ref[SymbolMemoizedValue]?.observed) {
+          ref[SymbolMemoizedValue].isDirty = false;
+        }
+      },
+
+      onDirty(_flags: number) {
+        if (!isDerivedRef(ref)) {
+          return;
+        }
+
+        if (!ref[SymbolMemoizedValue]?.observed) {
+          return;
+        }
+      },
+    });
+
+    const selector: RefSelector = selectedRef => {
+      if (newMemo.refCleanups.has(selectedRef as Ref<unknown>)) {
+        return readRef(owner, selectedRef);
       }
 
-      owner.onDeriveUpdateByObserve(ref, flags, () => {
-        hasActiveTask = false;
-        update(flags);
-      });
-    };
-
-    const selector: RefSelector = ref => {
-      if (newMemo.refCleanups.has(ref as Ref<unknown>)) {
-        return readRef(owner, ref);
-      }
-
-      const [value, cleanup] = observeRef(owner, ref, subscribe(ref));
-      newMemo.refCleanups.set(ref as Ref<unknown>, cleanup);
+      const [value, cleanup] = observeRef(owner, selectedRef, getObserver());
+      newMemo.refCleanups.set(selectedRef as Ref<unknown>, cleanup);
 
       return value;
     };
@@ -105,7 +127,8 @@ export const observeRef = <T>(
     if (oldMemo && oldMemo.value !== newMemo.value) {
       const observers = ref[SymbolObservers];
       if (observers) {
-        observers.forEach(observer => observer(result, flags));
+        observers.forEach(observer => observer.onDirty(flags));
+        // TODO
       }
     }
 

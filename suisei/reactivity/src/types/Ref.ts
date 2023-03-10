@@ -7,7 +7,13 @@ import type {
   SymbolRefDescriptor,
 } from '@suisei/shared';
 
-export type RefObserver<T> = (newValue: T, flags: number) => void;
+export type RefCommitObserver<T> = (newValue: T, flags: number) => void;
+export type RefDirtyObserver = (falgs: number) => void;
+export type RefObserver<T> = {
+  onCommit: RefCommitObserver<T>;
+  onDirty: RefDirtyObserver;
+};
+
 export type RefSelector = <T>(ref: Ref<T>) => T;
 export type RefDerivator<T> = (_: RefSelector) => T;
 
@@ -36,6 +42,7 @@ export type DerivedRefObservedMemo<T> = {
   value: T;
   refCleanups: Map<Ref<unknown>, () => void>;
   observed: true;
+  isDirty: boolean;
 };
 
 export type DerivedRefUnobservedMemo<T> = {
