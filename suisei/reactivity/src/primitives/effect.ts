@@ -1,5 +1,12 @@
 import { isPromise } from '@suisei/shared';
-import { EffectCleanup, EffectHandle, Owner, Ref, RefSelector } from '../types';
+import {
+  EffectCleanup,
+  EffectHandle,
+  EffectRunAt,
+  Owner,
+  Ref,
+  RefSelector,
+} from '../types';
 import { observeRef, readRef } from '../utils';
 
 type EffectFn = (
@@ -7,7 +14,7 @@ type EffectFn = (
   effectHandle: EffectHandle
 ) => void | EffectCleanup | Promise<void | EffectCleanup>;
 
-type EffectOption = { runAt?: 'sync' };
+type EffectOption = { runAt?: EffectRunAt };
 
 export const effect =
   (owner: Owner): PrimitiveEffect =>
@@ -17,6 +24,7 @@ export const effect =
     let currentPromise: Promise<void | EffectCleanup> | null = null;
     let currentAbortController: AbortController | null = null;
 
+    const runAt = options?.runAt ?? 'default';
     const refCleanups = new Map<Ref<unknown>, () => void>();
     const runEffect = () => {
       if (hasActiveTask) {
@@ -40,7 +48,7 @@ export const effect =
 
       const cleanupFn = currentCleanup;
       hasActiveTask = true;
-      owner.onEffectUpdate(async () => {
+      owner.onEffectUpdate(runAt, async () => {
         hasActiveTask = false;
         currentAbortController =
           typeof AbortController !== undefined ? new AbortController() : null;
@@ -97,7 +105,7 @@ export const effect =
       });
     };
 
-    owner.onEffectInitialize(() => {
+    owner.onEffectInitialize(runAt, () => {
       runEffect();
 
       return async () => {
@@ -119,7 +127,7 @@ export const effect =
           owner.onError(error);
         }
       };
-    }, options?.runAt);
+    });
   };
 
 export type PrimitiveEffect = (
@@ -127,12 +135,12 @@ export type PrimitiveEffect = (
   options?: EffectOption
 ) => void;
 
-export const effectSync =
-  (owner: Owner): PrimitiveEffectSync =>
+export const effectLayout =
+  (owner: Owner): PrimitiveEffectLayout =>
   (effectFn, options) =>
-    effect(owner)(effectFn, { ...options, runAt: 'sync' });
+    effect(owner)(effectFn, { ...options, runAt: 'layout' });
 
-export type PrimitiveEffectSync = (
+export type PrimitiveEffectLayout = (
   effectFn: EffectFn,
   options?: Omit<EffectOption, 'runAt'>
 ) => void;

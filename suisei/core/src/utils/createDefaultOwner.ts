@@ -4,10 +4,10 @@ export const createDefaultOwner = (): Owner => ({
   get stateCount() {
     return 0;
   },
-  onEffectInitialize(effect) {
+  onEffectInitialize(_runAt, effect) {
     effect();
   },
-  onEffectUpdate(runEffect) {
+  onEffectUpdate(_runAt, runEffect) {
     runEffect();
   },
   onError(error) {

@@ -41,6 +41,10 @@ export type {
   RefDerivator,
   RefObserver,
   RefSelector,
+  Effect,
+  EffectCleanup,
+  EffectHandle,
+  EffectRunAt,
 } from '@suisei/reactivity';
 
 export {

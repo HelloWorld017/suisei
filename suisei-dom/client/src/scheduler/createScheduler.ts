@@ -57,7 +57,7 @@ export const createScheduler = (): ClientScheduler => {
     tailTask.next = schedulerTask;
   };
 
-  const activeLane = createLane(DEFAULT_PRIORITY);
+  let activeLane = createLane(DEFAULT_PRIORITY);
 
   const runTasks = (minPriority: SchedulerPriority, deadline: Deadline) => {
     lanes.every(lane => {
@@ -95,7 +95,10 @@ export const createScheduler = (): ClientScheduler => {
 
   return {
     runWithPriority(priority: SchedulerPriority, fn: Task) {
-      addTaskToLane(createLane(priority), fn);
+      const previousActiveLane = activeLane;
+      activeLane = createLane(priority);
+      fn();
+      activeLane = previousActiveLane;
     },
 
     queueTask(task: Task) {
