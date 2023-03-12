@@ -7,8 +7,11 @@ type SuspenseProps = WrapProps<{ fallback: Element; children: Children }>;
 export const Suspense = (
   { fallback, children }: SuspenseProps,
   $: Primitives
-): Element =>
-  createFragmentElement(
-    { [SuspenseContext.key]: $(_ => ({ fallback: _(fallback) })) },
+): Element => {
+  const element = createFragmentElement(
+    { [SuspenseContext.key]: $(_ => ({ fallback: _(fallback), element })) },
     { raw: false, children }
   );
+
+  return element;
+};
