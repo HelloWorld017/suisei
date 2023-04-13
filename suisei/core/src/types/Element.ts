@@ -8,6 +8,7 @@ export type Element = {
   component: string | Component | null;
   props: Record<string, unknown>;
   provide: Record<symbol, Ref<unknown>> | null;
+  cacheKey?: symbol;
 };
 
 export type { Element as SuiseiElement };

@@ -1,17 +1,14 @@
 import { Component, SuiseiElement } from 'suisei';
 import { createScheduler } from '../scheduler';
-import { ClientRenderer } from '../types';
-
-type ElementHandle = {
-  id: string;
-  renderCache: Element;
-  destroy(): void;
-};
+import { ClientRenderer, ElementHandle } from '../types';
 
 export const createRenderer = (): ClientRenderer => {
   let lastId = 0;
   const componentMap = new WeakMap<Component, string>();
-  const elementMap = new WeakMap<SuiseiElement, Element>();
+  const elementMap = new WeakMap<SuiseiElement, ElementHandle>();
+  // const templateCacheMap = new Map<symbol, (data: SuiseiElement) => Element>;
+  // TODO implement template cache
+
   const scheduler = createScheduler();
 
   return {
@@ -28,13 +25,16 @@ export const createRenderer = (): ClientRenderer => {
       componentMap.set(component, newId);
       return newId;
     },
+
     render(element) {
       const cachedResult = elementMap.get(element);
       if (cachedResult) {
         return cachedResult;
       }
 
-      // TODO
+      if (!element.component) {
+        (element.props as 
+      }
     },
   };
 };

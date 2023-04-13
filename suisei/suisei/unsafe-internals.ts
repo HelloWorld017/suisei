@@ -13,10 +13,11 @@ export {
 export type {
   ContextRegistry,
   Depropize,
+  FragmentProps,
+  Propize,
   NodeValue,
   NodeValueList,
   NodeValuePrimitive,
-  Propize,
   Scheduler,
   SchedulerPriority,
   Task,
