@@ -1,4 +1,5 @@
 import { Component, SuiseiElement } from 'suisei';
+import { FragmentProps } from 'suisei/unsafe-internals';
 import { createScheduler } from '../scheduler';
 import { ClientRenderer, ElementHandle } from '../types';
 
@@ -33,7 +34,7 @@ export const createRenderer = (): ClientRenderer => {
       }
 
       if (!element.component) {
-        (element.props as 
+        element.props as FragmentProps;
       }
     },
   };
