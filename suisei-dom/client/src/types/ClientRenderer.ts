@@ -2,14 +2,17 @@ import { Component, SuiseiElement } from 'suisei';
 import { Scheduler } from 'suisei/unsafe-internals';
 
 export type ElementHandle = {
-  renderResult: Element;
+  alternate(element: Element): () => void;
+  get renderResult(): Element;
   destroy(): void;
 };
 
 export type ClientRenderer = {
   registerComponent(component: Component): string;
-  render(element: SuiseiElement): Element;
+  render(element: SuiseiElement): ClientRenderResult;
   componentMap: WeakMap<Component, string>;
   elementMap: WeakMap<SuiseiElement, ElementHandle>;
   scheduler: Scheduler;
 };
+
+export type ClientRenderResult = Promise<ElementHandle> | ElementHandle;

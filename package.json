@@ -4,8 +4,7 @@
     "suisei/*",
     "suisei/suisei/dist",
     "suisei-dom/*",
-    "suisei-dom/suisei-dom/dist",
-    "examples/*"
+    "suisei-dom/suisei-dom/dist"
   ],
   "scripts": {
     "build": "yarn run build:suisei && yarn && yarn run build:suisei-dom && yarn",
