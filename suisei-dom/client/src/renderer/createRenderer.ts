@@ -6,6 +6,8 @@ import {
 } from 'suisei/unsafe-internals';
 import { createScheduler } from '../scheduler';
 import { ClientRenderer, ClientRenderResult, ElementHandle } from '../types';
+import { renderComponentElement } from './renderComponentElement';
+import { renderFragmentElement } from './renderFragmentElement';
 
 export const createRenderer = (): ClientRenderer => {
   let lastId = 0;

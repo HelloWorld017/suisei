@@ -1,5 +1,5 @@
-import { Ref } from 'suisei';
-import {
+import type { Ref } from 'suisei';
+import type {
   EffectCleanup,
   EffectRunAt,
   Owner,

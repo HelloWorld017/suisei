@@ -26,7 +26,7 @@ export const effect =
 
     const runAt = options?.runAt ?? 'default';
     const refCleanups = new Map<Ref<unknown>, () => void>();
-    const runEffect = () => {
+    const runEffect = (newValue?: unknown, flags?: number) => {
       if (hasActiveTask) {
         return;
       }
@@ -37,7 +37,7 @@ export const effect =
           .then(async () => {
             try {
               await currentCleanup?.();
-              runEffect();
+              runEffect(newValue, flags);
             } catch (error) {
               owner.onError(error);
             }

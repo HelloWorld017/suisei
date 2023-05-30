@@ -1,6 +1,7 @@
 import { Component, SuiseiElement } from 'suisei';
 import { Scheduler } from 'suisei/unsafe-internals';
 
+// TODO Make it NodeHandle
 export type ElementHandle = {
   alternate(element: Element): () => void;
   get renderResult(): Element;
