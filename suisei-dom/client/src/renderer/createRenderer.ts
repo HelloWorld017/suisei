@@ -5,15 +5,15 @@ import {
   isPromise,
 } from 'suisei/unsafe-internals';
 import { createScheduler } from '../scheduler';
-import { ClientRenderer, ClientRenderResult, ElementHandle } from '../types';
+import { ClientRenderer, ClientRenderResult } from '../types';
 import { renderComponentElement } from './renderComponentElement';
 import { renderFragmentElement } from './renderFragmentElement';
 
 export const createRenderer = (): ClientRenderer => {
   let lastId = 0;
   const componentMap = new WeakMap<Component, string>();
-  const elementMap = new WeakMap<SuiseiElement, ElementHandle>();
-  const promiseMap = new WeakMap<SuiseiElement, Promise<ElementHandle>>();
+  const elementMap = new WeakMap<SuiseiElement, Node>();
+  const promiseMap = new WeakMap<SuiseiElement, Promise<Node>>();
   // const templateCacheMap = new Map<symbol, (data: SuiseiElement) => Element>;
   // TODO implement template cache
 
@@ -34,10 +34,10 @@ export const createRenderer = (): ClientRenderer => {
       return newId;
     },
 
-    async render(
+    render(
       element: SuiseiElement,
       contextRegistry: ContextRegistry = {}
-    ) {
+    ): ClientRenderResult {
       const cachedResult = elementMap.get(element);
       if (cachedResult) {
         return cachedResult;
@@ -65,23 +65,24 @@ export const createRenderer = (): ClientRenderer => {
       } else {
         result = renderComponentElement(
           renderer,
+          contextRegistry,
           element.component,
-          element.props,
-          contextRegistry
+          element.props
         );
       }
 
-      let elementHandle: ElementHandle;
+      let node: Node;
       if (isPromise(result)) {
         promiseMap.set(element, result);
-        elementHandle = await result;
-        promiseMap.delete(element);
+        return result.then(resultNode => {
+          node = resultNode;
+          promiseMap.delete(element);
+          return node;
+        });
       } else {
-        elementHandle = result;
+        node = result;
+        return node;
       }
-
-      elementMap.set(element, elementHandle);
-      return elementHandle;
     },
   };
 

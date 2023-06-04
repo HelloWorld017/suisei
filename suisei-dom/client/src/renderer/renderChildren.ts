@@ -3,12 +3,11 @@ import {
   ErrorCodes,
   isPromise,
   isRef,
-  throwError,
+  throwWarn,
 } from 'suisei/unsafe-internals';
 import type {
   ClientRenderer,
   ClientRenderResult,
-  ElementHandle,
 } from '../types';
 import type { Children, Primitives, SuiseiElement } from 'suisei';
 import type {
@@ -17,11 +16,14 @@ import type {
   Owner,
 } from 'suisei/unsafe-internals';
 
-export const renderChildElement = async (
+export const renderChildPrimitive = async (
   renderer: ClientRenderer,
-  element: SuiseiElement,
+  element: SuiseiElement | string | number | null,
   primitives: Primitives
 ) => {
+  if (typeof element === 'string' || typeof element === 'number') {
+    const node = document.createTextNode(String(element));
+  }
   if (__DEV__) {
     const renderCache = renderer.elementMap.get(element);
     if (renderCache) {
@@ -40,7 +42,7 @@ export const renderChild = (
   { shouldEscape = true } = {}
 ): ClientRenderResult => {
   if (isRef(child)) {
-    const previousElement = renderChild(
+    const initialElement = renderChild(
       renderer,
       owner,
       primitives,
@@ -48,41 +50,41 @@ export const renderChild = (
       { shouldEscape }
     );
 
+    let age = 0;
     let committedHandle: ElementHandle | null = null;
-    if (isPromise(previousElement)) {
-      void previousElement.then(handle => {
-        committedHandle = handle;
+
+    if (isPromise(initialElement)) {
+      void initialElement.then(handle => {
+        if (!committedHandle) {
+          committedHandle = handle;
+        }
       });
     }
-
-    primitives.effectLayout(_ => {
-      // TODO check for defer flag
-      const childElement = _(child);
-      const updateElement = () => {
-        if (committedHandle === null) {
-          if (isPromise(previousElement)) {
-            void previousElement.then(() => updateElement());
-          }
-
-          return;
-        }
-
-        const childHandle = renderChild(
+      const updateElement = async () => {
+        const lastAge = age;
+        let childHandle = renderChild(
           renderer,
           owner,
           primitives,
           childElement,
           { shouldEscape }
         );
+
         if (isPromise(childHandle)) {
-          const committedHandleNow = committedHandle;
-          childHandle.then(() => {
-            if (committedHandleNow === committedHandle) {
-            }
-          });
+          childHandle = await childHandle;
         }
-        committedHandle.alternate(childHandle);
+
+        if (lastAge < age) {
+          return;
+        }
+
+        if (committedHandle) {
+          committedHandle.alternate(childHandle);
       };
+
+    primitives.effectLayout(_ => {
+      // TODO check for defer flag
+      const childElement = _(child);
     });
   }
 };
@@ -124,11 +126,3 @@ export const renderChildren = async (
     });
   return children;
 };
-
-function throwWarn(arg0: any) {
-  throw new Error('Function not implemented.');
-}
-function throwWarn(arg0: any) {
-  throw new Error('Function not implemented.');
-}
-

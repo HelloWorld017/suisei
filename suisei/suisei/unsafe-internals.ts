@@ -60,6 +60,7 @@ export {
   isElement,
   isPromise,
   throwError,
+  throwWarn,
   ErrorCodes,
   SymbolIs,
   SymbolElement,

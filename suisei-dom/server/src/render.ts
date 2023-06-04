@@ -39,12 +39,18 @@ const createOwner = (
   renderer: ServerRenderer,
   contextRegistry: ContextRegistry
 ): Owner => ({
-  scheduler: renderer.scheduler,
   stateCount: 0,
+  onDeriveUpdateByObserve(_ref, _flags, runDerive) {
+    // FIXME This might cause updates for already rendered element
+    // We will not support, and we should make sure client renderer handle this.
+    runDerive();
+  },
   onEffectInitialize() {},
-  onEffectSyncInitialize() {},
-  onFutureRefetchInitialize() {},
-  onFutureRefetchFinish() {},
+  onEffectUpdate() {},
+  onFutureInitialize() {
+    // TODO hand-off future data
+  },
+  onFutureUpdate() {},
   onError(error) {
     const errorBoundary = globalPrimitives.useOnce(
       readContext(contextRegistry, ErrorBoundaryContext)

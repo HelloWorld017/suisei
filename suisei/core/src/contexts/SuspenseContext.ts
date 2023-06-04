@@ -1,9 +1,7 @@
 import { createContext } from './utils';
-import type { Element } from '../types';
 
 export type SuspenseContextType = {
-  fallback: Element;
-  element: Element;
+  alternate: () => void;
 };
 
 export const [SuspenseContext, SuspenseContextProvider] = createContext(

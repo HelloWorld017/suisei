@@ -1,6 +1,7 @@
 import {
   createPrimitives,
   ErrorBoundaryContext,
+  isPromise,
   SuspenseContext,
 } from 'suisei/unsafe-internals';
 import { ClientRenderer } from '../types';
@@ -31,10 +32,7 @@ export const createBoundOwnerAndPrimitives = (
       contextRegistry[SuspenseContext.key] as Ref<SuspenseContextType>
     );
 
-    const boundaryHandle = await renderer.render(suspense.element);
-    const fallbackHandle = await renderer.render(suspense.fallback);
-    const cleanup = boundaryHandle.alternate(fallbackHandle.renderResult);
-
+    const cleanup = suspense.alternate();
     await promise;
     cleanup();
   };
