@@ -15,15 +15,21 @@ import type {
   NodeValue,
   Owner,
 } from 'suisei/unsafe-internals';
+import {RenderEnv} from '../env';
 
 export const renderChildPrimitive = async (
-  renderer: ClientRenderer,
+  { renderer }: RenderEnv,
   element: SuiseiElement | string | number | null,
-  primitives: Primitives
 ) => {
   if (typeof element === 'string' || typeof element === 'number') {
     const node = document.createTextNode(String(element));
+    return node;
   }
+
+  if (!element) {
+    return null;
+  }
+
   if (__DEV__) {
     const renderCache = renderer.elementMap.get(element);
     if (renderCache) {
@@ -35,17 +41,15 @@ export const renderChildPrimitive = async (
 };
 
 export const renderChild = (
-  renderer: ClientRenderer,
-  owner: Owner,
-  primitives: Primitives,
+  env: RenderEnv,
   child: NodeValue,
   { shouldEscape = true } = {}
 ): ClientRenderResult => {
+  const { renderer, owner, primitives } = env;
+
   if (isRef(child)) {
     const initialElement = renderChild(
-      renderer,
-      owner,
-      primitives,
+      env,
       primitives.useOnce(child),
       { shouldEscape }
     );
@@ -90,9 +94,7 @@ export const renderChild = (
 };
 
 export const renderChildren = async (
-  renderer: ClientRenderer,
-  owner: Owner,
-  primitives: Primitives,
+  { renderer, owner, primitives }: RenderEnv,
   children: Children,
   { shouldEscape = true } = {}
 ) => {

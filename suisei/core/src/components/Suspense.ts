@@ -8,25 +8,20 @@ export const Suspense = (
   { fallback, children }: SuspenseProps,
   $: Primitives
 ): Element => {
-  let alternate = () => {};
-  const [element, setElement] = $.state(
-    createFragmentElement(
-      { [SuspenseContext.key]: $.constant({ alternate }) },
-      { raw: false, children }
-    )
-  );
-
-  // FIXME update alternate
-  alternate = () => {
-    const fallbackFragment = createFragmentElement(
-      {},
-      { raw: false, children: $(_ => [_(fallback)]) }
-    );
-    setElement(fallbackFragment);
-  };
+  const element = createFragmentElement({}, { raw: false, children });
+  const [suspenseCount, setSuspenseCount] = $.state(0);
+  const [renderResult, setRenderResult] = $.state<Element>(element);
 
   return createFragmentElement(
-    {},
-    { raw: false, children: $(_ => [_(element)]) }
+    {
+      [SuspenseContext.key]: $(_ => ({
+        element: _(children),
+        fallback: _(fallback),
+        suspenseCount,
+        setSuspenseCount,
+        setRenderResult,
+      })),
+    },
+    { raw: false, children: $(_ => [_(renderResult)]) }
   );
 };
