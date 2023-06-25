@@ -54,6 +54,8 @@ export const createRenderEnv = (
       suspense.setRenderResult(suspense.fallback);
     }
 
+    // FIXME Do not count future suspenses, as it will update after all promises resolves
+    // just use the latest suspense
     const futureSuspenseCount = suspenseMap.get(futureSymbol) ?? 0;
     if (!futureSuspenseCount) {
       suspense.setSuspenseCount(suspenseCount + 1);

@@ -154,7 +154,7 @@ export const renderChildren = (
       return child;
     })
     .forEach(child => {
-      // TODO call renderChildPrimitive
+      // TODO call renderChild
     });
 
   return children;
