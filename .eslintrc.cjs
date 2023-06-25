@@ -8,7 +8,7 @@ module.exports = {
     'plugin:@typescript-eslint/recommended-requiring-type-checking',
     'prettier'
   ],
-  plugins: ['@typescript-eslint', 'import', 'prettier'],
+  plugins: ['@typescript-eslint', 'import', 'prettier', 'no-autofix'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     project: ['./suisei/tsconfig.json', './suisei-dom/tsconfig.json'],
@@ -57,6 +57,8 @@ module.exports = {
     'no-mixed-operators': 'error',
     'no-multi-spaces': ['error', { ignoreEOLComments: true }],
     'no-tabs': 'error',
+    'prefer-const': 'off',
+    'no-autofix/prefer-const': 'error',
     'prefer-promise-reject-errors': 'off',
     'prettier/prettier': 'error',
     'quotes': ['error', 'single', {
