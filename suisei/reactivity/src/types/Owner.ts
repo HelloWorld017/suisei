@@ -11,7 +11,18 @@ export type Owner = {
   onDeriveUpdateByObserve(ref: Ref, flags: number, runDerive: () => void): void;
   onEffectInitialize(runAt: EffectRunAt, runEffect: Effect): void;
   onEffectUpdate(runAt: EffectRunAt, runUpdate: () => void): void;
-  onFutureInitialize(promise: Promise<unknown>, cleanup: () => void): void;
-  onFutureUpdate(promise: Promise<unknown>, flags: number): void;
+
+  onFutureInitialize(
+    futureSymbol: symbol,
+    promise: Promise<unknown>,
+    cleanup: () => void
+  ): void;
+
+  onFutureUpdate(
+    futureSymbol: symbol,
+    promise: Promise<unknown>,
+    flags: number
+  ): void;
+
   onError(error: unknown): void;
 };

@@ -55,6 +55,7 @@ export const effect =
 
         const effectHandle = {
           abortSignal: currentAbortController?.signal as AbortSignal,
+          flags,
         };
 
         if (cleanupFn) {

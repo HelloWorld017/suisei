@@ -1,5 +1,6 @@
 import {
   createPrimitives,
+  EffectCleanup,
   ErrorBoundaryContext,
   SuspenseContext,
 } from 'suisei/unsafe-internals';
@@ -13,7 +14,7 @@ import type {
   Owner,
 } from 'suisei/unsafe-internals';
 
-type OnSuspense = (promise: Promise<unknown>) => void;
+type OnSuspense = (futureSymbol: symbol, promise: Promise<unknown>) => void;
 type OnError = (error: unknown) => void;
 
 export type RenderEnv = {
@@ -25,6 +26,7 @@ export type RenderEnv = {
     onSuspense: OnSuspense;
     onError: OnError;
   };
+  unmount: EffectCleanup;
 };
 
 export const createRenderEnv = (
@@ -34,14 +36,15 @@ export const createRenderEnv = (
   let onSuspense: OnSuspense = () => {};
   let onError: OnError = () => {};
 
-  const owner = createOwner(
+  const [owner, unmount] = createOwner(
     renderer.scheduler,
-    promise => onSuspense(promise),
+    (futureSymbol, promise) => onSuspense(futureSymbol, promise),
     error => onError(error)
   );
 
   const primitives = createPrimitives(contextRegistry, owner);
-  onSuspense = async promise => {
+  const suspenseMap = new Map<symbol, number>();
+  onSuspense = async (futureSymbol, promise) => {
     const suspense = primitives.useOnce(
       contextRegistry[SuspenseContext.key] as Ref<SuspenseContextType>
     );
@@ -51,15 +54,25 @@ export const createRenderEnv = (
       suspense.setRenderResult(suspense.fallback);
     }
 
-    suspense.setSuspenseCount(suspenseCount + 1);
+    const futureSuspenseCount = suspenseMap.get(futureSymbol) ?? 0;
+    if (!futureSuspenseCount) {
+      suspense.setSuspenseCount(suspenseCount + 1);
+    }
+    suspenseMap.set(futureSymbol, futureSuspenseCount + 1);
+
     await promise;
 
-    const updatedSuspenseCount = primitives.useOnce(suspense.suspenseCount) - 1;
-    suspense.setSuspenseCount(updatedSuspenseCount);
+    const futureSuspenseCountUpdated = (suspenseMap.get(futureSymbol) ?? 0) - 1;
+    if (!futureSuspenseCountUpdated) {
+      const suspenseCountUpdated =
+        primitives.useOnce(suspense.suspenseCount) - 1;
 
-    if (updatedSuspenseCount === 0) {
-      suspense.setRenderResult(suspense.element);
+      suspense.setSuspenseCount(suspenseCountUpdated);
+      if (!suspenseCountUpdated) {
+        suspense.setRenderResult(suspense.element);
+      }
     }
+    suspenseMap.set(futureSymbol, futureSuspenseCountUpdated);
   };
 
   onError = error => {
@@ -76,5 +89,6 @@ export const createRenderEnv = (
     owner,
     primitives,
     callbacks: { onSuspense, onError },
+    unmount,
   };
 };

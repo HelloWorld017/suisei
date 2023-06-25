@@ -1,3 +1,4 @@
+import { cleanupAll } from '@suisei-dom/shared';
 import type { Ref } from 'suisei';
 import type {
   EffectCleanup,
@@ -70,9 +71,9 @@ const createUpdater = (scheduler: Scheduler, update: () => void) => {
 
 export const createOwner = (
   scheduler: Scheduler,
-  onSuspense: (promise: Promise<unknown>) => void,
+  onSuspense: (futureSymbol: symbol, promise: Promise<unknown>) => void,
   onError: (error: unknown) => void
-): Owner => {
+): [Owner, EffectCleanup] => {
   const updateLayer = createTaskLayer<Ref>(scheduler);
   const layoutEffectLayer = createTaskLayer(scheduler, updateLayer);
   const defaultEffectLayer = createTaskLayer(scheduler, layoutEffectLayer);
@@ -91,8 +92,7 @@ export const createOwner = (
   });
 
   const cleanups: EffectCleanup[] = [];
-
-  return {
+  const owner: Owner = {
     stateCount: 0,
     onStateUpdate(ref, _flags, runUpdate) {
       updateLayer.scheduleTask(runUpdate, ref);
@@ -116,17 +116,20 @@ export const createOwner = (
       markAsDirty();
     },
 
-    onFutureInitialize(promise, cleanup) {
-      onSuspense(promise);
+    onFutureInitialize(futureSymbol, promise, cleanup) {
+      onSuspense(futureSymbol, promise);
       cleanups.push(cleanup);
     },
 
-    onFutureUpdate(promise, _flags) {
-      onSuspense(promise);
+    onFutureUpdate(futureSymbol, promise, _flags) {
+      // FIXME check for defer flag
+      onSuspense(futureSymbol, promise);
     },
 
     onError(error) {
       onError(error);
     },
   };
+
+  return [owner, cleanupAll(cleanups)];
 };

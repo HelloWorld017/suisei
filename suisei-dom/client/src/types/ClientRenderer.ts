@@ -1,5 +1,5 @@
 import { Component, SuiseiElement } from 'suisei';
-import { Scheduler } from 'suisei/unsafe-internals';
+import { EffectCleanup, Scheduler } from 'suisei/unsafe-internals';
 
 export type ClientRenderer = {
   registerComponent(component: Component): string;
@@ -9,4 +9,6 @@ export type ClientRenderer = {
   scheduler: Scheduler;
 };
 
-export type ClientRenderResult = Promise<Node> | Node;
+export type ClientRenderResult =
+  | Promise<readonly [Node | null, EffectCleanup | null]>
+  | readonly [Node | null, EffectCleanup | null];
