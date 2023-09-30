@@ -21,7 +21,6 @@ module.exports = {
   },
   rules: {
     '@typescript-eslint/no-misused-promises': 'off',
-    // '@typescript-eslint/no-floating-promises': 'off',
     '@typescript-eslint/no-empty-function': 'off',
     '@typescript-eslint/no-empty-interface': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
@@ -54,7 +53,6 @@ module.exports = {
     'max-len': 'off',
     'no-confusing-arrow': 'off',
     'no-console': ['error', { allow: ['warn', 'error'] }],
-    'no-mixed-operators': 'error',
     'no-multi-spaces': ['error', { ignoreEOLComments: true }],
     'no-tabs': 'error',
     'prefer-const': 'off',

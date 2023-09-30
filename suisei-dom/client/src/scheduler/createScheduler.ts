@@ -79,6 +79,8 @@ export const createScheduler = (): ClientScheduler => {
 
         task = task.next;
       }
+
+      return true;
     });
   };
 
