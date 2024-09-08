@@ -1,0 +1,32 @@
+{
+  "name": "@suisei/root",
+  "version": "0.0.0",
+  "description": "The root package for the suisei monorepo",
+  "type": "module",
+  "scripts": {
+    "lint": "turbo run lint:run --filter *"
+  },
+  "private": true,
+  "keywords": [
+    "dom"
+  ],
+  "author": "nenw* <khi@nenw.dev>",
+  "license": "MIT",
+  "packageManager": "pnpm@9.4.0",
+  "devDependencies": {
+    "@eslint/js": "^9.9.1",
+    "@stylistic/eslint-plugin": "^2.7.2",
+    "@types/eslint__js": "^8.42.3",
+    "@types/node": "^22.5.1",
+    "eslint": "^9.9.1",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-import-resolver-typescript": "^3.6.3",
+    "eslint-plugin-import-x": "^4.1.1",
+    "eslint-plugin-no-autofix": "^2.0.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "prettier": "^3.3.3",
+    "turbo": "^2.1.1",
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^8.3.0"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    // Strictness
+    "strict": true,
+    "exactOptionalPropertyTypes": true,
+
+    // Module
+    "module": "preserve",
+    "moduleDetection": "force",
+    "moduleResolution": "bundler",
+    "isolatedModules": true,
+    "esModuleInterop": true,
+
+    // Types
+    "types": [
+      "node"
+    ],
+    "typeRoots": ["./node_modules", "./node_modules/@types"],
+
+    // Others
+    "jsx": "preserve",
+    "allowJs": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "composite": true,
+    "incremental": true,
+  },
+
+  "include": [
+    "build/**/*.ts",
+    "build/**/*.tsx",
+    "packages/**/*.ts",
+    "packages/**/*.tsx",
+    "eslint.config.js"
+  ]
+}
