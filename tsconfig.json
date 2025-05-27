@@ -13,12 +13,14 @@
 
     // Types
     "types": [
-      "node"
+      "node",
+      "vitest/globals"
     ],
     "typeRoots": ["./node_modules", "./node_modules/@types"],
 
     // Others
     "jsx": "preserve",
+    "target": "es2015",
     "allowJs": true,
     "skipLibCheck": true,
     "noEmit": true,
@@ -27,10 +29,9 @@
   },
 
   "include": [
-    "build/**/*.ts",
-    "build/**/*.tsx",
     "packages/**/*.ts",
     "packages/**/*.tsx",
-    "eslint.config.js"
+    "eslint.config.js",
+    "vitest.config.ts"
   ]
 }
