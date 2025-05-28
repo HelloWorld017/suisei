@@ -3,7 +3,6 @@ import type { Ref } from './Ref';
 import type {
   OrderedSet,
   OverlayMap,
-  OverlaySet,
   SymbolReactivityNoValue,
 } from '@suisei/shared';
 
@@ -21,7 +20,8 @@ export type ReactivityRegistry = {
     pipeline: Pipeline
   ): void;
   removeEffect(ref: Ref, effect: EffectTask): void;
-  openDeps(ref: Ref): OverlaySet<Ref>;
+  updateDeps(ref: Ref, deps: Set<Ref>): void;
+  readMemoizedDeps(ref: Ref): unknown[] | null;
 };
 
 export type ReactivityRegistryInternal =
@@ -35,10 +35,10 @@ export type ReactivityRegistryMain = ReactivityRegistry & {
 export type ReactivityRegistryMainInternal = ReactivityRegistryMain & {
   _stateDict: WeakMap<Ref, unknown>;
   _cache: WeakMap<Ref, unknown>;
+  _tasks: OrderedSet<EffectTask | Ref, Pipeline>;
   _deps: WeakMap<Ref, Set<Ref>>;
-  _depsTasks: Set<Ref>;
+  _memoizedDeps: WeakMap<Ref, unknown[]>;
   _effects: WeakMap<Ref, Map<EffectTask, Pipeline>>;
-  _effectsTasks: OrderedSet<EffectTask, Pipeline>;
   _branches: Set<ReactivityRegistryBranchInternal>;
 };
 
@@ -49,10 +49,10 @@ export type ReactivityRegistryBranch = ReactivityRegistry & {
 export type ReactivityRegistryBranchInternal = ReactivityRegistryBranch & {
   _stateDict: OverlayMap<Ref, unknown>;
   _cache: OverlayMap<Ref, unknown>;
+  _tasks: OrderedSet<EffectTask | Ref, Pipeline>;
   _deps: OverlayMap<Ref, Set<Ref>>;
-  _depsTasks: Set<Ref>;
+  _memoizedDeps: OverlayMap<Ref, unknown[]>;
   _effects: OverlayMap<Ref, Map<EffectTask, Pipeline>>;
-  _effectsTasks: OrderedSet<EffectTask, Pipeline>;
   _effectsActive: Map<EffectTask, DisposeTask>;
   _dirty: WeakSet<Ref>;
 };

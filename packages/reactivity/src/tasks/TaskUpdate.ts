@@ -1,31 +1,40 @@
 import { REF_KIND_DERIVED, SymbolRefDescriptor } from '@suisei/shared';
 import { readRef } from '../utils/readRef';
+import type { Pipeline } from '../types/Pipeline';
 import type {
   ReactivityRegistry,
   ReactivityRegistryInternal,
 } from '../types/ReactivityRegistry';
-import type { RefInternal } from '../types/Ref';
+import type { Ref, RefInternal } from '../types/Ref';
 import type { SchedulerTask } from '@suisei/core';
 
 export const TaskUpdate =
-  (registry: ReactivityRegistry): SchedulerTask =>
+  (registry: ReactivityRegistry, pipeline: Pipeline): SchedulerTask =>
   (_scheduler, node) => {
     const internalRegistry = registry as ReactivityRegistryInternal;
-    const tasks = internalRegistry._depsTasks;
-    const nextValue = tasks.values().next();
+    const tasks = internalRegistry._tasks;
+    const taskPriority = tasks.peekPriority();
 
-    const ref = nextValue.value;
-    if (!ref) {
+    if (taskPriority === null || taskPriority <= pipeline) {
       return;
     }
 
-    const internalRef = ref as RefInternal;
-    if (
-      internalRef[SymbolRefDescriptor].kind === REF_KIND_DERIVED &&
-      internalRef[SymbolRefDescriptor].isMemoized
-    ) {
-      readRef(registry, ref);
+    const task = tasks.deleteMin();
+    if (!task) {
+      return;
     }
 
-    node.append(TaskUpdate(registry));
+    if (typeof task === 'function') {
+      task();
+    } else {
+      const internalRef = task satisfies Ref as RefInternal;
+      if (
+        internalRef[SymbolRefDescriptor].kind === REF_KIND_DERIVED &&
+        internalRef[SymbolRefDescriptor].isMemoized
+      ) {
+        readRef(registry, internalRef);
+      }
+    }
+
+    node.append(TaskUpdate(registry, pipeline));
   };

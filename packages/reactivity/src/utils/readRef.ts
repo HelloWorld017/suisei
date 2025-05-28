@@ -7,12 +7,11 @@ export const readRef = <T>(registry: ReactivityRegistry, ref: Ref<T>): T => {
   const isMemoizedRef =
     descriptor.kind === REF_KIND_DERIVED && descriptor.isMemoized;
 
-  const deps = isMemoizedRef ? registry.openDeps(ref) : null;
-  deps?.forEach(ref => deps.delete(ref));
-
+  const deps = isMemoizedRef ? new Set() : null;
   const selector = isMemoizedRef
     ? <T>(ref: Ref<T>) => {
         deps?.add(ref);
+        const value = readRef(registry, ref);
       }
     : (ref: Ref<T>) => readRef(registry, ref);
 };

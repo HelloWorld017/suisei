@@ -4,8 +4,8 @@ import {
   SymbolRefDescriptor,
   SymbolReactivityNoValue,
   createOrderedSet,
-  createOverlaySet,
 } from '@suisei/shared';
+import { PIPELINE_UPDATE } from '../constants';
 import type { Pipeline } from '../types/Pipeline';
 import type {
   EffectTask,
@@ -34,12 +34,13 @@ const readRef = <T>(
 };
 
 const notifyUpdate = (registry: ReactivityRegistryInternal, ref: Ref) => {
-  registry._deps.get(ref)?.forEach(ref => registry._depsTasks.add(ref));
+  registry._deps
+    .get(ref)
+    ?.forEach(ref => registry._tasks.insert(PIPELINE_UPDATE, ref));
+
   registry._effects
     .get(ref)
-    ?.forEach((pipeline, effect) =>
-      registry._effectsTasks.insert(pipeline, effect)
-    );
+    ?.forEach((pipeline, effect) => registry._tasks.insert(pipeline, effect));
 
   if ('_branches' in registry) {
     registry._branches.forEach(branch => {
@@ -81,35 +82,23 @@ const removeEffect = (
   }
 };
 
-const openDeps = (registry: ReactivityRegistryInternal, ref: Ref) => {
-  const deps = registry._deps.get(ref);
-  if (deps) {
-    return createOverlaySet(deps);
-  }
-
-  const newDeps = new Set<Ref>();
-  registry._deps.set(ref, newDeps);
-  return createOverlaySet(newDeps);
-};
-
 export const createReactivityRegistry = () => {
   const stateDict = new WeakMap<Ref, unknown>();
   const cache = new WeakMap<Ref, unknown>();
   const deps = new WeakMap<Ref, Set<Ref>>();
-  const depsTasks = new Set<Ref>();
+  const memoizedDeps = new WeakMap<Ref, unknown[]>();
   const effects = new WeakMap<Ref, Map<EffectTask, Pipeline>>();
-  const effectsTasks = createOrderedSet<EffectTask, Pipeline>();
   const branches = new Set<ReactivityRegistryBranchInternal>();
 
   const fork = (): ReactivityRegistryBranch => {
     const branch: ReactivityRegistryBranchInternal = {
       _stateDict: createOverlayMap(stateDict),
       _cache: createOverlayMap(cache),
+      _tasks: createOrderedSet(),
       _deps: createOverlayMap(deps),
-      _depsTasks: new Set(),
+      _memoizedDeps: createOverlayMap(memoizedDeps),
       _effects: createOverlayMap(effects),
       _effectsActive: new Map(),
-      _effectsTasks: createOrderedSet(),
       _dirty: new WeakSet(),
       read: ref => readRef(branch, ref),
       writeState: (ref, value) => {
@@ -123,19 +112,21 @@ export const createReactivityRegistry = () => {
       addEffect: (ref, effectTask, disposeTask, pipeline) =>
         addEffect(branch, ref, effectTask, disposeTask, pipeline),
       removeEffect: (ref, effectTask) => removeEffect(branch, ref, effectTask),
-      openDeps: ref => openDeps(branch, ref),
+      updateDeps: (ref, deps) => branch._deps.set(ref, deps),
+      readMemoizedDeps: ref => branch._memoizedDeps.get(ref) ?? null,
     };
 
+    branches.add(branch);
     return branch;
   };
 
   const registry: ReactivityRegistryMainInternal = {
     _stateDict: stateDict,
     _cache: cache,
+    _tasks: createOrderedSet(),
     _deps: deps,
-    _depsTasks: depsTasks,
+    _memoizedDeps: memoizedDeps,
     _effects: effects,
-    _effectsTasks: effectsTasks,
     _branches: branches,
     read: ref => readRef(registry, ref),
     writeState: (ref, value) => {
@@ -149,7 +140,8 @@ export const createReactivityRegistry = () => {
     addEffect: (ref, effectTask, disposeTask, pipeline) =>
       addEffect(registry, ref, effectTask, disposeTask, pipeline),
     removeEffect: (ref, effectTask) => removeEffect(registry, ref, effectTask),
-    openDeps: ref => openDeps(registry, ref),
+    updateDeps: (ref, deps) => registry._deps.set(ref, deps),
+    readMemoizedDeps: ref => memoizedDeps.get(ref) ?? null,
     fork,
   };
 
