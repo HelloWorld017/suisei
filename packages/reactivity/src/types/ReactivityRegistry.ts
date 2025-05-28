@@ -1,12 +1,27 @@
-import type { Pipeline, PipelineManager } from './PipelineManager';
+import type { Pipeline } from './Pipeline';
 import type { Ref } from './Ref';
-import type { Task } from '@suisei/core';
-import type { OverlayMap, SymbolReactivityNoValue } from '@suisei/shared';
+import type {
+  OrderedSet,
+  OverlayMap,
+  OverlaySet,
+  SymbolReactivityNoValue,
+} from '@suisei/shared';
+
+export type EffectTask = () => void & { __kind?: 'EffectTask' };
+export type DisposeTask = () => void & { __kind?: 'DisposeTask' };
 
 export type ReactivityRegistry = {
   read<T>(ref: Ref<T>): T | typeof SymbolReactivityNoValue;
   writeState<T>(ref: Ref<T>, value: T): void;
   writeCache<T>(ref: Ref<T>, value: T): void;
+  addEffect(
+    ref: Ref,
+    effectTask: EffectTask,
+    disposeTask: DisposeTask,
+    pipeline: Pipeline
+  ): void;
+  removeEffect(ref: Ref, effect: EffectTask): void;
+  openDeps(ref: Ref): OverlaySet<Ref>;
 };
 
 export type ReactivityRegistryInternal =
@@ -14,26 +29,30 @@ export type ReactivityRegistryInternal =
   | ReactivityRegistryBranchInternal;
 
 export type ReactivityRegistryMain = ReactivityRegistry & {
-  fork(pipelineManager?: PipelineManager): ReactivityRegistryBranch;
+  fork(): ReactivityRegistryBranch;
 };
 
 export type ReactivityRegistryMainInternal = ReactivityRegistryMain & {
   _stateDict: WeakMap<Ref, unknown>;
   _cache: WeakMap<Ref, unknown>;
-  _deps: WeakMap<Ref, Map<Task, Pipeline>>;
-  _pipelineManager: PipelineManager;
-  _branches: ReactivityRegistryBranchInternal[];
+  _deps: WeakMap<Ref, Set<Ref>>;
+  _depsTasks: Set<Ref>;
+  _effects: WeakMap<Ref, Map<EffectTask, Pipeline>>;
+  _effectsTasks: OrderedSet<EffectTask, Pipeline>;
+  _branches: Set<ReactivityRegistryBranchInternal>;
 };
 
 export type ReactivityRegistryBranch = ReactivityRegistry & {
-  commit(): void;
-  dispose(): void;
+  __kind?: 'ReactivityRegistryBranch';
 };
 
 export type ReactivityRegistryBranchInternal = ReactivityRegistryBranch & {
   _stateDict: OverlayMap<Ref, unknown>;
   _cache: OverlayMap<Ref, unknown>;
-  _deps: OverlayMap<Ref, Map<Task, Pipeline>>;
-  _pipelineManager: PipelineManager;
+  _deps: OverlayMap<Ref, Set<Ref>>;
+  _depsTasks: Set<Ref>;
+  _effects: OverlayMap<Ref, Map<EffectTask, Pipeline>>;
+  _effectsTasks: OrderedSet<EffectTask, Pipeline>;
+  _effectsActive: Map<EffectTask, DisposeTask>;
   _dirty: WeakSet<Ref>;
 };

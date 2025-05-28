@@ -3,5 +3,8 @@ export type EffectHandle = {
   abortSignal: AbortSignal;
 };
 
-export type Effect = () => EffectCleanup;
+export type Effect = (
+  handle: EffectHandle
+) => undefined | EffectCleanup | Promise<undefined | EffectCleanup>;
+
 export type EffectRunAt = 'render' | 'default';
