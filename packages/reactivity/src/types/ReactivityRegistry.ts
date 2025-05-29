@@ -22,7 +22,6 @@ export type ReactivityRegistryMainInternal = ReactivityRegistryMain & {
   _cache: WeakMap<Ref, unknown>;
   _tasks: OrderedSet<EffectTask | Ref, Pipeline>;
   _deps: WeakMap<Ref, Set<Ref>>;
-  _memoizedDeps: WeakMap<Ref, Map<Ref, unknown>>;
   _effects: WeakMap<Ref, Map<EffectTask, Pipeline>>;
   _branches: Set<ReactivityRegistryBranchInternal>;
 };
@@ -36,7 +35,6 @@ export type ReactivityRegistryBranchInternal = ReactivityRegistryBranch & {
   _cache: OverlayMap<Ref, unknown>;
   _tasks: OrderedSet<EffectTask | Ref, Pipeline>;
   _deps: OverlayMap<Ref, Set<Ref>>;
-  _memoizedDeps: OverlayMap<Ref, Map<Ref, unknown>>;
   _effects: OverlayMap<Ref, Map<EffectTask, Pipeline>>;
   _effectsActive: Map<EffectTask, DisposeTask>;
   _dirty: WeakSet<Ref>;

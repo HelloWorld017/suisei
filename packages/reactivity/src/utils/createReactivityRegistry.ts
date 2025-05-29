@@ -24,7 +24,6 @@ export const createReactivityRegistry = (): ReactivityRegistryMainInternal => ({
   _cache: new WeakMap(),
   _tasks: createOrderedSet(),
   _deps: new WeakMap(),
-  _memoizedDeps: new WeakMap(),
   _effects: new WeakMap(),
   _branches: new Set(),
 });
@@ -129,14 +128,6 @@ export const updateDepsToRegistry = (
   internalRegistry._deps.set(ref, deps);
 };
 
-export const readMemoizedDepsFromRegistry = (
-  registry: ReactivityRegistry,
-  ref: Ref
-) => {
-  const internalRegistry = registry as ReactivityRegistryInternal;
-  return internalRegistry._memoizedDeps.get(ref) ?? null;
-};
-
 export const forkRegistry = (
   registry: ReactivityRegistryMain
 ): ReactivityRegistryBranch => {
@@ -146,7 +137,6 @@ export const forkRegistry = (
     _cache: createOverlayMap(internalRegistry._cache),
     _tasks: createOrderedSet(),
     _deps: createOverlayMap(internalRegistry._deps),
-    _memoizedDeps: createOverlayMap(internalRegistry._memoizedDeps),
     _effects: createOverlayMap(internalRegistry._effects),
     _effectsActive: new Map(),
     _dirty: new WeakSet(),

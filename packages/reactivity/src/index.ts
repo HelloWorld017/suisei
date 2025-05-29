@@ -1,4 +1,3 @@
-export * from './types/Dependency';
 export * from './types/Effect';
 export * from './types/Future';
 export * from './types/Owner';
