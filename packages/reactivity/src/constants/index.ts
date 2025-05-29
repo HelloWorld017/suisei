@@ -1,4 +1,4 @@
-import type { Pipeline } from '../types/PipelineManager';
+import type { Pipeline } from '../types/Pipeline';
 
 export const PIPELINE_UPDATE = 0 as Pipeline;
 export const PIPELINE_CREATE = 1 as Pipeline;

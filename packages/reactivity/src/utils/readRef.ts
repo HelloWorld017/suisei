@@ -1,41 +1,54 @@
-import {
-  REF_KIND_DERIVED,
-  REF_KIND_STATE,
-  SymbolReactivityNoValue,
-  SymbolRefDescriptor,
-} from '@suisei/shared';
-import type {
-  ReactivityRegistry,
-  ReactivityRegistryInternal,
-} from '../types/ReactivityRegistry';
+import { E_STATE_NOT_IN_REGISTRY, REF_KIND_DERIVED, SymbolReactivityNoValue, SymbolRefDescriptor, throwError } from '@suisei/shared';
+import type { ReactivityRegistry } from '../types/ReactivityRegistry';
 import type { Ref, RefInternal } from '../types/Ref';
+import {readMemoizedDepsFromRegistry, readRefFromRegistry, updateDepsToRegistry, writeCacheToRegistry} from './createReactivityRegistry';
 
-export const readRefFromRegistry = <T>(
-  registry: ReactivityRegistryInternal,
-  ref: Ref<T>
-): T | typeof SymbolReactivityNoValue => {
-  const internalRef = ref as RefInternal<T>;
-  if (internalRef[SymbolRefDescriptor].kind === REF_KIND_STATE) {
-    return registry._stateDict.get(ref) as T;
-  }
+const diffMemoizedDeps = (registry: ReactivityRegistry, deps: Map<Ref, unknown>) => {
+  let isEqual = true;
+  deps.forEach((value, ref) => {
+    isEqual &&= (readLatestRef(registry, ref) === value);
+  });
 
-  if (registry._cache.has(ref)) {
-    return registry._cache.get(ref) as T;
-  }
-
-  return SymbolReactivityNoValue;
+  return isEqual;
 };
 
-export const readRef = <T>(registry: ReactivityRegistry, ref: Ref<T>): T => {
+export const readLatestRef = <T>(registry: ReactivityRegistry, ref: Ref<T>): T => {
   const descriptor = (ref as RefInternal)[SymbolRefDescriptor];
+  const isDerivedRef = descriptor.kind === REF_KIND_DERIVED;
   const isMemoizedRef =
-    descriptor.kind === REF_KIND_DERIVED && descriptor.isMemoized;
+    isDerivedRef && descriptor.isMemoized;
 
-  const deps = isMemoizedRef ? new Set() : null;
+  const previousMemoizedDeps = readMemoizedDepsFromRegistry(registry, ref);
+  const shouldUpdateMemo = isMemoizedRef && (!previousMemoizedDeps || diffMemoizedDeps(registry, previousMemoizedDeps));
+
+  const previousValue = readRefFromRegistry(registry, ref);
+  if (!shouldUpdateMemo && previousValue !== SymbolReactivityNoValue) {
+    return previousValue;
+  }
+
+  const nextDeps = isMemoizedRef ? new Set<Ref>() : null;
+  const nextMemoizedDeps = isMemoizedRef ? new Map<Ref, unknown>() : null;
   const selector = isMemoizedRef
-    ? <T>(ref: Ref<T>) => {
-        deps?.add(ref);
-        const value = readRef(registry, ref);
+    ? <TValue>(ref: Ref<TValue>) => {
+        nextDeps?.add(ref);
+
+        const value = readLatestRef(registry, ref);
+        nextMemoizedDeps?.set(ref, value);
+        return value;
+
       }
-    : (ref: Ref<T>) => readRef(registry, ref);
+    : <TValue>(ref: Ref<TValue>) => readLatestRef(registry, ref);
+
+  if (isDerivedRef) {
+    const value = descriptor.derive(selector);
+
+    if (isMemoizedRef) {
+      updateDepsToRegistry(registry, ref, nextDeps!);
+      writeCacheToRegistry(registry, ref, value);
+    }
+
+    return value as T;
+  }
+
+  return throwError(E_STATE_NOT_IN_REGISTRY);
 };

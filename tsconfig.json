@@ -16,7 +16,11 @@
       "node",
       "vitest/globals"
     ],
-    "typeRoots": ["./node_modules", "./node_modules/@types"],
+
+    "typeRoots": [
+      "./node_modules",
+      "./node_modules/@types"
+    ],
 
     // Others
     "jsx": "preserve",
