@@ -1,35 +1,20 @@
 import type { Pipeline } from './Pipeline';
 import type { Ref } from './Ref';
-import type {
-  OrderedSet,
-  OverlayMap,
-  SymbolReactivityNoValue,
-} from '@suisei/shared';
+import type { OrderedSet, OverlayMap } from '@suisei/shared';
 
 export type EffectTask = () => void & { __kind?: 'EffectTask' };
 export type DisposeTask = () => void & { __kind?: 'DisposeTask' };
 
-export type ReactivityRegistry = {
-  read<T>(ref: Ref<T>): T | typeof SymbolReactivityNoValue;
-  writeState<T>(ref: Ref<T>, value: T): void;
-  writeCache<T>(ref: Ref<T>, value: T): void;
-  addEffect(
-    ref: Ref,
-    effectTask: EffectTask,
-    disposeTask: DisposeTask,
-    pipeline: Pipeline
-  ): void;
-  removeEffect(ref: Ref, effect: EffectTask): void;
-  updateDeps(ref: Ref, deps: Set<Ref>): void;
-  readMemoizedDeps(ref: Ref): unknown[] | null;
-};
+export type ReactivityRegistry =
+  | ReactivityRegistryMain
+  | ReactivityRegistryBranch;
 
 export type ReactivityRegistryInternal =
   | ReactivityRegistryMainInternal
   | ReactivityRegistryBranchInternal;
 
-export type ReactivityRegistryMain = ReactivityRegistry & {
-  fork(): ReactivityRegistryBranch;
+export type ReactivityRegistryMain = {
+  __kind?: 'ReactivityRegistryMain';
 };
 
 export type ReactivityRegistryMainInternal = ReactivityRegistryMain & {
@@ -42,7 +27,7 @@ export type ReactivityRegistryMainInternal = ReactivityRegistryMain & {
   _branches: Set<ReactivityRegistryBranchInternal>;
 };
 
-export type ReactivityRegistryBranch = ReactivityRegistry & {
+export type ReactivityRegistryBranch = {
   __kind?: 'ReactivityRegistryBranch';
 };
 

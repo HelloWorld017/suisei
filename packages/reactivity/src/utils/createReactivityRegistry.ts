@@ -1,11 +1,4 @@
-import {
-  createOverlayMap,
-  REF_KIND_STATE,
-  SymbolRefDescriptor,
-  SymbolReactivityNoValue,
-  createOrderedSet,
-} from '@suisei/shared';
-import { PIPELINE_UPDATE } from '../constants';
+import { createOverlayMap, createOrderedSet } from '@suisei/shared';
 import type { Pipeline } from '../types/Pipeline';
 import type {
   EffectTask,
@@ -15,41 +8,7 @@ import type {
   ReactivityRegistryInternal,
   ReactivityRegistryMainInternal,
 } from '../types/ReactivityRegistry';
-import type { Ref, RefInternal } from '../types/Ref';
-
-const readRef = <T>(
-  registry: ReactivityRegistryInternal,
-  ref: Ref<T>
-): T | typeof SymbolReactivityNoValue => {
-  const internalRef = ref as RefInternal<T>;
-  if (internalRef[SymbolRefDescriptor].kind === REF_KIND_STATE) {
-    return registry._stateDict.get(ref) as T;
-  }
-
-  if (registry._cache.has(ref)) {
-    return registry._cache.get(ref) as T;
-  }
-
-  return SymbolReactivityNoValue;
-};
-
-const notifyUpdate = (registry: ReactivityRegistryInternal, ref: Ref) => {
-  registry._deps
-    .get(ref)
-    ?.forEach(ref => registry._tasks.insert(PIPELINE_UPDATE, ref));
-
-  registry._effects
-    .get(ref)
-    ?.forEach((pipeline, effect) => registry._tasks.insert(pipeline, effect));
-
-  if ('_branches' in registry) {
-    registry._branches.forEach(branch => {
-      if (branch._dirty.has(ref)) {
-        notifyUpdate(branch, ref);
-      }
-    });
-  }
-};
+import type { Ref } from '../types/Ref';
 
 const addEffect = (
   registry: ReactivityRegistryInternal,
@@ -100,15 +59,6 @@ export const createReactivityRegistry = () => {
       _effects: createOverlayMap(effects),
       _effectsActive: new Map(),
       _dirty: new WeakSet(),
-      read: ref => readRef(branch, ref),
-      writeState: (ref, value) => {
-        branch._stateDict.set(ref, value);
-        notifyUpdate(branch, ref);
-      },
-      writeCache: (ref, value) => {
-        branch._cache.set(ref, value);
-        notifyUpdate(branch, ref);
-      },
       addEffect: (ref, effectTask, disposeTask, pipeline) =>
         addEffect(branch, ref, effectTask, disposeTask, pipeline),
       removeEffect: (ref, effectTask) => removeEffect(branch, ref, effectTask),
@@ -128,7 +78,6 @@ export const createReactivityRegistry = () => {
     _memoizedDeps: memoizedDeps,
     _effects: effects,
     _branches: branches,
-    read: ref => readRef(registry, ref),
     writeState: (ref, value) => {
       registry._stateDict.set(ref, value);
       notifyUpdate(registry, ref);
