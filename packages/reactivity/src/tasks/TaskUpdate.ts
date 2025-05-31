@@ -1,11 +1,11 @@
-import { REF_KIND_DERIVED, SymbolRefDescriptor } from '@suisei/shared';
-import { readRef } from '../utils/readRef';
+import { SymbolRefDescriptor } from '@suisei/shared';
+import { isDerivedRefInternal } from '../utils/isDerivedRefInternal';
+import { readRefByUpdate } from '../utils/readRef';
 import type { Pipeline } from '../types/Pipeline';
 import type {
   ReactivityRegistry,
   ReactivityRegistryInternal,
 } from '../types/ReactivityRegistry';
-import type { Ref, RefInternal } from '../types/Ref';
 import type { SchedulerTask } from '@suisei/core';
 
 export const TaskUpdate =
@@ -27,12 +27,8 @@ export const TaskUpdate =
     if (typeof task === 'function') {
       task();
     } else {
-      const internalRef = task satisfies Ref as RefInternal;
-      if (
-        internalRef[SymbolRefDescriptor].kind === REF_KIND_DERIVED &&
-        internalRef[SymbolRefDescriptor].isMemoized
-      ) {
-        readRef(registry, internalRef);
+      if (isDerivedRefInternal(task) && task[SymbolRefDescriptor].isMemoized) {
+        readRefByUpdate(registry, task);
       }
     }
 

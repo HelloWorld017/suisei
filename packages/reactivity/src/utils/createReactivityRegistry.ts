@@ -19,14 +19,18 @@ import type {
 } from '../types/ReactivityRegistry';
 import type { Ref, RefInternal } from '../types/Ref';
 
-export const createReactivityRegistry = (): ReactivityRegistryMainInternal => ({
-  _stateDict: new WeakMap(),
-  _cache: new WeakMap(),
-  _tasks: createOrderedSet(),
-  _deps: new WeakMap(),
-  _effects: new WeakMap(),
-  _branches: new Set(),
-});
+export const createReactivityRegistry = (): ReactivityRegistryMain => {
+  const registry: ReactivityRegistryMainInternal = {
+    _stateDict: new WeakMap(),
+    _cache: new WeakMap(),
+    _tasks: createOrderedSet(),
+    _deps: new WeakMap(),
+    _effects: new WeakMap(),
+    _branches: new Set(),
+  };
+
+  return registry;
+};
 
 export const readRefFromRegistry = <T>(
   registry: ReactivityRegistry,

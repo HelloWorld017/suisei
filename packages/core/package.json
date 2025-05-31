@@ -5,5 +5,8 @@
   "repository": "https://github.com/HelloWorld017/suisei",
   "author": "Khinenw",
   "license": "MIT",
-  "main": "src/index.ts"
+  "main": "src/index.ts",
+  "dependencies": {
+    "@suisei/shared": "workspace:*"
+  }
 }

@@ -14,9 +14,10 @@ it('basic work', () => {
     },
     delete: () => referenceInternal.pop()?.[1] ?? null,
     peek: () => referenceInternal.at(-1)?.[1] ?? null,
+    peekPriority: () => referenceInternal.at(-1)?.[0] ?? null,
   };
 
-  const ops = ['size', 'insert', 'delete', 'peek'] as const;
+  const ops = ['size', 'insert', 'delete', 'peek', 'peekPriority'] as const;
   for (let i = 0; i < 2000; i++) {
     const operation = ops[~~(Math.random() * ops.length)];
 

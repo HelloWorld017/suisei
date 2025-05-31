@@ -1,5 +1,5 @@
 export type TaskNode = {
-  append(task: SchedulerTask): void;
+  append(this: TaskNode, task: SchedulerTask): void;
 };
 
 export type SchedulerTask = (scheduler: Scheduler, node: TaskNode) => void;
