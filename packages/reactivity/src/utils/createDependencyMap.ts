@@ -46,6 +46,8 @@ export const createDependencyMap = (): DependencyMap => {
       Set<EffectTask | Ref> | OverlaySet<EffectTask | Ref>
     >();
 
+    // FIXME is this correct?
+    // maybe we should forward legacy updates to the source
     const writeKeyOverlay = createOverlayMap(writeKeyMap);
 
     return {
@@ -69,9 +71,13 @@ export const createDependencyMap = (): DependencyMap => {
         return;
       }
 
+      // FIXME this may create an overlapped path in the DAG.
+      //   (e.g. A -> B -> C // A -> C)
+      // it would be fine if we update in 2-steps.
+      // 1. Mark dirty refs. 2. Only update if all dirty refs are resolved.
       const childrenSet = ensureKey(childrenMap, parent, Set);
       const parentSet = ensureKey(parentMap, child, Set);
-      childrenSet.add(parent);
+      childrenSet.add(child);
       parentSet.add(parent);
     },
     rewrite(child) {
@@ -86,7 +92,8 @@ export const createDependencyMap = (): DependencyMap => {
       return writeKey;
     },
     forEachChild(parent, callback) {
-      childrenMap.get(parent)?.forEach(callback);
+      childrenMap.get(parent)?.forEach(child => callback(child));
     },
+    fork,
   };
 };
