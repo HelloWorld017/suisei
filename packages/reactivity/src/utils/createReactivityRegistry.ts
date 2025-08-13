@@ -33,6 +33,8 @@ export const forkRegistry = (
     _cache: createOverlayMap(internalRegistry._cache),
     _tasks: createOrderedSet(),
     _deps: internalRegistry._deps.fork(),
+
+    // FIXME this should be new Set(_pending), not an overlay set
     _pending: createOverlaySet(internalRegistry._pending),
     _dirty: new WeakSet(),
   };

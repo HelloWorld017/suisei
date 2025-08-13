@@ -5,7 +5,10 @@ import {
   SymbolRefDescriptor,
 } from '@suisei/shared';
 import { createDependencyMap } from '../createDependencyMap';
-import type { DependencyMap } from '../../types/DependencyMap';
+import type {
+  DependencyMap,
+  OverlayDependencyMap,
+} from '../../types/DependencyMap';
 import type { StateRefInternal } from '../../types/Ref';
 
 const createEmptyRef = (): StateRefInternal => ({
@@ -17,7 +20,7 @@ const createEmptyRef = (): StateRefInternal => ({
 });
 
 const expectTraverse = (
-  depsMap: DependencyMap,
+  depsMap: DependencyMap | OverlayDependencyMap,
   parent: StateRefInternal,
   children: StateRefInternal[]
 ) => {
@@ -26,7 +29,7 @@ const expectTraverse = (
   expect(onTraverse).toHaveBeenCalledTimes(children.length);
 
   children.forEach(child => {
-    expect(onTraverse).toHaveBeenCalledWith(child);
+    expect(onTraverse).toHaveBeenCalledWith(child, null);
   });
 };
 
@@ -43,7 +46,7 @@ it('basic add / traversing child should work', () => {
 });
 
 describe('overlay map', () => {
-  it.skip('forking should work', () => {
+  it('forking should work', () => {
     const depsMap = createDependencyMap();
     const refA = createEmptyRef();
     const refB = createEmptyRef();
@@ -52,6 +55,7 @@ describe('overlay map', () => {
 
     const keyC = depsMap.rewrite(refC);
     const keyD = depsMap.rewrite(refD);
+    // A -> C -> D | B -> D
     depsMap.add(refA, refC, undefined, keyC);
     depsMap.add(refB, refD, undefined, keyD);
     depsMap.add(refC, refD, undefined, keyD);
@@ -62,11 +66,16 @@ describe('overlay map', () => {
 
     const overlayMap = depsMap.fork();
     const overlayKeyB = overlayMap.rewrite(refB);
-    overlayMap.add(refB, refC, undefined, keyC);
-    expectTraverse(depsMap, refC, [refB, refD]);
+    // A -> C -> D | A -> C -> B -> D
+    overlayMap.add(refC, refB, undefined, overlayKeyB);
+    expectTraverse(overlayMap, refC, [refB, refD]);
 
-    depsMap.rewrite(refA);
-    expectTraverse(depsMap, refA, []);
+    // A -> C -> D | A -> B -> D
+    const keyB = depsMap.rewrite(refB);
+    depsMap.add(refA, refB, undefined, keyB);
+    expectTraverse(depsMap, refC, [refD]);
+    expectTraverse(depsMap, refA, [refC, refB]);
+    expectTraverse(overlayMap, refC, [refB, refD]);
   });
 
   it('should apply modifications on apply', () => {});

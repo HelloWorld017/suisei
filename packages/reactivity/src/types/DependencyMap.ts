@@ -7,13 +7,13 @@ export type DependencyMap = {
   add(
     parent: Ref,
     child: BindTarget,
-    pipeline?: Pipeline,
+    pipeline?: Pipeline | null,
     writeKey?: DependencyWriteKey
   ): void;
   rewrite(child: BindTarget): DependencyWriteKey;
   traverse(
     parent: Ref,
-    callback: (child: BindTarget, pipeline?: Pipeline) => void
+    callback: (child: BindTarget, pipeline: Pipeline | null) => void
   ): void;
   isActive(parent: Ref): boolean;
   fork(): OverlayDependencyMap;
