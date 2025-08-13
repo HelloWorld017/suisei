@@ -1,10 +1,11 @@
 import type { DependencyMap, OverlayDependencyMap } from './DependencyMap';
 import type { Pipeline } from './Pipeline';
 import type { Ref } from './Ref';
-import type { OrderedSet, OverlayMap } from '@suisei/shared';
+import type { OrderedSet, OverlayMap, OverlaySet } from '@suisei/shared';
 
 export type EffectTask = () => void & { __kind?: 'EffectTask' };
 export type DisposeTask = () => void & { __kind?: 'DisposeTask' };
+export type BindTarget = EffectTask | Ref;
 
 export type ReactivityRegistry =
   | ReactivityRegistryMain
@@ -21,10 +22,10 @@ export type ReactivityRegistryMain = {
 export type ReactivityRegistryMainInternal = ReactivityRegistryMain & {
   _stateDict: WeakMap<Ref, unknown>;
   _cache: WeakMap<Ref, unknown>;
-  _tasks: OrderedSet<EffectTask | Ref, Pipeline>;
+  _tasks: OrderedSet<BindTarget, Pipeline>;
   _deps: DependencyMap;
-  _effects: WeakMap<Ref, Map<EffectTask, Pipeline>>;
   _branches: Set<ReactivityRegistryBranchInternal>;
+  _pending: WeakSet<BindTarget>;
 };
 
 export type ReactivityRegistryBranch = {
@@ -34,9 +35,8 @@ export type ReactivityRegistryBranch = {
 export type ReactivityRegistryBranchInternal = ReactivityRegistryBranch & {
   _stateDict: OverlayMap<Ref, unknown>;
   _cache: OverlayMap<Ref, unknown>;
-  _tasks: OrderedSet<EffectTask | Ref, Pipeline>;
+  _tasks: OrderedSet<BindTarget, Pipeline>;
   _deps: OverlayDependencyMap;
-  _effects: OverlayMap<Ref, Map<EffectTask, Pipeline>>;
-  _effectsActive: Map<EffectTask, DisposeTask>;
+  _pending: OverlaySet<BindTarget>;
   _dirty: WeakSet<Ref>;
 };

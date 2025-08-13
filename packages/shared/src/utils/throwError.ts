@@ -1,8 +1,8 @@
-import { E_STATE_NOT_IN_REGISTRY } from '../constants';
+import { E_INTERNAL_UNSUPPORTED_OPERATION } from '../constants';
 import type { ErrorCode } from '../types/ErrorCode';
 
 const ErrorMessages = {
-  [E_STATE_NOT_IN_REGISTRY]: 'Given state $1 is not in the registry.',
+  [E_INTERNAL_UNSUPPORTED_OPERATION]: '[Internal Error] Unsupported operation.',
 } as const;
 
 export const throwError = (code: ErrorCode, ...args: unknown[]): never => {

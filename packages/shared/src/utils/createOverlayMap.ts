@@ -13,26 +13,13 @@ export const createOverlayMap = <K, V>(
       const value = overlay.has(key) ? overlay.get(key) : parent.get(key);
       return value === SymbolOverlayMapDeleted ? undefined : value;
     },
-    set: (key, value) => {
-      if (overlay.has(key) || parent.get(key) !== value) {
-        overlay.set(key, value);
-      }
-
-      return overlayMap;
-    },
+    set: (key, value) => (overlay.set(key, value), overlayMap),
     delete: key => {
-      const parentHasValue = parent.has(key);
-      const overlayHasValue =
-        overlay.has(key) && overlay.get(key) !== SymbolOverlayMapDeleted;
-
-      if (overlayHasValue && !parentHasValue) {
-        overlay.delete(key);
-        return true;
-      }
-
-      if (overlayHasValue || parentHasValue) {
+      if (overlay.has(key) || parent.has(key)) {
+        const hasDeleted = overlay.get(key) !== SymbolOverlayMapDeleted;
         overlay.set(key, SymbolOverlayMapDeleted);
-        return true;
+
+        return hasDeleted;
       }
 
       return false;

@@ -1,6 +1,5 @@
-import { SymbolRefDescriptor } from '@suisei/shared';
-import { isDerivedRefInternal } from '../utils/isDerivedRefInternal';
-import { readRefByUpdate } from '../utils/readRef';
+import { isDerivedRefInternal } from '../utils/guards';
+import { readRef } from '../utils/readRef';
 import type { Pipeline } from '../types/Pipeline';
 import type {
   ReactivityRegistry,
@@ -21,15 +20,14 @@ export const TaskUpdate =
 
     const task = tasks.deleteMin();
     if (!task) {
+      console.log('no task');
       return;
     }
 
     if (typeof task === 'function') {
       task();
-    } else {
-      if (isDerivedRefInternal(task) && task[SymbolRefDescriptor].isMemoized) {
-        readRefByUpdate(registry, task);
-      }
+    } else if (isDerivedRefInternal(task)) {
+      readRef(registry, task);
     }
 
     node.append(TaskUpdate(registry, pipeline));

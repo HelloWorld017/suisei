@@ -46,12 +46,10 @@ export const createDependencyMap = (): DependencyMap => {
       Set<EffectTask | Ref> | OverlaySet<EffectTask | Ref>
     >();
 
-    // FIXME is this correct?
-    // maybe we should forward legacy updates to the source
     const writeKeyOverlay = createOverlayMap(writeKeyMap);
 
     return {
-      add(writeKey, parent, child) {},
+      add(parent, child, writeKey) {},
       rewrite(child) {
         const parentSet = parentMap.get(child);
         parentSet?.forEach(parent => {
@@ -66,8 +64,8 @@ export const createDependencyMap = (): DependencyMap => {
   };
 
   return {
-    add(writeKey, parent, child) {
-      if (writeKeyMap.get(child) !== writeKey) {
+    add(parent, child, pipeline, writeKey) {
+      if (writeKey && writeKeyMap.get(child) !== writeKey) {
         return;
       }
 
@@ -91,8 +89,11 @@ export const createDependencyMap = (): DependencyMap => {
       writeKeyMap.set(child, writeKey);
       return writeKey;
     },
-    forEachChild(parent, callback) {
+    traverse(parent, callback) {
       childrenMap.get(parent)?.forEach(child => callback(child));
+    },
+    isActive(parent) {
+      return !!childrenMap.get(parent)?.size;
     },
     fork,
   };

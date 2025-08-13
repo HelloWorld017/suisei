@@ -7,11 +7,9 @@ import {
   SymbolRefDescriptor,
 } from '@suisei/shared';
 import { PIPELINE_RENDER } from '../../constants';
-import {
-  createReactivityRegistry,
-  writeStateToRegistry,
-} from '../../utils/createReactivityRegistry';
+import { createReactivityRegistry } from '../../utils/createReactivityRegistry';
 import { readRef } from '../../utils/readRef';
+import { setState } from '../../utils/setState';
 import { TaskUpdate } from '../TaskUpdate';
 import type { ReactivityRegistry } from '../../types/ReactivityRegistry';
 import type {
@@ -33,7 +31,7 @@ const createStateRef = <T>(
     },
   };
 
-  writeStateToRegistry(registry, ref, initialValue);
+  setState(registry, ref, initialValue);
   return ref;
 };
 
@@ -75,11 +73,28 @@ it('should propagate update', () => {
 
   expect(readRef(registry, derivedC)).toBe(800);
 
-  writeStateToRegistry(registry, stateB, 10);
+  setState(registry, stateB, 10);
   scheduler.queueTask(
     MIN_SCHEDULER_PRIORITY,
     TaskUpdate(registry, PIPELINE_RENDER)
   );
 
   expect(readRef(registry, derivedC)).toBe(340);
+});
+
+it('should be no-op when there are no tasks', () => {
+  const onTick = vi.fn((callback: () => void) => callback());
+  const scheduler = createDefaultScheduler({
+    limit: 0,
+    requestNextTick: onTick,
+    requestNextRenderTick: onTick,
+  });
+
+  const registry = createReactivityRegistry();
+  scheduler.queueTask(
+    MIN_SCHEDULER_PRIORITY,
+    TaskUpdate(registry, PIPELINE_RENDER)
+  );
+
+  expect(onTick).toHaveBeenCalledOnce();
 });
