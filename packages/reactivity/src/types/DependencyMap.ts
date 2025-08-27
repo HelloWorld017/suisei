@@ -1,24 +1,37 @@
-import type { Pipeline } from './Pipeline';
-import type { BindTarget } from './ReactivityRegistry';
-import type { Ref } from './Ref';
-
 export type DependencyWriteKey = symbol & { __kind?: 'DependencyWriteKey' };
-export type DependencyMap = {
+export type DependencyMap<TDependency, TEffect, TPipeline extends number> = {
   add(
-    parent: Ref,
-    child: BindTarget,
-    pipeline?: Pipeline | null,
+    parent: TDependency,
+    child: TDependency | TEffect,
+    pipeline?: TPipeline | null,
     writeKey?: DependencyWriteKey
   ): void;
-  rewrite(child: BindTarget): DependencyWriteKey;
+  rewrite(child: TDependency | TEffect): DependencyWriteKey;
   traverse(
-    parent: Ref,
-    callback: (child: BindTarget, pipeline: Pipeline | null) => void
+    parent: TDependency,
+    callback: (child: TDependency | TEffect, pipeline: TPipeline | null) => void
   ): void;
-  isActive(parent: Ref): boolean;
-  fork(): OverlayDependencyMap;
+  dispose(node: TDependency | TEffect): void;
+  isActive(parent: TDependency): boolean;
 };
 
-export type OverlayDependencyMap = Omit<DependencyMap, 'fork'> & {
+export type OverlayDependencyMap<
+  TDependency,
+  TEffect,
+  TPipeline extends number,
+> = DependencyMap<TDependency, TEffect, TPipeline> & {
   commit(): void;
+};
+
+export type DependencyMapInternal<
+  TDependency extends object,
+  TEffect extends object,
+  TPipeline extends number,
+> = DependencyMap<TDependency, TEffect, TPipeline> & {
+  _parentMap: WeakMap<TDependency | TEffect, Set<TDependency>>;
+  _childrenMap: WeakMap<
+    TDependency,
+    Map<TDependency | TEffect, TPipeline | null>
+  >;
+  _writeKeyMap: WeakMap<TDependency | TEffect, DependencyWriteKey>;
 };

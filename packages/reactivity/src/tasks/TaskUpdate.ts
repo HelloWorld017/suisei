@@ -20,7 +20,6 @@ export const TaskUpdate =
 
     const task = tasks.deleteMin();
     if (!task) {
-      console.log('no task');
       return;
     }
 

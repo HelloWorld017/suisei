@@ -16,8 +16,11 @@ export const createOrderedSet = <
 
   const deleteMin = () => {
     const value = minHeap.delete();
-    if (value !== null) {
-      valueSet.delete(value);
+    while (value !== null) {
+      if (valueSet.has(value)) {
+        valueSet.delete(value);
+        return value;
+      }
     }
 
     return value;
@@ -28,5 +31,6 @@ export const createOrderedSet = <
     has: (value: TValue) => valueSet.has(value),
     insert,
     deleteMin,
+    delete: (value: TValue) => valueSet.delete(value),
   };
 };

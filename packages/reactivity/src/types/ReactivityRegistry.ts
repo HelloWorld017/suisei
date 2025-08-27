@@ -23,7 +23,7 @@ export type ReactivityRegistryMainInternal = ReactivityRegistryMain & {
   _stateDict: WeakMap<Ref, unknown>;
   _cache: WeakMap<Ref, unknown>;
   _tasks: OrderedSet<BindTarget, Pipeline>;
-  _deps: DependencyMap;
+  _deps: DependencyMap<Ref, EffectTask, Pipeline>;
   _branches: Set<ReactivityRegistryBranchInternal>;
   _pending: WeakSet<BindTarget>;
 };
@@ -36,7 +36,7 @@ export type ReactivityRegistryBranchInternal = ReactivityRegistryBranch & {
   _stateDict: OverlayMap<Ref, unknown>;
   _cache: OverlayMap<Ref, unknown>;
   _tasks: OrderedSet<BindTarget, Pipeline>;
-  _deps: OverlayDependencyMap;
+  _deps: OverlayDependencyMap<Ref, EffectTask, Pipeline>;
   _pending: OverlaySet<BindTarget>;
   _dirty: WeakSet<Ref>;
 };
