@@ -1,4 +1,4 @@
-import { PIPELINE_UPDATE } from '../constants';
+import { PIPELINE_EFFECT, PIPELINE_UPDATE } from '../constants';
 import { isDerivedRefInternal, isRef, isStateRefInternal } from './guards';
 import type {
   ReactivityRegistry,
@@ -40,9 +40,9 @@ const propagateUpdateToBranch = <T>(
   }
 
   // Queue dependency tasks
-  registry._deps.traverse(ref, (dependency, pipeline = PIPELINE_UPDATE) => {
+  registry._deps.traverse(ref, (dependency, pipeline) => {
     if (isRef(dependency) && registry._dirty.has(dependency)) {
-      registry._tasks.insert(pipeline, dependency);
+      registry._tasks.insert(pipeline ?? PIPELINE_UPDATE, dependency);
     }
   });
 };
@@ -89,16 +89,19 @@ export const notifyUpdate = <T>(
   }
 
   // Queue dependency tasks
-  internalRegistry._deps.traverse(
-    ref,
-    (dependency, pipeline = PIPELINE_UPDATE) => {
-      if (!isRef(dependency)) {
-        return internalRegistry._tasks.insert(pipeline, dependency);
-      }
-
-      if (internalRegistry._deps.isActive(dependency)) {
-        return internalRegistry._tasks.insert(pipeline, dependency);
-      }
+  internalRegistry._deps.traverse(ref, (dependency, pipeline) => {
+    if (!isRef(dependency)) {
+      return internalRegistry._tasks.insert(
+        pipeline ?? PIPELINE_EFFECT,
+        dependency
+      );
     }
-  );
+
+    if (internalRegistry._deps.isActive(dependency)) {
+      return internalRegistry._tasks.insert(
+        pipeline ?? PIPELINE_UPDATE,
+        dependency
+      );
+    }
+  });
 };

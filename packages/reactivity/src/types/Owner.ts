@@ -1,24 +1,7 @@
-import type { Effect, EffectRunAt } from './Effect';
-import type { Ref } from './Ref';
+import type { ReactivityRegistry } from './ReactivityRegistry';
 
 export type Owner = {
-  stateCount: number;
-  onStateUpdate(ref: Ref, flags: number, runUpdate: () => void): void;
-  onDeriveUpdateByObserve(ref: Ref, flags: number, runDerive: () => void): void;
-  onEffectInitialize(runAt: EffectRunAt, runEffect: Effect): void;
-  onEffectUpdate(runAt: EffectRunAt, runUpdate: () => void): void;
+  context: Record<string, unknown>;
 
-  onFutureInitialize(
-    futureSymbol: symbol,
-    promise: Promise<unknown>,
-    cleanup: () => void
-  ): void;
-
-  onFutureUpdate(
-    futureSymbol: symbol,
-    promise: Promise<unknown>,
-    flags: number
-  ): void;
-
-  onError(error: unknown): void;
+  onError(registry: ReactivityRegistry, error: unknown): void;
 };

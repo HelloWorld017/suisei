@@ -54,11 +54,32 @@ importers:
         specifier: ^3.1.4
         version: 3.1.4(@types/node@22.15.12)
 
+  packages/client:
+    dependencies:
+      '@suisei/core':
+        specifier: workspace:*
+        version: link:../core
+      '@suisei/reactivity':
+        specifier: workspace:*
+        version: link:../reactivity
+      '@suisei/renderer':
+        specifier: workspace:*
+        version: link:../renderer
+      '@suisei/shared':
+        specifier: workspace:*
+        version: link:../shared
+
   packages/core:
     dependencies:
       '@suisei/shared':
         specifier: workspace:*
         version: link:../shared
+
+  packages/htmltypes:
+    dependencies:
+      csstype:
+        specifier: ^3.1.3
+        version: 3.1.3
 
   packages/reactivity:
     dependencies:
@@ -82,6 +103,21 @@ importers:
         version: link:../shared
 
   packages/shared: {}
+
+  packages/suisei:
+    dependencies:
+      '@suisei/core':
+        specifier: workspace:*
+        version: link:../core
+      '@suisei/reactivity':
+        specifier: workspace:*
+        version: link:../reactivity
+      '@suisei/renderer':
+        specifier: workspace:*
+        version: link:../renderer
+      '@suisei/shared':
+        specifier: workspace:*
+        version: link:../shared
 
 packages:
 
@@ -800,6 +836,9 @@ packages:
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
+
+  csstype@3.1.3:
+    resolution: {integrity: sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==}
 
   debug@3.2.7:
     resolution: {integrity: sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==}
@@ -2393,6 +2432,8 @@ snapshots:
       path-key: 3.1.1
       shebang-command: 2.0.0
       which: 2.0.2
+
+  csstype@3.1.3: {}
 
   debug@3.2.7:
     dependencies:
