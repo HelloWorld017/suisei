@@ -11,7 +11,7 @@ export const TaskUpdate =
   (registry: ReactivityRegistry, pipeline: Pipeline): SchedulerTask =>
   (_scheduler, node) => {
     const internalRegistry = registry as ReactivityRegistryInternal;
-    const tasks = internalRegistry._tasks;
+    const tasks = internalRegistry.tasks;
     const taskPriority = tasks.peekPriority();
 
     if (taskPriority === null || taskPriority <= pipeline) {

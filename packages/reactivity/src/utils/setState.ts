@@ -18,5 +18,5 @@ export const setState = <T>(
 
   const internalRegistry = registry as ReactivityRegistryInternal;
   notifyUpdate(registry, ref, value);
-  internalRegistry._stateDict.set(ref, value);
+  internalRegistry.stateDict.set(ref, value);
 };

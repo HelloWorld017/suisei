@@ -18,7 +18,7 @@ export const readRef = <T>(registry: ReactivityRegistry, ref: Ref<T>): T => {
 
   // When it is a state ref
   if (isStateRefInternal(internalRef)) {
-    return internalRegistry._stateDict.get(ref) as T;
+    return internalRegistry.stateDict.get(ref) as T;
   }
 
   // When it is a constant ref
@@ -29,16 +29,16 @@ export const readRef = <T>(registry: ReactivityRegistry, ref: Ref<T>): T => {
   // When it is a derived ref and has latest cache
   if (
     internalRef[SymbolRefDescriptor].isMemoized &&
-    internalRegistry._cache.has(ref) &&
-    !internalRegistry._pending.has(ref)
+    internalRegistry.cache.has(ref) &&
+    !internalRegistry.pending.has(ref)
   ) {
-    return internalRegistry._cache.get(ref) as T;
+    return internalRegistry.cache.get(ref) as T;
   }
 
   // When it is a derived ref and not memoized
   if (!internalRef[SymbolRefDescriptor].isMemoized) {
     const selector = <T>(selected: Ref<T>) => {
-      internalRegistry._deps.add(selected, ref);
+      internalRegistry.deps.add(selected, ref);
       return readRef(registry, selected);
     };
 
@@ -54,15 +54,15 @@ const updateRef = <T>(
 ): T => {
   const internalRegistry = registry as ReactivityRegistryInternal;
 
-  const depsKey = internalRegistry._deps.rewrite(ref);
+  const depsKey = internalRegistry.deps.rewrite(ref);
   const selector = <TValue>(selected: Ref<TValue>) => {
-    internalRegistry._deps.add(selected, ref, undefined, depsKey);
+    internalRegistry.deps.add(selected, ref, undefined, depsKey);
     return readRef(registry, selected);
   };
 
   const value = ref[SymbolRefDescriptor].derive(selector);
   notifyUpdate(registry, ref, value);
-  internalRegistry._cache.set(ref, value);
+  internalRegistry.cache.set(ref, value);
 
   return value;
 };

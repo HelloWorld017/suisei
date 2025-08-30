@@ -23,11 +23,11 @@ const disposeDependency = (
   registry: ReactivityRegistryInternal,
   target: BindTarget
 ) => {
-  registry._tasks.delete(target);
-  registry._pending.delete(target);
+  registry.tasks.delete(target);
+  registry.pending.delete(target);
 
   if (isRef(target)) {
-    registry._cache.delete(target);
+    registry.cache.delete(target);
   }
 };
 
@@ -35,14 +35,14 @@ export const createReactivityRegistry = (
   scheduler: Scheduler
 ): ReactivityRegistryMain => {
   const registry: ReactivityRegistryMainInternal = {
-    _stateDict: new WeakMap(),
-    _cache: new WeakMap(),
-    _tasks: createOrderedSet(),
-    _deps: createDependencyMap<Ref, EffectTask, Pipeline>(scheduler, ref =>
+    stateDict: new WeakMap(),
+    cache: new WeakMap(),
+    tasks: createOrderedSet(),
+    deps: createDependencyMap<Ref, EffectTask, Pipeline>(scheduler, ref =>
       disposeDependency(registry, ref)
     ),
-    _branches: new Set(),
-    _pending: new WeakSet(),
+    branches: new Set(),
+    pending: new WeakSet(),
   };
 
   return registry;
@@ -53,16 +53,16 @@ export const forkRegistry = (
 ): ReactivityRegistryBranch => {
   const internalRegistry = registry as ReactivityRegistryMainInternal;
   const branch: ReactivityRegistryBranchInternal = {
-    _stateDict: createOverlayMap(internalRegistry._stateDict),
-    _cache: createOverlayMap(internalRegistry._cache),
-    _tasks: createOrderedSet(),
-    _deps: forkDependencyMap(internalRegistry._deps),
+    stateDict: createOverlayMap(internalRegistry.stateDict),
+    cache: createOverlayMap(internalRegistry.cache),
+    tasks: createOrderedSet(),
+    deps: forkDependencyMap(internalRegistry.deps),
 
     // TODO check if it is safe to use OverlaySet, instead of new Set(_pending)
-    _pending: createOverlaySet(internalRegistry._pending),
-    _dirty: new WeakSet(),
+    pending: createOverlaySet(internalRegistry.pending),
+    dirty: new WeakSet(),
   };
 
-  internalRegistry._branches.add(branch);
+  internalRegistry.branches.add(branch);
   return branch;
 };

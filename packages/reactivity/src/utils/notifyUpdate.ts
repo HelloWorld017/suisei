@@ -12,8 +12,8 @@ const recursivelyMarkRefAsPending = (
   ref: Ref
 ) => {
   const internalRegistry = registry as ReactivityRegistryInternal;
-  internalRegistry._deps.traverse(ref, dependency => {
-    internalRegistry._pending.add(dependency);
+  internalRegistry.deps.traverse(ref, dependency => {
+    internalRegistry.pending.add(dependency);
     if (isRef(dependency)) {
       recursivelyMarkRefAsPending(registry, dependency);
     }
@@ -25,7 +25,7 @@ const propagateUpdateToBranch = <T>(
   ref: Ref<T>
 ) => {
   // If the ref is dirty, ignore
-  if (registry._dirty.has(ref)) {
+  if (registry.dirty.has(ref)) {
     return;
   }
 
@@ -36,13 +36,13 @@ const propagateUpdateToBranch = <T>(
 
   // Unmark as pending if it is a derived ref
   if (isDerivedRefInternal(ref)) {
-    registry._pending.delete(ref);
+    registry.pending.delete(ref);
   }
 
   // Queue dependency tasks
-  registry._deps.traverse(ref, (dependency, pipeline) => {
-    if (isRef(dependency) && registry._dirty.has(dependency)) {
-      registry._tasks.insert(pipeline ?? PIPELINE_UPDATE, dependency);
+  registry.deps.traverse(ref, (dependency, pipeline) => {
+    if (isRef(dependency) && registry.dirty.has(dependency)) {
+      registry.tasks.insert(pipeline ?? PIPELINE_UPDATE, dependency);
     }
   });
 };
@@ -57,8 +57,8 @@ export const notifyUpdate = <T>(
   // Skip non-updates for derived
   if (isDerivedRefInternal(ref)) {
     if (
-      internalRegistry._cache.has(ref) &&
-      nextValue === internalRegistry._cache.get(ref)
+      internalRegistry.cache.has(ref) &&
+      nextValue === internalRegistry.cache.get(ref)
     ) {
       return;
     }
@@ -67,8 +67,8 @@ export const notifyUpdate = <T>(
   // Skip non-updates for state, Mark pending state
   if (isStateRefInternal(ref)) {
     if (
-      internalRegistry._stateDict.has(ref) &&
-      nextValue === internalRegistry._stateDict.get(ref)
+      internalRegistry.stateDict.has(ref) &&
+      nextValue === internalRegistry.stateDict.get(ref)
     ) {
       return;
     }
@@ -77,28 +77,28 @@ export const notifyUpdate = <T>(
   }
 
   // Propagate updates to branches
-  if ('_branches' in internalRegistry) {
-    internalRegistry._branches.forEach(branch => {
+  if ('branches' in internalRegistry) {
+    internalRegistry.branches.forEach(branch => {
       propagateUpdateToBranch(branch, ref);
     });
   }
 
   // Mark as dirty
-  if ('_dirty' in internalRegistry) {
-    internalRegistry._dirty.add(ref);
+  if ('dirty' in internalRegistry) {
+    internalRegistry.dirty.add(ref);
   }
 
   // Queue dependency tasks
-  internalRegistry._deps.traverse(ref, (dependency, pipeline) => {
+  internalRegistry.deps.traverse(ref, (dependency, pipeline) => {
     if (!isRef(dependency)) {
-      return internalRegistry._tasks.insert(
+      return internalRegistry.tasks.insert(
         pipeline ?? PIPELINE_EFFECT,
         dependency
       );
     }
 
-    if (internalRegistry._deps.isActive(dependency)) {
-      return internalRegistry._tasks.insert(
+    if (internalRegistry.deps.isActive(dependency)) {
+      return internalRegistry.tasks.insert(
         pipeline ?? PIPELINE_UPDATE,
         dependency
       );
