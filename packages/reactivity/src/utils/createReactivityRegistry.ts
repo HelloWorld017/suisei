@@ -6,13 +6,13 @@ import {
 import { createDependencyMap } from './createDependencyMap';
 import { forkDependencyMap } from './forkDependencyMap';
 import { isRef } from './guards';
+import type { EffectTask } from '../types/Effect';
 import type { Pipeline } from '../types/Pipeline';
 import type {
   ReactivityRegistryBranch,
   ReactivityRegistryBranchInternal,
   ReactivityRegistryMainInternal,
   ReactivityRegistryMain,
-  EffectTask,
   ReactivityRegistryInternal,
   BindTarget,
 } from '../types/ReactivityRegistry';

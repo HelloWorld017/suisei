@@ -76,6 +76,7 @@ export const createDependencyMap = <
       const parentSet = parentMap.get(node);
       parentSet?.forEach(parent => {
         childrenMap.get(parent)?.delete(node);
+        dependencyMap.dispose(parent);
       });
 
       parentMap.delete(node);

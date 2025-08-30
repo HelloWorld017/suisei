@@ -1,5 +1,5 @@
 import { SymbolRefDescriptor } from '@suisei/shared';
-import { isStateRefInternal } from './guards';
+import { isConstantRefInternal, isStateRefInternal } from './guards';
 import { notifyUpdate } from './notifyUpdate';
 import type {
   ReactivityRegistry,
@@ -19,6 +19,11 @@ export const readRef = <T>(registry: ReactivityRegistry, ref: Ref<T>): T => {
   // When it is a state ref
   if (isStateRefInternal(internalRef)) {
     return internalRegistry._stateDict.get(ref) as T;
+  }
+
+  // When it is a constant ref
+  if (isConstantRefInternal(internalRef)) {
+    return internalRef[SymbolRefDescriptor].value;
   }
 
   // When it is a derived ref and has latest cache

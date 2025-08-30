@@ -8,3 +8,6 @@ export const jsx = (kind: string | Component, props: UnknownProps) =>
     kind,
     props,
   }) satisfies SuiseiElementInternal;
+
+export const jsxs = jsx;
+export const jsxDEV = jsx;

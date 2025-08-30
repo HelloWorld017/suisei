@@ -1,10 +1,9 @@
 import type { DependencyMap, OverlayDependencyMap } from './DependencyMap';
+import type { EffectTask } from './Effect';
 import type { Pipeline } from './Pipeline';
 import type { Ref } from './Ref';
 import type { OrderedSet, OverlayMap, OverlaySet } from '@suisei/shared';
 
-export type EffectTask = () => void & { __kind?: 'EffectTask' };
-export type DisposeTask = () => void & { __kind?: 'DisposeTask' };
 export type BindTarget = EffectTask | Ref;
 
 export type ReactivityRegistry =

@@ -1,5 +1,10 @@
 import type { Component } from './Component';
-import type { KIND_ELEMENT, SymbolIs } from '@suisei/shared';
+import type {
+  KIND_ELEMENT,
+  KIND_REF,
+  SymbolIs,
+  SymbolRefDescriptor,
+} from '@suisei/shared';
 
 export type SuiseiElement = {
   [SymbolIs]: typeof KIND_ELEMENT;
@@ -18,7 +23,12 @@ export type SuiseiNode =
   | bigint
   | boolean
   | null
-  | undefined;
+  | undefined
+  | {
+      // Hack to avoid circular reference
+      [SymbolIs]: typeof KIND_REF;
+      [SymbolRefDescriptor]: { __type?: SuiseiNode };
+    };
 
 export type Children<TCount extends number = number> = SuiseiNode[] & {
   length: TCount;

@@ -1,6 +1,6 @@
 import type { Continuation } from './Continuation';
 import type { SuiseiNode } from './Element';
-import type { ReadwriteRef, Ref } from '@suisei/reactivity';
+import type { ReadwriteRef, Ref, Variable } from '@suisei/reactivity';
 import type { Simplify } from '@suisei/shared';
 
 export type Props<T extends Component> =
@@ -17,7 +17,9 @@ export type WrapProps<T extends object> = Simplify<
   {
     [TKey in keyof T as TKey extends `$${string}`
       ? never
-      : TKey]: T[TKey] extends Ref<infer TValue> ? Ref<TValue> : Ref<T[TKey]>;
+      : TKey]: T[TKey] extends Variable<infer TValue>
+      ? Variable<Awaited<TValue>>
+      : Variable<Awaited<T[TKey]>>;
   } & {
     [TKey in keyof T as TKey extends `$${string}`
       ? TKey

@@ -1,11 +1,13 @@
 import {
   KIND_REF,
+  REF_KIND_CONSTANT,
   REF_KIND_DERIVED,
   REF_KIND_STATE,
   SymbolIs,
   SymbolRefDescriptor,
 } from '@suisei/shared';
 import type {
+  ConstantRefInternal,
   DerivedRefInternal,
   Ref,
   RefInternal,
@@ -27,3 +29,8 @@ export const isStateRefInternal = <T>(
   ref: Ref<T>
 ): ref is StateRefInternal<T> =>
   (ref as RefInternal<T>)[SymbolRefDescriptor].kind === REF_KIND_STATE;
+
+export const isConstantRefInternal = <T>(
+  ref: Ref<T>
+): ref is ConstantRefInternal<T> =>
+  (ref as RefInternal<T>)[SymbolRefDescriptor].kind === REF_KIND_CONSTANT;

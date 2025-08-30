@@ -8,3 +8,4 @@ export type Effect = (
 ) => undefined | EffectCleanup | Promise<undefined | EffectCleanup>;
 
 export type EffectRunAt = 'render' | 'default';
+export type EffectTask = () => void & { __kind?: 'EffectTask' };

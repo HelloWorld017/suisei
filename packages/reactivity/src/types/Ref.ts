@@ -1,5 +1,6 @@
 import type {
   KIND_REF,
+  REF_KIND_CONSTANT,
   REF_KIND_DERIVED,
   REF_KIND_STATE,
   SymbolIs,
@@ -46,7 +47,15 @@ export type StateRefInternal<T = unknown> = ReadwriteRef<T> & {
   [SymbolRefDescriptor]: { kind: typeof REF_KIND_STATE };
 };
 
+export type ConstantRefInternal<T = unknown> = ReadonlyRef<T> & {
+  [SymbolRefDescriptor]: {
+    kind: typeof REF_KIND_CONSTANT;
+    value: T;
+  };
+};
+
 export type RefInternal<T = unknown> =
   | StateRefInternal<T>
   | ReadwriteRefInternal<T>
-  | DerivedRefInternal<T>;
+  | DerivedRefInternal<T>
+  | ConstantRefInternal<T>;
