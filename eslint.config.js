@@ -54,6 +54,7 @@ const config = ts.config(
         'warn',
         { argsIgnorePattern: '^_' },
       ],
+      '@typescript-eslint/only-throw-error': ['error', { allow: ['Future'] }],
       'import-x/first': 'error',
       'import-x/newline-after-import': 'error',
       'import-x/no-default-export': 'error',

@@ -5,7 +5,7 @@ export type {
   EffectRunAt,
   EffectTask,
 } from './types/Effect';
-export type { Future } from './types/Future';
+export type { Future, UnwrapFuture } from './types/Future';
 export type { Owner } from './types/Owner';
 export type { Pipeline } from './types/Pipeline';
 export type {

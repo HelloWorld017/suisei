@@ -1,7 +1,17 @@
-import type { KIND_CONTEXT, SymbolIs } from '@suisei/shared';
+import type {
+  KIND_CONTEXT,
+  SymbolContextDescriptor,
+  SymbolIs,
+} from '@suisei/shared';
 
 export type Context<T = unknown> = {
+  __type?: T;
   [SymbolIs]: typeof KIND_CONTEXT;
-  key: symbol;
-  defaultValue: T;
+};
+
+export type ContextInternal<T = unknown> = Context<T> & {
+  [SymbolContextDescriptor]: {
+    key: symbol;
+    defaultValue: T;
+  };
 };

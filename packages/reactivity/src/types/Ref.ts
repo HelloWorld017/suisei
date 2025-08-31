@@ -11,17 +11,17 @@ export type Ref<T = unknown> = ReadwriteRef<T> | ReadonlyRef<T>;
 export type RefSelector = <T>(ref: Ref<T>) => T;
 
 export type ReadwriteRef<T = unknown> = {
+  __type?: T;
   [SymbolIs]: typeof KIND_REF;
   [SymbolRefDescriptor]: {
-    __type?: T;
     isReadwrite: true;
   };
 };
 
 export type ReadonlyRef<T = unknown> = {
+  __type?: T;
   [SymbolIs]: typeof KIND_REF;
   [SymbolRefDescriptor]: {
-    __type?: T;
     isReadwrite: false;
   };
 };

@@ -2,8 +2,8 @@ import type { Component } from './Component';
 import type {
   KIND_ELEMENT,
   KIND_REF,
+  SymbolElementDescriptor,
   SymbolIs,
-  SymbolRefDescriptor,
 } from '@suisei/shared';
 
 export type SuiseiElement = {
@@ -11,8 +11,10 @@ export type SuiseiElement = {
 };
 
 export type SuiseiElementInternal = SuiseiElement & {
-  kind: Component | string | null;
-  props: Record<string, unknown>;
+  [SymbolElementDescriptor]: {
+    kind: Component | string | null;
+    props: Record<string, unknown>;
+  };
 };
 
 export type SuiseiNode =
@@ -26,8 +28,8 @@ export type SuiseiNode =
   | undefined
   | {
       // Hack to avoid circular reference
+      __type?: SuiseiNode;
       [SymbolIs]: typeof KIND_REF;
-      [SymbolRefDescriptor]: { __type?: SuiseiNode };
     };
 
 export type Children<TCount extends number = number> = SuiseiNode[] & {

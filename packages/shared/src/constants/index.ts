@@ -8,6 +8,7 @@ export const KIND_REF = 0;
 export const KIND_ELEMENT = 1;
 export const KIND_CONTINUATION = 2;
 export const KIND_CONTEXT = 3;
+export const KIND_FUTURE = 4;
 
 // Ref Kinds
 export const REF_KIND_STATE = 0;

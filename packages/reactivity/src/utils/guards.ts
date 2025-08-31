@@ -1,4 +1,5 @@
 import {
+  KIND_FUTURE,
   KIND_REF,
   REF_KIND_CONSTANT,
   REF_KIND_DERIVED,
@@ -6,6 +7,7 @@ import {
   SymbolIs,
   SymbolRefDescriptor,
 } from '@suisei/shared';
+import type { Future } from '../types/Future';
 import type {
   ConstantRefInternal,
   DerivedRefInternal,
@@ -34,3 +36,9 @@ export const isConstantRefInternal = <T>(
   ref: Ref<T>
 ): ref is ConstantRefInternal<T> =>
   (ref as RefInternal<T>)[SymbolRefDescriptor].kind === REF_KIND_CONSTANT;
+
+export const isFuture = <T = unknown>(future: unknown): future is Future<T> =>
+  typeof future === 'object' &&
+  !!future &&
+  SymbolIs in future &&
+  future[SymbolIs] === KIND_FUTURE;
